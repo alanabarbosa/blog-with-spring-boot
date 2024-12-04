@@ -1,0 +1,76 @@
+package io.github.alanabarbosa.services;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
+
+import org.springframework.stereotype.Service;
+
+import io.github.alanabarbosa.model.Post;
+
+@Service
+public class PostServices {
+	
+	private final AtomicLong counter = new AtomicLong();
+	private Logger logger = Logger.getLogger(PostServices.class.getName());
+	
+	public List<Post> findAll() {
+		logger.info("Finding all posts!");
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < 8; i++) {
+			Post post = mockPost(i);
+			posts.add(post);			
+		}
+		return posts;
+	}
+	
+	public Post findById(String id) {
+		logger.info("Finding one post!");
+		
+		Post post = new Post();
+		post.setId(counter.incrementAndGet());
+	    post.setTitle("Containers com Docker");
+	    post.setContent("Containers Docker é bom");
+	    post.setAuthorId(1L);
+	    post.setSlug("containers-com-docker");
+	    post.setCreatedAt(LocalDateTime.now());
+	    post.setUpdatedAt(LocalDateTime.now());
+	    post.setPublishedAt(LocalDateTime.now());	    
+	    post.setStatus(true);
+	    post.setCategoriesId(1L);
+	    post.setImageId(1L);
+		
+	    return post;
+	}
+	
+	public Post create(Post post) {
+		logger.info("Creating one post!");
+		return post;
+	}
+
+	
+	public Post update(Post post) {
+		logger.info("Updating one post!");
+		return post;
+	}	
+	
+	private Post mockPost(int i) {
+		Post post = new Post();
+		post.setId(counter.incrementAndGet());
+	    post.setTitle("O que é engenharia de software" + i);
+	    post.setContent("Engenhartia de software é uma area de ti" + i);
+	    post.setAuthorId(2L);
+	    post.setSlug("o-que-e-engenharia-de-software" + i);
+	    post.setCreatedAt(LocalDateTime.now());
+	    post.setUpdatedAt(LocalDateTime.now());
+	    post.setPublishedAt(LocalDateTime.now());	    
+	    post.setStatus(true);
+	    post.setCategoriesId(1L);
+	    post.setImageId(2L);
+		
+	    return post;
+	}
+
+}

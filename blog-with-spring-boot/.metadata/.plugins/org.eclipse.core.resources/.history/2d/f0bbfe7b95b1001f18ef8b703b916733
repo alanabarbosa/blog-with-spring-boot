@@ -1,0 +1,5 @@
+package io.github.alanabarbosa.exceptions;
+
+public class ExceptionResponse implements Serializable {
+
+}

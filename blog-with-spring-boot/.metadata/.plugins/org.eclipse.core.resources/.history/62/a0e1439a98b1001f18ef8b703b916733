@@ -1,0 +1,7 @@
+package io.github.alanabarbosa.model;
+
+import com.fasterxml.jackson.core.SerializableString;
+
+public class Blog implements SerializableString {
+	
+}

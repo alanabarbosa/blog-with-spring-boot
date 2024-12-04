@@ -1,0 +1,6 @@
+package io.github.alanabarbosa.controllers;
+
+@RestController
+public class PostController {
+
+}

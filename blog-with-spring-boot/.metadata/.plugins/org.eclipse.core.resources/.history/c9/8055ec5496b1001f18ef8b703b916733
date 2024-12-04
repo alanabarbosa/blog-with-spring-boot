@@ -1,0 +1,6 @@
+package io.github.alanabarbosa.exceptions.handler;
+
+@RestController
+public class CostumizedResponseEntityExceptionHandler {
+
+}

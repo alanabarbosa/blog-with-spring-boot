@@ -1,0 +1,42 @@
+package io.github.alanabarbosa.services;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
+
+import org.springframework.stereotype.Service;
+
+import io.github.alanabarbosa.model.Post;
+
+@Service
+public class PostServices {
+	
+	private final AtomicLong counter = new AtomicLong();
+	private Logger logger = Logger.getLogger(PostServices.class.getName());
+	
+	public List<Post> findAll() {
+		List<Post> posts = new ArrayList<>();
+		return posts;
+	}
+	
+	public Post findById(String id) {
+		logger.info("Finding one post!");
+		
+		Post post = new Post();
+		post.setId(counter.incrementAndGet());
+	    post.setTitle("Containers com Docker");
+	    post.setContent("Containers Docker é bom");
+	    post.setAuthorId(1L);
+	    post.setSlug("containers-com-docker");
+	    post.setCreatedAt(LocalDateTime.now());
+	    post.setUpdatedAt(LocalDateTime.now());
+	    post.setPublishedAt(LocalDateTime.now());	    
+	    post.setStatus(true);
+	    post.setCategoriesId(1L);
+	    post.setImageUrl("https://example.com/images/docker-image.jpg");
+		
+	    return post;
+	}
+}

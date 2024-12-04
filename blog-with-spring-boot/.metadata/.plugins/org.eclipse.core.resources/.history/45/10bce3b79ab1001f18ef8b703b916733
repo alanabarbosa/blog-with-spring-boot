@@ -1,0 +1,7 @@
+package io.github.alanabarbosa.services;
+
+public class PostServices {
+	
+	private final AtomicLong counter = new AtomicLong();
+	private Logger logger = Logger.getLogger();
+}

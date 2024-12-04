@@ -1,0 +1,24 @@
+package io.github.alanabarbosa.services;
+
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import io.github.alanabarbosa.model.Post;
+
+@Service
+public class PostServices {
+	
+	private final AtomicLong counter = new AtomicLong();
+	private Logger logger = Logger.getLogger(PostServices.class.getName());
+	
+	public Post findByPost(String id) {
+		logger.info("Finding one post!");
+		
+		Post post = new Post();
+		post.setId(counter.incrementAndGet());
+		return post;
+	}
+}

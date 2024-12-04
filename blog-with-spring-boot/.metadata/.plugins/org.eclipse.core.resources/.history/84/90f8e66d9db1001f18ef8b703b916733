@@ -1,0 +1,16 @@
+package io.github.alanabarbosa.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RestController("/post")
+public class PostController {
+	
+	@Autowired
+	private PostController service;
+	
+	@RequestMapping(value="/{id}"
+			method=RequestMethod.GET
+			produces = MediaType.APPLICATION_JSON_VALUE)
+}

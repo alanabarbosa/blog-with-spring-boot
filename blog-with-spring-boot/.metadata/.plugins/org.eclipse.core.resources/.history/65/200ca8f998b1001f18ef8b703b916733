@@ -1,0 +1,5 @@
+package io.github.alanabarbosa.controllers;
+
+public class BlogController {
+
+}
