@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.model;
+package io.github.alanabarbosa.data.vo.v1;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -6,52 +6,33 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import io.github.alanabarbosa.model.Category;
+import io.github.alanabarbosa.model.File;
 import jakarta.persistence.*;
 
-@Entity
-@Table(name = "post")
-public class Post implements Serializable {
+public class PostVO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 	
-	@Column(nullable = false, length = 255)
-    private String title;
-	
-	@Lob
-	@Column(nullable = false, length = 1000)
-    private String content;
-    
-    @Column(name = "created_at", nullable = false)
+    private Long id;	
+    private String title;	
+    private String content;    
     private LocalDateTime createdAt;    
-    
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;    
-    
-    @Column(name = "published_at")
-    private LocalDateTime publishedAt;
-    
-    @Column(nullable = false)
-    private String slug;
-    
-    @Column(nullable = false)
-    private Boolean status;       
-	
-    @Column(name = "user_id", nullable = false)
+    private LocalDateTime publishedAt;    
+    private String slug;    
+    private Boolean status;	
     private Long userId;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
     
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "post_id")
     private Set<File> files = new HashSet<>();
 
-    public Post() {}
+    public PostVO() {}
 
 
 	public Long getId() {
@@ -178,7 +159,7 @@ public class Post implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Post other = (Post) obj;
+		PostVO other = (PostVO) obj;
 		return Objects.equals(category, other.category) && Objects.equals(content, other.content)
 				&& Objects.equals(createdAt, other.createdAt) && Objects.equals(id, other.id)
 				&& Objects.equals(publishedAt, other.publishedAt) && Objects.equals(slug, other.slug)
