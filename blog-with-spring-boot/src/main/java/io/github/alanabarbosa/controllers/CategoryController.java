@@ -3,7 +3,6 @@ package io.github.alanabarbosa.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
 import io.github.alanabarbosa.services.CategoryServices;
+import io.github.alanabarbosa.util.MediaType;
 
 @RestController
 @RequestMapping("/api/category/v1")
@@ -24,25 +24,41 @@ public class CategoryController {
 	@Autowired
 	private CategoryServices service;
 	
-	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(produces = { MediaType.APPLICATION_JSON, 
+			MediaType.APPLICATION_XML, 
+			MediaType.APPLICATION_YML })
 	public List<CategoryVO> findAll() {
 		return service.findAll();
 	}
 	
 	@GetMapping(value="/{id}",
-			produces = MediaType.APPLICATION_JSON_VALUE)
+			produces = { MediaType.APPLICATION_JSON, 
+					MediaType.APPLICATION_XML, 
+					MediaType.APPLICATION_YML  })
 	public CategoryVO findById(@PathVariable(value = "id") Long id) throws Exception {
 		return service.findById(id);
 	}
 	
-	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public CategoryVO create(@RequestBody CategoryVO post) throws Exception {
-		return service.create(post);
+	@PostMapping(			
+			consumes = { MediaType.APPLICATION_JSON, 
+					MediaType.APPLICATION_XML, 
+					MediaType.APPLICATION_YML  },
+			produces = { MediaType.APPLICATION_JSON, 
+					MediaType.APPLICATION_XML, 
+					MediaType.APPLICATION_YML  })
+	public CategoryVO create(@RequestBody CategoryVO category) throws Exception {
+		return service.create(category);
 	}
 	
-	@PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public CategoryVO update(@RequestBody CategoryVO post) throws Exception {
-		return service.update(post);
+	@PutMapping(			
+			consumes = { MediaType.APPLICATION_JSON, 
+					MediaType.APPLICATION_XML, 
+					MediaType.APPLICATION_YML  },
+			produces = { MediaType.APPLICATION_JSON, 
+					MediaType.APPLICATION_XML, 
+					MediaType.APPLICATION_YML  })
+	public CategoryVO update(@RequestBody CategoryVO category) throws Exception {
+		return service.update(category);
 	}
 	
 	@DeleteMapping(value="/{id}")

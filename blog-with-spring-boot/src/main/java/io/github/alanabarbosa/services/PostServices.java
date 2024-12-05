@@ -45,8 +45,7 @@ public class PostServices {
 	}
 	
 	public PostVO update(PostVO post) {		
-		logger.info("Updating one post!");		
-
+		logger.info("Updating one post!");
 		var entity =  repository.findById(post.getId())
 	    		.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
 		
@@ -59,7 +58,7 @@ public class PostServices {
 		entity.setStatus(post.getStatus());
 		entity.setUserId(post.getUserId());
 		entity.setCategory(post.getCategory());
-		entity.setImageDesktop(post.getImageDesktop());	
+		entity.setImageDesktop(post.getImageDesktop());
 		entity.setImageMobile(post.getImageMobile());
 		
 		var updatedPost = repository.save(entity);
