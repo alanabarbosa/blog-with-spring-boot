@@ -12,6 +12,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
@@ -62,6 +64,18 @@ public class Post implements Serializable {
     private File imageMobile;
 
     public Post() {}
+    
+    @PrePersist
+    public void prePresist() {
+    	if (createdAt == null) createdAt = LocalDateTime.now();
+    	updatedAt = createdAt;
+    }
+    
+    @PreUpdate
+    public void preUpdate() {
+    	updatedAt = LocalDateTime.now();
+    	if (status && publishedAt == null) publishedAt = LocalDateTime.now();
+    }
 
 	public Long getId() {
 		return id;

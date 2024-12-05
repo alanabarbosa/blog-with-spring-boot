@@ -1,5 +1,6 @@
 package io.github.alanabarbosa.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -20,35 +21,30 @@ public class PostServices {
 	@Autowired
 	PostRepository repository;	
 	
-	public List<PostVO> findAll() {
-		
-		logger.info("Finding all posts!");
-		
+	public List<PostVO> findAll() {		
+		logger.info("Finding all posts!");		
 		return DozerMapper.parseListObjects(repository.findAll(), PostVO.class);
 	}
 	
-	public PostVO findById(Long id) {
-		
-		logger.info("Finding one post!");
-		
+	public PostVO findById(Long id) {		
+		logger.info("Finding one post!");		
 	    var entity = repository.findById(id)
 	    		.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
-	    
 	    return DozerMapper.parseObject(entity, PostVO.class);
 	}
 	
-	public PostVO create(PostVO post) {
-		
+	public PostVO create(PostVO post) {		
 		logger.info("Creating one post!");
-		
 		var entity = DozerMapper.parseObject(post, Post.class);
 		
-		var vo = DozerMapper.parseObject(repository.save(entity), PostVO.class);		
-		return vo;
+		if (entity.getStatus()) entity.setPublishedAt(LocalDateTime.now());
+		else entity.setPublishedAt(null);
+		
+		var savedPost = repository.save(entity);
+		return DozerMapper.parseObject(repository.save(savedPost), PostVO.class);
 	}
 	
-	public PostVO update(PostVO post) {
-		
+	public PostVO update(PostVO post) {		
 		logger.info("Updating one post!");		
 
 		var entity =  repository.findById(post.getId())
@@ -57,25 +53,23 @@ public class PostServices {
 		entity.setTitle(post.getTitle());
 		entity.setContent(post.getContent());
 		entity.setSlug(post.getSlug());
-		entity.setCreatedAt(post.getCreatedAt());
+		//entity.setCreatedAt(post.getCreatedAt());
 		entity.setUpdatedAt(post.getUpdatedAt());
-		entity.setPublishedAt(post.getPublishedAt());	    
+		//entity.setPublishedAt(post.getPublishedAt());	    
 		entity.setStatus(post.getStatus());
 		entity.setUserId(post.getUserId());
 		entity.setCategory(post.getCategory());
 		entity.setImageDesktop(post.getImageDesktop());	
-		entity.setImageMobile(post.getImageMobile());	
-	    
-		var vo = DozerMapper.parseObject(repository.save(entity), PostVO.class);		
-		return vo;
+		entity.setImageMobile(post.getImageMobile());
+		
+		var updatedPost = repository.save(entity);
+		return DozerMapper.parseObject(repository.save(updatedPost), PostVO.class);
 	}
 	
 	public void delete(Long id) {
-		logger.info("Deleting one post!");
-		
+		logger.info("Deleting one post!");		
 		var entity =  repository.findById(id)
 	    		.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
-		
 		repository.delete(entity);
 	}
 

@@ -2,27 +2,36 @@ package io.github.alanabarbosa.data.vo.v1;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
-import io.github.alanabarbosa.model.Post;
-import jakarta.persistence.*;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
+@JsonPropertyOrder({"id", "title", "content", "createdAt", "updatedAt", "publishedAt", "slug", "status", "user_id"})
 public class PostVO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
     private Long id;	
     private String title;	
-    private String content;    
-    private LocalDateTime createdAt;    
-    private LocalDateTime updatedAt;    
+    private String content;
+    
+    @JsonProperty("created_at")
+    private LocalDateTime createdAt;  
+    @JsonProperty("updated_at")
+    private LocalDateTime updatedAt;
+    @JsonProperty("published_at")
     private LocalDateTime publishedAt;    
     private String slug;    
     private Boolean status;	
+    @JsonProperty("user_id")
     private Long userId;
 
     @ManyToOne
@@ -38,6 +47,18 @@ public class PostVO implements Serializable {
     private File imageMobile;
 
     public PostVO() {}
+    
+    @PrePersist
+    public void prePresist() {
+    	if (createdAt == null) createdAt = LocalDateTime.now();
+    	updatedAt = createdAt;
+    }
+    
+    @PreUpdate
+    public void preUpdate() {
+    	updatedAt = LocalDateTime.now();
+    	if (status && publishedAt == null) publishedAt = LocalDateTime.now();
+    }    
 
 	public Long getId() {
 		return id;
