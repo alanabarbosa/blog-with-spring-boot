@@ -2,11 +2,11 @@ package io.github.alanabarbosa.unittests.mapper.mocks;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.model.Category;
+import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Post;
 
 public class MockPost {
@@ -45,10 +45,11 @@ public class MockPost {
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
         post.setPublishedAt(LocalDateTime.now());
-        post.setStatus(true);
-        post.setUserId(1L); 
-        post.setCategory(new Category()); 
-        post.setFiles(new HashSet<>());
+        post.setStatus(((number % 2)==0) ? true : false);
+        post.setCategory(new Category());
+        post.setImageDesktop(new File()); 
+        post.setImageMobile(new File());
+        post.setUserId(number.longValue() + 1);
         return post;
     }
 
@@ -61,10 +62,11 @@ public class MockPost {
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
         post.setPublishedAt(LocalDateTime.now());
-        post.setStatus(true);
-        post.setUserId(1L); 
-        post.setCategory(new Category()); 
-        post.setFiles(new HashSet<>());
+        post.setStatus(((number % 2)==0) ? true : false);
+        post.setCategory(new Category());
+        post.setImageDesktop(new File());
+        post.setImageMobile(new File());
+        post.setUserId(number.longValue() + 1);
         return post;
     }
 

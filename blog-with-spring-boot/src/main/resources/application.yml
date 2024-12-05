@@ -6,6 +6,6 @@ spring:
     password: MyP@ssw0rd123!
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: false
     open-in-view: false

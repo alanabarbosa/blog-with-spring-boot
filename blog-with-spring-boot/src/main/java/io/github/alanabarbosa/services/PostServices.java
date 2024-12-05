@@ -63,7 +63,8 @@ public class PostServices {
 		entity.setStatus(post.getStatus());
 		entity.setUserId(post.getUserId());
 		entity.setCategory(post.getCategory());
-		entity.setFiles(post.getFiles());	    
+		entity.setImageDesktop(post.getImageDesktop());	
+		entity.setImageMobile(post.getImageMobile());	
 	    
 		var vo = DozerMapper.parseObject(repository.save(entity), PostVO.class);		
 		return vo;

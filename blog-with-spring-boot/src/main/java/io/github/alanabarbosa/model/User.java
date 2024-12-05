@@ -6,9 +6,17 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import org.hibernate.annotations.ManyToAny;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "user")
@@ -28,6 +36,9 @@ public class User implements Serializable {
 
     @Column(name = "user_name", nullable = false, length = 255)
     private String userName;
+    
+	@Column(nullable = false)
+	private String password;    
 
     @Column(nullable = false, length = 500)
     private String bio;
@@ -41,7 +52,7 @@ public class User implements Serializable {
     @JoinColumn(name = "file_id")
     private File file;
 
-    @ManyToAny(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_role",
         joinColumns = @JoinColumn(name = "user_id"),
@@ -79,6 +90,14 @@ public class User implements Serializable {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getBio() {
@@ -123,7 +142,7 @@ public class User implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(bio, createdAt, enabled, file, firstName, id, lastName, roles, userName);
+		return Objects.hash(bio, createdAt, enabled, file, firstName, id, lastName, password, roles, userName);
 	}
 
 	@Override
@@ -138,7 +157,7 @@ public class User implements Serializable {
 		return Objects.equals(bio, other.bio) && Objects.equals(createdAt, other.createdAt)
 				&& Objects.equals(enabled, other.enabled) && Objects.equals(file, other.file)
 				&& Objects.equals(firstName, other.firstName) && Objects.equals(id, other.id)
-				&& Objects.equals(lastName, other.lastName) && Objects.equals(roles, other.roles)
-				&& Objects.equals(userName, other.userName);
+				&& Objects.equals(lastName, other.lastName) && Objects.equals(password, other.password)
+				&& Objects.equals(roles, other.roles) && Objects.equals(userName, other.userName);
 	}
 }

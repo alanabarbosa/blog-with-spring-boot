@@ -49,6 +49,16 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		</dependency>
 		
 		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-mysql</artifactId>
+		</dependency>		
+		
+		<dependency>
 		    <groupId>com.github.dozermapper</groupId>
 		    <artifactId>dozer-core</artifactId>
 		    <version>${dozer.version}</version>
