@@ -2,37 +2,48 @@ package io.github.alanabarbosa.data.vo.v1;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
+
+import org.springframework.hateoas.RepresentationModel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.github.dozermapper.core.Mapping;
 
 import io.github.alanabarbosa.model.Category;
+import io.github.alanabarbosa.model.Comment;
 import io.github.alanabarbosa.model.File;
+import io.github.alanabarbosa.model.User;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
 @JsonPropertyOrder({"id", "title", "content", "createdAt", "updatedAt", "publishedAt", "slug", "status", "user_id"})
-public class PostVO implements Serializable {
+public class PostVO extends RepresentationModel<PostVO> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-    private Long id;	
-    private String title;	
+	@Mapping("id")
+	@JsonProperty("id")
+    private Long key;
+    private String title;
     private String content;
     
     @JsonProperty("created_at")
-    private LocalDateTime createdAt;  
+    private LocalDateTime createdAt;
     @JsonProperty("updated_at")
     private LocalDateTime updatedAt;
     @JsonProperty("published_at")
-    private LocalDateTime publishedAt;    
-    private String slug;    
-    private Boolean status;	
-    @JsonProperty("user_id")
-    private Long userId;
+    private LocalDateTime publishedAt;
+    private String slug;
+    private Boolean status;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
@@ -45,6 +56,9 @@ public class PostVO implements Serializable {
     @ManyToOne
     @JoinColumn(name = "image_mobile_id")
     private File imageMobile;
+    
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY) 
+    private List<Comment> comments;
 
     public PostVO() {}
     
@@ -58,14 +72,14 @@ public class PostVO implements Serializable {
     public void preUpdate() {
     	updatedAt = LocalDateTime.now();
     	if (status && publishedAt == null) publishedAt = LocalDateTime.now();
-    }    
+    }	
 
-	public Long getId() {
-		return id;
+	public Long getKey() {
+		return key;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setKey(Long key) {
+		this.key = key;
 	}
 
 	public String getTitle() {
@@ -124,12 +138,12 @@ public class PostVO implements Serializable {
 		this.status = status;
 	}
 
-	public Long getUserId() {
-		return userId;
+	public User getUser() {
+		return user;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public Category getCategory() {
@@ -158,8 +172,8 @@ public class PostVO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(category, content, createdAt, id, imageDesktop, imageMobile, publishedAt, slug, status,
-				title, updatedAt, userId);
+		return Objects.hash(category, content, createdAt, key, imageDesktop, imageMobile, publishedAt, slug, status,
+				title, updatedAt, user);
 	}
 
 	@Override
@@ -172,10 +186,10 @@ public class PostVO implements Serializable {
 			return false;
 		PostVO other = (PostVO) obj;
 		return Objects.equals(category, other.category) && Objects.equals(content, other.content)
-				&& Objects.equals(createdAt, other.createdAt) && Objects.equals(id, other.id)
+				&& Objects.equals(createdAt, other.createdAt) && Objects.equals(key, other.key)
 				&& Objects.equals(imageDesktop, other.imageDesktop) && Objects.equals(imageMobile, other.imageMobile)
 				&& Objects.equals(publishedAt, other.publishedAt) && Objects.equals(slug, other.slug)
 				&& Objects.equals(status, other.status) && Objects.equals(title, other.title)
-				&& Objects.equals(updatedAt, other.updatedAt) && Objects.equals(userId, other.userId);
+				&& Objects.equals(updatedAt, other.updatedAt) && Objects.equals(user, other.user);
 	}
 }

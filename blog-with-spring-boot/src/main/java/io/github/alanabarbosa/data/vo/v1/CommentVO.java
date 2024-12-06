@@ -4,36 +4,47 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.springframework.hateoas.RepresentationModel;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.github.dozermapper.core.Mapping;
+
 import io.github.alanabarbosa.model.Post;
 import io.github.alanabarbosa.model.User;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
-public class CommentVO implements Serializable {
+@JsonPropertyOrder({"id", "content", "createdAt","status"})
+public class CommentVO extends RepresentationModel<CommentVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private Long id;
+    
+	@Mapping("id")
+	@JsonProperty("id")
+    private Long key;
     private String content;
+    @JsonProperty("created_at")
     private LocalDateTime createdAt;
     private Boolean status;    
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public CommentVO() {}
 
-	public Long getId() {
-		return id;
+	public Long getKey() {
+		return key;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setKey(Long key) {
+		this.key = key;
 	}
 
 	public String getContent() {
@@ -78,7 +89,7 @@ public class CommentVO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(content, createdAt, id, post, status, user);
+		return Objects.hash(content, createdAt, key, post, status, user);
 	}
 
 	@Override
@@ -91,7 +102,7 @@ public class CommentVO implements Serializable {
 			return false;
 		CommentVO other = (CommentVO) obj;
 		return Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
-				&& Objects.equals(id, other.id) && Objects.equals(post, other.post)
+				&& Objects.equals(key, other.key) && Objects.equals(post, other.post)
 				&& Objects.equals(status, other.status) && Objects.equals(user, other.user);
 	}
 }

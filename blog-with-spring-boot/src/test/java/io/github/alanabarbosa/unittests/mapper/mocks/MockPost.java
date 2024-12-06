@@ -8,6 +8,7 @@ import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Post;
+import io.github.alanabarbosa.model.User;
 
 public class MockPost {
 
@@ -49,13 +50,15 @@ public class MockPost {
         post.setCategory(new Category());
         post.setImageDesktop(new File()); 
         post.setImageMobile(new File());
-        post.setUserId(number.longValue() + 1);
+        User user = new User();
+        user.setId(Long.valueOf(number + 1)); 
+        post.setUser(user);
         return post;
     }
 
     public PostVO mockVO(Integer number) {
         PostVO post = new PostVO();
-        post.setId(number.longValue());
+        post.setKey(number.longValue());
         post.setTitle("Meu Título" + number);
         post.setContent("Este é o conteúdo do post."+ number);
         post.setSlug("meu-titulo"+ number);
@@ -66,7 +69,9 @@ public class MockPost {
         post.setCategory(new Category());
         post.setImageDesktop(new File());
         post.setImageMobile(new File());
-        post.setUserId(number.longValue() + 1);
+        User user = new User();
+        user.setId(Long.valueOf(number + 1));
+        post.setUser(user);
         return post;
     }
 

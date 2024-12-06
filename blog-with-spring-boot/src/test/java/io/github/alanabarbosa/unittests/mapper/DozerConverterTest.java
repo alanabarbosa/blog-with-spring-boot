@@ -35,7 +35,7 @@ public class DozerConverterTest {
     @Test
     public void parseEntityToVOTest() {
         PostVO output = DozerMapper.parseObject(inputObject.mockEntity(), PostVO.class);
-        assertEquals(Long.valueOf(0L), output.getId());
+        assertEquals(Long.valueOf(0L), output.getKey());
         assertEquals("Meu Título0", output.getTitle()); 
         assertEquals("Este é o conteúdo do post.0", output.getContent()); 
         assertEquals("meu-titulo0", output.getSlug());
@@ -46,7 +46,7 @@ public class DozerConverterTest {
         assertEquals(nowFormatted, formatLocalDateTime(output.getPublishedAt())); 
 
         assertEquals(true, output.getStatus()); 
-        assertEquals(Long.valueOf(1L), output.getUserId());
+        assertEquals(Long.valueOf(1L), output.getUser().getId());
     }
 
     @Test
@@ -56,7 +56,7 @@ public class DozerConverterTest {
         String nowFormatted = formatLocalDateTime(LocalDateTime.now());
 
         PostVO outputZero = outputList.get(0);
-        assertEquals(Long.valueOf(0L), outputZero.getId());
+        assertEquals(Long.valueOf(0L), outputZero.getKey());
         assertEquals("Meu Título0", outputZero.getTitle());
         assertEquals("Este é o conteúdo do post.0", outputZero.getContent());
         assertEquals("meu-titulo0", outputZero.getSlug());
@@ -64,10 +64,10 @@ public class DozerConverterTest {
         assertEquals(nowFormatted, formatLocalDateTime(outputZero.getUpdatedAt()));
         assertEquals(nowFormatted, formatLocalDateTime(outputZero.getPublishedAt()));
         assertEquals(true, outputZero.getStatus());
-        assertEquals(Long.valueOf(1L), outputZero.getUserId());
+        assertEquals(Long.valueOf(1L), outputZero.getUser().getId());
       
         PostVO outputSeven = outputList.get(7);
-        assertEquals(Long.valueOf(7L), outputSeven.getId());
+        assertEquals(Long.valueOf(7L), outputSeven.getKey());
         assertEquals("Meu Título7", outputSeven.getTitle());
         assertEquals("Este é o conteúdo do post.7", outputSeven.getContent());
         assertEquals("meu-titulo7", outputSeven.getSlug());
@@ -75,10 +75,10 @@ public class DozerConverterTest {
         assertEquals(nowFormatted, formatLocalDateTime(outputSeven.getUpdatedAt()));
         assertEquals(nowFormatted, formatLocalDateTime(outputSeven.getPublishedAt()));
         assertEquals(false, outputSeven.getStatus());
-        assertEquals(Long.valueOf(8L), outputSeven.getUserId());
+        assertEquals(Long.valueOf(8L), outputSeven.getUser().getId());
 
         PostVO outputTwelve = outputList.get(12);
-        assertEquals(Long.valueOf(12L), outputTwelve.getId());
+        assertEquals(Long.valueOf(12L), outputTwelve.getKey());
         assertEquals("Meu Título12", outputTwelve.getTitle());
         assertEquals("Este é o conteúdo do post.12", outputTwelve.getContent());
         assertEquals("meu-titulo12", outputTwelve.getSlug());
@@ -86,7 +86,7 @@ public class DozerConverterTest {
         assertEquals(nowFormatted, formatLocalDateTime(outputTwelve.getUpdatedAt()));
         assertEquals(nowFormatted, formatLocalDateTime(outputTwelve.getPublishedAt()));
         assertEquals(true, outputTwelve.getStatus());
-        assertEquals(Long.valueOf(13L), outputTwelve.getUserId());
+        assertEquals(Long.valueOf(13L), outputTwelve.getUser().getId());
     }
 
 
@@ -104,7 +104,7 @@ public class DozerConverterTest {
         assertEquals(nowFormatted, formatLocalDateTime(output.getPublishedAt()));
         
         assertEquals(true, output.getStatus());
-        assertEquals(Long.valueOf(1L), output.getUserId());
+        assertEquals(Long.valueOf(1L), output.getUser().getId());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class DozerConverterTest {
         assertTrue(isWithinTolerance(outputZero.getPublishedAt(), now), "A diferença de tempo é maior do que o esperado para publishedAt.");
         
         assertEquals(true, outputZero.getStatus());
-        assertEquals(Long.valueOf(1L), outputZero.getUserId());
+        assertEquals(Long.valueOf(1L), outputZero.getUser().getId());
         
         Post outputSeven = outputList.get(7);
         
@@ -138,8 +138,8 @@ public class DozerConverterTest {
         assertTrue(isWithinTolerance(outputSeven.getPublishedAt(), now), "A diferença de tempo é maior do que o esperado para publishedAt.");
         
         assertEquals(false, outputSeven.getStatus());
-        System.out.println("Id Seven:" + outputSeven.getUserId());
-        assertEquals(Long.valueOf(8L), outputSeven.getUserId());
+        System.out.println("Id Seven:" + outputSeven.getUser());
+        assertEquals(Long.valueOf(8L), outputSeven.getUser().getId());
         
         Post outputTwelve = outputList.get(12);
         
@@ -153,7 +153,7 @@ public class DozerConverterTest {
         assertTrue(isWithinTolerance(outputTwelve.getPublishedAt(), now), "A diferença de tempo é maior do que o esperado para publishedAt.");
         
         assertEquals(true, outputTwelve.getStatus());
-        assertEquals(Long.valueOf(13L), outputTwelve.getUserId());
+        assertEquals(Long.valueOf(13L), outputTwelve.getUser().getId());
     }
     
     private boolean isWithinTolerance(LocalDateTime timeToCheck, LocalDateTime now) {

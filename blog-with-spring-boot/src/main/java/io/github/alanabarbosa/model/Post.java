@@ -2,16 +2,19 @@ package io.github.alanabarbosa.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -48,8 +51,9 @@ public class Post implements Serializable {
     @Column(nullable = false)
     private Boolean status;       
 	
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
@@ -62,6 +66,9 @@ public class Post implements Serializable {
     @ManyToOne
     @JoinColumn(name = "image_mobile_id")
     private File imageMobile;
+    
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY) 
+    private List<Comment> comments;    
 
     public Post() {}
     
@@ -141,12 +148,12 @@ public class Post implements Serializable {
 		this.status = status;
 	}
 
-	public Long getUserId() {
-		return userId;
+	public User getUser() {
+		return user;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public Category getCategory() {
@@ -176,7 +183,7 @@ public class Post implements Serializable {
 	@Override
 	public int hashCode() {
 		return Objects.hash(category, content, createdAt, id, imageDesktop, imageMobile, publishedAt, slug, status,
-				title, updatedAt, userId);
+				title, updatedAt, user);
 	}
 
 	@Override
@@ -193,6 +200,6 @@ public class Post implements Serializable {
 				&& Objects.equals(imageDesktop, other.imageDesktop) && Objects.equals(imageMobile, other.imageMobile)
 				&& Objects.equals(publishedAt, other.publishedAt) && Objects.equals(slug, other.slug)
 				&& Objects.equals(status, other.status) && Objects.equals(title, other.title)
-				&& Objects.equals(updatedAt, other.updatedAt) && Objects.equals(userId, other.userId);
+				&& Objects.equals(updatedAt, other.updatedAt) && Objects.equals(user, other.user);
 	}
 }
