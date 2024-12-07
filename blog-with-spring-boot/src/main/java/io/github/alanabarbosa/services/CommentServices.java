@@ -31,15 +31,15 @@ public class CommentServices {
 		logger.info("Finding all comments!");		
 		var comments = DozerMapper.parseListObjects(repository.findAll(), CommentVO.class);
 		comments
-		.stream()
-		.forEach(c -> {
-			try {
-				c.add(linkTo(methodOn(CommentController.class).findById(c.getKey())).withSelfRel());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});		
-	return comments;
+			.stream()
+			.forEach(c -> {
+				try {
+					c.add(linkTo(methodOn(CommentController.class).findById(c.getKey())).withSelfRel());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});		
+		return comments;
 	}
 	
 	public CommentVO findById(Long id) throws Exception {		

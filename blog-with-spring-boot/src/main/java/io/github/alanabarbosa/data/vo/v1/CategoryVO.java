@@ -4,23 +4,30 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class CategoryVO implements Serializable {
+import org.springframework.hateoas.RepresentationModel;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.dozermapper.core.Mapping;
+
+public class CategoryVO extends RepresentationModel<CategoryVO> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
-    private Long id;
+	@Mapping("id")
+	@JsonProperty("id")
+    private Long key;
     private String name;	
     private String description;
+    @JsonProperty("created_at")
     private LocalDateTime createdAt;	
 
     public CategoryVO() {}
 
-	public Long getId() {
-		return id;
+	public Long getKey() {
+		return key;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setKey(Long id) {
+		this.key = id;
 	}
 
 	public String getName() {
@@ -49,7 +56,7 @@ public class CategoryVO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdAt, description, id, name);
+		return Objects.hash(createdAt, description, key, name);
 	}
 
 	@Override
@@ -62,6 +69,6 @@ public class CategoryVO implements Serializable {
 			return false;
 		CategoryVO other = (CategoryVO) obj;
 		return Objects.equals(createdAt, other.createdAt) && Objects.equals(description, other.description)
-				&& Objects.equals(id, other.id) && Objects.equals(name, other.name);
+				&& Objects.equals(key, other.key) && Objects.equals(name, other.name);
 	}
 }
