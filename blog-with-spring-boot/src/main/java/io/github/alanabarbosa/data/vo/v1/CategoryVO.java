@@ -18,7 +18,7 @@ public class CategoryVO extends RepresentationModel<CategoryVO> implements Seria
     private String name;	
     private String description;
     @JsonProperty("created_at")
-    private LocalDateTime createdAt;	
+    private LocalDateTime createdAt;
 
     public CategoryVO() {}
 
@@ -54,21 +54,21 @@ public class CategoryVO extends RepresentationModel<CategoryVO> implements Seria
 		this.createdAt = createdAt;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(createdAt, description, key, name);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        CategoryVO categoryVO = (CategoryVO) obj;
+        return Objects.equals(key, categoryVO.key) &&
+               Objects.equals(name, categoryVO.name) &&
+               Objects.equals(description, categoryVO.description) &&
+               Objects.equals(createdAt, categoryVO.createdAt);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CategoryVO other = (CategoryVO) obj;
-		return Objects.equals(createdAt, other.createdAt) && Objects.equals(description, other.description)
-				&& Objects.equals(key, other.key) && Objects.equals(name, other.name);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, name, description, createdAt);
+    }
 }

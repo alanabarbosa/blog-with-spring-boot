@@ -56,22 +56,22 @@ public class Category implements Serializable {
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
+	
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Category category = (Category) obj;
+        return Objects.equals(id, category.id) &&
+               Objects.equals(name, category.name) &&
+               Objects.equals(description, category.description) &&
+               Objects.equals(createdAt, category.createdAt);
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(createdAt, description, id, name);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Category other = (Category) obj;
-		return Objects.equals(createdAt, other.createdAt) && Objects.equals(description, other.description)
-				&& Objects.equals(id, other.id) && Objects.equals(name, other.name);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, createdAt);
+    }
 }

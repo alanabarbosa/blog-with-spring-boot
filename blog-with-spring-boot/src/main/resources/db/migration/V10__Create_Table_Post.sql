@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS post (
     category_id BIGINT NOT NULL,
     image_desktop_id BIGINT,
     image_mobile_id BIGINT,
-    CONSTRAINT fk_post_user FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    CONSTRAINT fk_post_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_post_category FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE,
     CONSTRAINT fk_post_image_desktop FOREIGN KEY (image_desktop_id) REFERENCES files(id),
     CONSTRAINT fk_post_image_mobile FOREIGN KEY (image_mobile_id) REFERENCES files(id)

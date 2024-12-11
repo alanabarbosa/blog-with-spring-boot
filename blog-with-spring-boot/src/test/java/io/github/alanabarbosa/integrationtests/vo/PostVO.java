@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.model;
+package io.github.alanabarbosa.integrationtests.vo;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -7,81 +7,59 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.dozermapper.core.Mapping;
 
+import io.github.alanabarbosa.model.Category;
+import io.github.alanabarbosa.model.Comment;
+import io.github.alanabarbosa.model.File;
+import io.github.alanabarbosa.model.User;
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "post")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Post implements Serializable {
+public class PostVO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	
     private Long id;
-	
-	@Column(nullable = false, length = 255)
     private String title;
-	
-	@Lob
-	@Column(nullable = false, length = 1000)
     private String content;
     
-    @Column(name = "created_at", nullable = false)
     @JsonProperty("created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt;    
     
-    @Column(name = "updated_at", nullable = false)
     @JsonProperty("updated_at")
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;    
     
-    @Column(name = "published_at", nullable = true)
     @JsonProperty("published_at")
+    @Column(name = "published_at", nullable = true)
     private LocalDateTime publishedAt;
-    
-    @Column(nullable = false)
     private String slug;
-    
-    @Column(nullable = false)
     @JsonProperty("status")
     private Boolean status;
-	
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    @Mapping("user")
+    @ManyToOne(fetch = FetchType.EAGER) 
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id", nullable = false)
-    @Mapping("category")
+    @ManyToOne(fetch = FetchType.EAGER) 
+    @JoinColumn(name = "category_id")
     private Category category;
     
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "image_desktop_id", nullable = true)
+    @ManyToOne(fetch = FetchType.EAGER) 
+    @JoinColumn(name = "image_desktop_id")
     private File imageDesktop;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "image_mobile_id", nullable = true)
+    @ManyToOne(fetch = FetchType.EAGER) 
+    @JoinColumn(name = "image_mobile_id")
     private File imageMobile;
     
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY) 
     private List<Comment> comments;
 
-    public Post() {}
+    public PostVO() {}
     
     @PrePersist
     public void prePresist() {
@@ -93,7 +71,7 @@ public class Post implements Serializable {
     public void preUpdate() {
     	updatedAt = LocalDateTime.now();
     	if (status && publishedAt == null) publishedAt = LocalDateTime.now();
-    }
+    }	
 
 	public Long getId() {
 		return id;
@@ -205,7 +183,7 @@ public class Post implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Post other = (Post) obj;
+		PostVO other = (PostVO) obj;
 		return Objects.equals(category, other.category) && Objects.equals(content, other.content)
 				&& Objects.equals(createdAt, other.createdAt) && Objects.equals(id, other.id)
 				&& Objects.equals(imageDesktop, other.imageDesktop) && Objects.equals(imageMobile, other.imageMobile)

@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS comment (
     post_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     CONSTRAINT fk_post_comment FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE,
-    CONSTRAINT fk_user_comment FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+    CONSTRAINT fk_user_comment FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

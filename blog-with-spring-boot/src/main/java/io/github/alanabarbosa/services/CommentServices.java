@@ -3,7 +3,6 @@ package io.github.alanabarbosa.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -11,12 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CommentController;
-import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
 import io.github.alanabarbosa.model.Comment;
+import io.github.alanabarbosa.model.Post;
+import io.github.alanabarbosa.model.User;
 import io.github.alanabarbosa.repositories.CommentRepository;
 
 @Service
@@ -74,8 +74,12 @@ public class CommentServices {
 		entity.setContent(comment.getContent());
 		entity.setCreatedAt(comment.getCreatedAt());
 		entity.setStatus(comment.getStatus());
-		entity.setPost(comment.getPost());
-		entity.setUser(comment.getUser());
+		
+		var post = DozerMapper.parseObject(comment.getPost(), Post.class);
+		entity.setPost(post);
+		
+		var user = DozerMapper.parseObject(comment.getUser(), User.class);
+		entity.setUser(user);
 	    
 		var vo = DozerMapper.parseObject(repository.save(entity), CommentVO.class);		
 		vo.add(linkTo(methodOn(CommentController.class).findById(vo.getKey())).withSelfRel());

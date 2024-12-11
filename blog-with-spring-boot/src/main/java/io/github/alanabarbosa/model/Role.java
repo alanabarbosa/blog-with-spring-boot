@@ -1,15 +1,21 @@
 package io.github.alanabarbosa.model;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
+
+import org.springframework.security.core.GrantedAuthority;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "role")
-public class Role implements Serializable {
+public class Role implements GrantedAuthority, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -24,12 +30,14 @@ public class Role implements Serializable {
     private String description;
     
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;	
-	
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> users = new HashSet<>();	
+    private LocalDateTime createdAt;
 
     public Role() {}
+    
+    @Override
+    public String getAuthority() {
+    	return this.name;
+    }
 
 	public Long getId() {
 		return id;
@@ -63,17 +71,9 @@ public class Role implements Serializable {
 		this.createdAt = createdAt;
 	}
 
-	public Set<User> getUsers() {
-		return users;
-	}
-
-	public void setUsers(Set<User> users) {
-		this.users = users;
-	}
-
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdAt, description, id, name, users);
+		return Objects.hash(createdAt, description, id, name);
 	}
 
 	@Override
@@ -86,7 +86,6 @@ public class Role implements Serializable {
 			return false;
 		Role other = (Role) obj;
 		return Objects.equals(createdAt, other.createdAt) && Objects.equals(description, other.description)
-				&& Objects.equals(id, other.id) && Objects.equals(name, other.name)
-				&& Objects.equals(users, other.users);
+				&& Objects.equals(id, other.id) && Objects.equals(name, other.name);
 	}
 }
