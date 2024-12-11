@@ -215,4 +215,14 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 				&& Objects.equals(title, other.title) && Objects.equals(updatedAt, other.updatedAt)
 				&& Objects.equals(user, other.user);
 	}
+/*
+	@Override
+	public String toString() {
+		return "PostVO [key=" + key + ", title=" + title + ", content=" + content + ", createdAt=" + createdAt
+				+ ", updatedAt=" + updatedAt + ", publishedAt=" + publishedAt + ", slug=" + slug + ", status=" + status
+				+ ", user=" + user + ", category=" + category + ", imageDesktop=" + imageDesktop + ", imageMobile="
+				+ imageMobile + ", comments=" + comments + "]";
+	}*/
+	
+	
 }

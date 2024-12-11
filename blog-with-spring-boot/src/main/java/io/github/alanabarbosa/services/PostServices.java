@@ -4,8 +4,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,35 +33,64 @@ public class PostServices {
 	@Autowired
 	PostRepository repository;
 	
-	@Autowired
-	CommentRepository commentRepository;
+    @Autowired
+    private CommentRepository commentRepository;
+    
+	/*public List<PostVO> findAll() {		
+		logger.info("Finding all posts!");		
+		var persons = DozerMapper.parseListObjects(repository.findAll(), PostVO.class);
+		persons
+			.stream()
+			.forEach(p -> {
+				try {
+					p.add(linkTo(methodOn(PostController.class).findById(p.getKey())).withSelfRel());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});		
+		return persons;
+	}*/
+    public List<PostVO> findAll() {
+        logger.info("Finding all posts!");
+        
+        List<PostVO> posts = DozerMapper.parseListObjects(repository.findAll(), PostVO.class);
+        
+        posts.forEach(post -> {
+            try {
+                List<Comment> comments = commentRepository.findByPostId(post.getKey());
+                List<CommentVO> commentVOs = DozerMapper.parseListObjects(comments, CommentVO.class);
+                post.setComments(commentVOs);
+                post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withSelfRel());
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Error while processing comments for post " + post.getKey(), e);
+            }
+            System.out.println(post);
+        });
+        
+        return posts;
+    }
 	
-	public List<PostVO> findAll() {
-	    logger.info("Finding all posts!");
-	    var persons = DozerMapper.parseListObjects(repository.findAll(), PostVO.class);
-	    persons.stream().forEach(p -> {
-	        try {
-	            List<Comment> comments = commentRepository.findByPostId(p.getKey());
-	            List<CommentVO> commentVOs = DozerMapper.parseListObjects(comments, CommentVO.class);
-	            p.setComments(commentVOs);
+    public PostVO findById(Long id) throws Exception {
+        logger.info("Finding one post by ID!");
 
-	            p.add(linkTo(methodOn(PostController.class).findById(p.getKey())).withSelfRel());
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
-	    });
-	    return persons;
-	}
+        var entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
+        var vo = DozerMapper.parseObject(entity, PostVO.class);
 
-	
-	public PostVO findById(Long id) throws Exception {		
-		logger.info("Finding one post!");		
-	    var entity = repository.findById(id)
-	    		.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
-	    var vo = DozerMapper.parseObject(entity, PostVO.class);
-	    vo.add(linkTo(methodOn(PostController.class).findById(id)).withSelfRel());
-	    return vo;
-	}
+        try {
+            List<Comment> comments = commentRepository.findByPostId(id);
+            List<CommentVO> commentVOs = DozerMapper.parseListObjects(comments, CommentVO.class);
+            vo.setComments(commentVOs);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error while processing comments for post " + id, e);
+        }
+
+        vo.add(linkTo(methodOn(PostController.class).findById(id)).withSelfRel());
+        System.out.println(vo);
+
+        return vo;
+    }
+
 
 	
 	public PostVO create(PostVO post) throws Exception {

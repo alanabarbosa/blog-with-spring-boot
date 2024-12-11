@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.alanabarbosa.data.vo.v1.CategoryVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
+import io.github.alanabarbosa.data.vo.v1.UserVO;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Post;
@@ -52,7 +54,8 @@ public class MockPost {
         post.setImageMobile(new File());
         User user = new User();
         user.setId(Long.valueOf(number + 1)); 
-        post.setUser(user);
+        user.setEnabled((((number % 2)==0) ? true : false));
+        post.setUser(user);;
         return post;
     }
 
@@ -66,11 +69,12 @@ public class MockPost {
         post.setUpdatedAt(LocalDateTime.now());
         post.setPublishedAt(LocalDateTime.now());
         post.setStatus(((number % 2)==0) ? true : false);
-        post.setCategory(new Category());
+        post.setCategory(new CategoryVO());
         post.setImageDesktop(new File());
         post.setImageMobile(new File());
-        User user = new User();
+        UserVO user = new UserVO();
         user.setId(Long.valueOf(number + 1));
+        user.setEnabled((((number % 2)==0) ? true : false));
         post.setUser(user);
         return post;
     }

@@ -68,7 +68,7 @@ class CommentServicesTest {
 		assertEquals(now, result.getCreatedAt());
 		assertEquals(true, result.getStatus());		
 		assertEquals(1L, result.getUser().getId());
-		assertEquals(1L, result.getPost().getId());
+		assertEquals(1L, result.getPost().getKey());
 	}
 
 	@Test
@@ -84,15 +84,15 @@ class CommentServicesTest {
 		assertNotNull(comment);
 		assertEquals(14, comment.size());
 		
-		var CommentOne = comment.get(1);		
-		assertNotNull(CommentOne);
-		assertNotNull(CommentOne.getKey());		
-		assertTrue(CommentOne.toString().contains("[</api/comment/v1/1>;rel=\"self\"]"));
-		assertEquals("Este é um comentario.1", CommentOne.getContent());
-		assertEquals(now, CommentOne.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
-		assertEquals(false, CommentOne.getStatus());		
-		assertEquals(2L, CommentOne.getUser().getId());
-		assertEquals(2L, CommentOne.getPost().getId());
+		var commentOne = comment.get(1);		
+		assertNotNull(commentOne);
+		assertNotNull(commentOne.getKey());		
+		assertTrue(commentOne.toString().contains("[</api/comment/v1/1>;rel=\"self\"]"));
+		assertEquals("Este é um comentario.1", commentOne.getContent());
+		assertEquals(now, commentOne.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
+		assertEquals(false, commentOne.getStatus());		
+		assertEquals(2L, commentOne.getUser().getId());
+		assertEquals(2L, commentOne.getPost().getKey());
 		
 		var CommentFour = comment.get(4);		
 		assertNotNull(CommentFour);
@@ -102,7 +102,7 @@ class CommentServicesTest {
 		assertEquals(now, CommentFour.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
 		assertEquals(true, CommentFour.getStatus());		
 		assertEquals(5L, CommentFour.getUser().getId());
-		assertEquals(5L, CommentFour.getPost().getId());		
+		assertEquals(5L, CommentFour.getPost().getKey());		
 		
 		var CommentSeven = comment.get(7);		
 		assertNotNull(CommentSeven);
@@ -112,7 +112,7 @@ class CommentServicesTest {
 		assertEquals(now, CommentSeven.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
 		assertEquals(false, CommentSeven.getStatus());		
 		assertEquals(8L, CommentSeven.getUser().getId());
-		assertEquals(8L, CommentSeven.getPost().getId());		
+		assertEquals(8L, CommentSeven.getPost().getKey());		
 	
 	}
 
@@ -146,7 +146,7 @@ class CommentServicesTest {
 	    assertEquals(now.truncatedTo(ChronoUnit.SECONDS), result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
 	    assertEquals(false, result.getStatus());	
 	    assertEquals(2L, result.getUser().getId());
-	    assertEquals(2L, result.getPost().getId());
+	    assertEquals(2L, result.getPost().getKey());
 
 	    Comment capturedPost = captor.getValue();
 
@@ -193,7 +193,7 @@ class CommentServicesTest {
 	    assertEquals(now.truncatedTo(ChronoUnit.SECONDS), result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
 	    assertEquals(false, result.getStatus());	
 	    assertEquals(2L, result.getUser().getId());
-	    assertEquals(2L, result.getPost().getId());
+	    assertEquals(2L, result.getPost().getKey());
 
 	    Comment capturedPost = captor.getValue();
 	    assertEquals(existingEntity.getId(), capturedPost.getId());
