@@ -36,20 +36,23 @@ public class PostServices {
 	@Autowired
 	CommentRepository commentRepository;
 	
-	public List<PostVO> findAll() {		
-		logger.info("Finding all posts!");		
-		var persons = DozerMapper.parseListObjects(repository.findAll(), PostVO.class);
-		persons
-			.stream()
-			.forEach(p -> {
-				try {
-					p.add(linkTo(methodOn(PostController.class).findById(p.getKey())).withSelfRel());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			});		
-		return persons;
+	public List<PostVO> findAll() {
+	    logger.info("Finding all posts!");
+	    var persons = DozerMapper.parseListObjects(repository.findAll(), PostVO.class);
+	    persons.stream().forEach(p -> {
+	        try {
+	            List<Comment> comments = commentRepository.findByPostId(p.getKey());
+	            List<CommentVO> commentVOs = DozerMapper.parseListObjects(comments, CommentVO.class);
+	            p.setComments(commentVOs);
+
+	            p.add(linkTo(methodOn(PostController.class).findById(p.getKey())).withSelfRel());
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    });
+	    return persons;
 	}
+
 	
 	public PostVO findById(Long id) throws Exception {		
 		logger.info("Finding one post!");		

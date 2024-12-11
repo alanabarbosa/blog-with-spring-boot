@@ -52,17 +52,16 @@ public class CommentServices {
 	}
 	
 	public CommentVO create(CommentVO comment) throws Exception {
-		if (comment == null) throw new RequiredObjectIsNullException();
-	    var entity = DozerMapper.parseObject(comment, Comment.class);
-	    var savedEntity = repository.save(entity);
-	    
+	    if (comment == null) throw new RequiredObjectIsNullException();	    
+	    var entity = DozerMapper.parseObject(comment, Comment.class);	    
+	    var savedEntity = repository.save(entity);	    
 	    var fullComment = repository.findByIdWithRelations(savedEntity.getId())
-	        .orElseThrow(() -> new RuntimeException("Comment not found"));
-	    
-	    var vo = DozerMapper.parseObject(fullComment, CommentVO.class);
+	        .orElseThrow(() -> new RuntimeException("Comment not found"));	    
+	    var vo = DozerMapper.parseObject(fullComment, CommentVO.class);	    
 	    vo.add(linkTo(methodOn(CommentController.class).findById(vo.getKey())).withSelfRel());
-	    return vo;	    
+	    return vo;
 	}
+
 	
 	public CommentVO update(CommentVO comment) throws Exception {
 		if (comment == null) throw new RequiredObjectIsNullException();

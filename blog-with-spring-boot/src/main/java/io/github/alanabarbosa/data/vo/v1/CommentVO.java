@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
 
-import io.github.alanabarbosa.model.Post;
-import io.github.alanabarbosa.model.User;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -29,12 +27,14 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
     private LocalDateTime createdAt;
     private Boolean status;    
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
+    @Mapping("post")
+    private PostVO post;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
+    @Mapping("user")
     private UserVO user;
 
     public CommentVO() {}
@@ -71,11 +71,11 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 		this.status = status;
 	}
 
-	public Post getPost() {
+	public PostVO getPost() {
 		return post;
 	}
 
-	public void setPost(Post post) {
+	public void setPost(PostVO post) {
 		this.post = post;
 	}
 
@@ -108,5 +108,4 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 				&& Objects.equals(key, other.key) && Objects.equals(post, other.post)
 				&& Objects.equals(status, other.status) && Objects.equals(user, other.user);
 	}
-
 }
