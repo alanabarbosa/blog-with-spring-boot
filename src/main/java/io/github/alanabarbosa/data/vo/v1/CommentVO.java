@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
@@ -25,20 +26,28 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
     private String content;
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
-    private Boolean status;    
-
-    /*@ManyToOne(fetch = FetchType.EAGER)
+    private Boolean status;   
+    
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false)
     @Mapping("post")
     private PostVO post;
-
+    
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @Mapping("user")
-    private UserVO user;*/
+    private UserVO user;
 
     public CommentVO() {}
 
+    public CommentVO(Long key, String content, LocalDateTime createdAt) {
+        this.key = key;
+        this.content = content;
+        this.createdAt = createdAt;
+    }
+    
 	public Long getKey() {
 		return key;
 	}
@@ -71,7 +80,7 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 		this.status = status;
 	}
 
-	/*public PostVO getPost() {
+	public PostVO getPost() {
 		return post;
 	}
 
@@ -85,13 +94,13 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 
 	public void setUser(UserVO user) {
 		this.user = user;
-	}*/
+	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(content, createdAt, key, status);
+		result = prime * result + Objects.hash(content, createdAt, key, post, status, user);
 		return result;
 	}
 
@@ -104,8 +113,9 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 		if (getClass() != obj.getClass())
 			return false;
 		CommentVO other = (CommentVO) obj;
-		return Objects.equals(content, other.content) && Objects
-				.equals(createdAt, other.createdAt);
-				
+		return Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
+				&& Objects.equals(key, other.key) && Objects.equals(post, other.post)
+				&& Objects.equals(status, other.status) && Objects.equals(user, other.user);
 	}
+	
 }

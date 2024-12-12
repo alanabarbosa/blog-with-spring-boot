@@ -36,20 +36,6 @@ public class PostServices {
     @Autowired
     private CommentRepository commentRepository;
     
-	/*public List<PostVO> findAll() {		
-		logger.info("Finding all posts!");		
-		var persons = DozerMapper.parseListObjects(repository.findAll(), PostVO.class);
-		persons
-			.stream()
-			.forEach(p -> {
-				try {
-					p.add(linkTo(methodOn(PostController.class).findById(p.getKey())).withSelfRel());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			});		
-		return persons;
-	}*/
     public List<PostVO> findAll() {
         logger.info("Finding all posts!");
         

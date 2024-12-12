@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UserVO implements Serializable {
@@ -30,9 +31,10 @@ public class UserVO implements Serializable {
 
     @JsonProperty("enabled")
     private Boolean enabled;
-
- /*   @JsonProperty("roles")
-    private List<String> roles;*/
+    
+    @JsonIgnore
+    @JsonProperty("roles")
+    private List<String> roles;
 
     public UserVO() {}
 
@@ -45,7 +47,7 @@ public class UserVO implements Serializable {
         this.bio = bio;
         this.createdAt = createdAt;
         this.enabled = enabled;
-        //this.roles = roles;
+        this.roles = roles;
     }
 
     public Long getId() {
@@ -104,11 +106,11 @@ public class UserVO implements Serializable {
         this.enabled = enabled;
     }
 
-   /* public List<String> getRoles() {
+    public List<String> getRoles() {
         return roles;
     }
 
     public void setRoles(List<String> roles) {
         this.roles = roles;
-    }*/
+    }
 }
