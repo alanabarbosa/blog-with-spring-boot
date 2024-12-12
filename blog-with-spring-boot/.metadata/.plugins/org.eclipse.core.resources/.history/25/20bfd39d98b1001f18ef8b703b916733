@@ -1,7 +1,0 @@
-package io.github.alanabarbosa.model;
-
-import java.io.Serializable;
-
-public class Blog implements Serializable {
-	
-}

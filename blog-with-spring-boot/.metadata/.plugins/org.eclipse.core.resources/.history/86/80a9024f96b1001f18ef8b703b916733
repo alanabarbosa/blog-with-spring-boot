@@ -1,5 +1,0 @@
-package io.github.alanabarbosa.exceptions.handler;
-
-public class CostumizedResponseEntityExceptionHandler {
-
-}

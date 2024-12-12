@@ -1,6 +1,0 @@
-package io.github.alanabarbosa.exceptions;
-
-@ResponseStatus
-public class UnsupportedMathOperationException extends RuntimeException {
-
-}

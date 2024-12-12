@@ -1,5 +1,0 @@
-package io.github.alanabarbosa.exceptions;
-
-public class UnsupportedMathOperationException extends RuntimeException {
-
-}
