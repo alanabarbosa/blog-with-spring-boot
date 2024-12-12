@@ -1,0 +1,14 @@
+io/github/alanabarbosa/integrationtests/vo/PostVO.class
+io/github/alanabarbosa/unittests/mockito/services/PostServicesTest.class
+io/github/alanabarbosa/unittests/mapper/mocks/MockComment.class
+io/github/alanabarbosa/StartupTests.class
+io/github/alanabarbosa/integrationtests/testcontainers/AbstractIntegrationTest$Initializer.class
+io/github/alanabarbosa/integrationtests/swagger/SwaggerIntegrationTest.class
+io/github/alanabarbosa/unittests/mapper/mocks/MockCategory.class
+io/github/alanabarbosa/unittests/mockito/services/CategoryServicesTest.class
+io/github/alanabarbosa/integrationtests/controller/withjson/PostControllerJsonTest.class
+io/github/alanabarbosa/unittests/mapper/mocks/MockPost.class
+io/github/alanabarbosa/unittests/mapper/DozerConverterTest.class
+io/github/alanabarbosa/configs/TestConfigs.class
+io/github/alanabarbosa/unittests/mockito/services/CommentServicesTest.class
+io/github/alanabarbosa/integrationtests/testcontainers/AbstractIntegrationTest.class

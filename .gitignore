@@ -1,41 +1,42 @@
+# Java class files
 *.class
 
-
+# Node.js dependencies
 /node_modules
 
 # SSH Keys
-
 *.pem
 *.ppk
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
+# Package Files (JAR, WAR, EAR)
 *.jar
 *.war
 *.ear
 
-# Merge Files
+# Merge files
 *.bak
 
-#Gradle temporary files
-target/
+# Gradle temporary files
+.gradle/
+build/
 
-#Eclipse files
+# Eclipse project files
 **/.project
 **/.classpath
 **/.settings/
-/bin/
-blog/bin/
-**/.tern-project
+**/.metadata/
 
-#IntelliJ files
+# IntelliJ files
 **/*.iml
 **/.idea
 **/.gradle
 
+# Maven wrapper files
+.mvn/wrapper/
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Virtual machine crash logs
 hs_err_pid*
-.metadata/
+
