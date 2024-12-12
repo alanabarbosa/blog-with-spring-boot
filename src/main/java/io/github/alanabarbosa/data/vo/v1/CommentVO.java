@@ -27,7 +27,7 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
     private LocalDateTime createdAt;
     private Boolean status;    
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    /*@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false)
     @Mapping("post")
     private PostVO post;
@@ -35,7 +35,7 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @Mapping("user")
-    private UserVO user;
+    private UserVO user;*/
 
     public CommentVO() {}
 
@@ -71,7 +71,7 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 		this.status = status;
 	}
 
-	public PostVO getPost() {
+	/*public PostVO getPost() {
 		return post;
 	}
 
@@ -85,13 +85,13 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 
 	public void setUser(UserVO user) {
 		this.user = user;
-	}
+	}*/
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(content, createdAt, key, post, status, user);
+		result = prime * result + Objects.hash(content, createdAt, key, status);
 		return result;
 	}
 
@@ -104,8 +104,8 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 		if (getClass() != obj.getClass())
 			return false;
 		CommentVO other = (CommentVO) obj;
-		return Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
-				&& Objects.equals(key, other.key) && Objects.equals(post, other.post)
-				&& Objects.equals(status, other.status) && Objects.equals(user, other.user);
+		return Objects.equals(content, other.content) && Objects
+				.equals(createdAt, other.createdAt);
+				
 	}
 }

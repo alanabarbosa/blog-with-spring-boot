@@ -59,6 +59,7 @@ public class PostServices {
             try {
                 List<Comment> comments = commentRepository.findByPostId(post.getKey());
                 List<CommentVO> commentVOs = DozerMapper.parseListObjects(comments, CommentVO.class);
+                                               
                 post.setComments(commentVOs);
                 post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withSelfRel());
             } catch (Exception e) {

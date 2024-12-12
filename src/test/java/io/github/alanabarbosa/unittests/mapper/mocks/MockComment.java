@@ -63,14 +63,14 @@ public class MockComment {
         comment.setCreatedAt(LocalDateTime.now());
         comment.setStatus(((number % 2)==0) ? true : false);
         
-        PostVO post = new PostVO();
+       /* PostVO post = new PostVO();
         post.setKey(Long.valueOf(number + 1));         
-        comment.setPost(post);
+       comment.setPost(post);
         
         UserVO user = new UserVO();
         user.setId(Long.valueOf(number + 1));
         user.setEnabled((((number % 2)==0) ? true : false));
-        comment.setUser(user);        
+        comment.setUser(user);  */      
         return comment;
     }
 
