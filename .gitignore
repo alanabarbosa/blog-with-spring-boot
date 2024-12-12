@@ -24,10 +24,11 @@
 build/
 
 # Eclipse project files
-**/.project
-**/.classpath
-**/.settings/
-**/.metadata/
+.project
+.classpath
+.settings/
+.metadata/
+.target/
 
 # IntelliJ files
 **/*.iml
@@ -36,6 +37,7 @@ build/
 
 # Maven wrapper files
 .mvn/wrapper/
+.mvn/
 
 # Virtual machine crash logs
 hs_err_pid*
