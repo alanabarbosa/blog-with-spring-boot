@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
+import io.github.alanabarbosa.data.vo.v1.UserVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
@@ -38,24 +40,34 @@ public class PostServices {
     
     public List<PostVO> findAll() {
         logger.info("Finding all posts!");
-        
+
         List<PostVO> posts = DozerMapper.parseListObjects(repository.findAll(), PostVO.class);
-        
+
         posts.forEach(post -> {
             try {
                 List<Comment> comments = commentRepository.findByPostId(post.getKey());
-                List<CommentVO> commentVOs = DozerMapper.parseListObjects(comments, CommentVO.class);
-                                               
+                
+                List<CommentVO> commentVOs = comments.stream()
+                    .filter(comment -> comment.getStatus() == true)
+                    .map(comment -> {
+                        CommentVO commentVO = DozerMapper.parseObject(comment, CommentVO.class);
+                        
+                        UserVO userVO = DozerMapper.parseObject(comment.getUser(), UserVO.class);
+
+                        return commentVO;
+                    })
+                    .collect(Collectors.toList());
+
                 post.setComments(commentVOs);
                 post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withSelfRel());
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "Error while processing comments for post " + post.getKey(), e);
             }
-            System.out.println(post);
         });
-        
+
         return posts;
     }
+
 	
     public PostVO findById(Long id) throws Exception {
         logger.info("Finding one post by ID!");

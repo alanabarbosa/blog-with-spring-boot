@@ -50,7 +50,7 @@ public class User implements UserDetails, Serializable {
     private String userName;
     
 	@Column(nullable = false, name = "password")
-	@JsonIgnore
+	//@JsonIgnore
 	private String password;
 	
 	@Column(name = "account_non_expired")

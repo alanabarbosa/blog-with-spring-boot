@@ -12,10 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
 
-import io.github.alanabarbosa.model.Category;
-import io.github.alanabarbosa.model.Comment;
 import io.github.alanabarbosa.model.File;
-import io.github.alanabarbosa.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;

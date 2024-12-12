@@ -74,11 +74,11 @@ public class CommentServices {
 		entity.setCreatedAt(comment.getCreatedAt());
 		entity.setStatus(comment.getStatus());
 		
-		/*var post = DozerMapper.parseObject(comment.getPost(), Post.class);
+		var post = DozerMapper.parseObject(comment.getPost(), Post.class);
 		entity.setPost(post);
 		
 		var user = DozerMapper.parseObject(comment.getUser(), User.class);
-		entity.setUser(user);*/
+		entity.setUser(user);
 	    
 		var vo = DozerMapper.parseObject(repository.save(entity), CommentVO.class);		
 		vo.add(linkTo(methodOn(CommentController.class).findById(vo.getKey())).withSelfRel());

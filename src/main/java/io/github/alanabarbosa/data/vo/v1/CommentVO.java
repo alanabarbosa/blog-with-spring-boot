@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
@@ -28,14 +27,14 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
     private LocalDateTime createdAt;
     private Boolean status;   
     
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.EAGER)
+    //@JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     @Mapping("post")
     private PostVO post;
     
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.EAGER)
+   // @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @Mapping("user")
     private UserVO user;
