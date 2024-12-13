@@ -73,7 +73,7 @@ public class MockPost {
         post.setImageDesktop(new File());
         post.setImageMobile(new File());
         UserVO user = new UserVO();
-        user.setId(Long.valueOf(number + 1));
+        user.setKey(Long.valueOf(number + 1));
         user.setEnabled((((number % 2)==0) ? true : false));
         post.setUser(user);
         return post;

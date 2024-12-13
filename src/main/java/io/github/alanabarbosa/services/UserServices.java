@@ -3,6 +3,7 @@ package io.github.alanabarbosa.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -58,6 +59,7 @@ public class UserServices implements UserDetailsService {
 	    users.forEach(user -> logger.info("User: " + user.toString()));
 	    
 	    return users.stream()
+	    	.filter(user -> user.getEnabled() == true)
 	        .map(user -> {
 	            try {
 	                user.add(linkTo(methodOn(UserController.class).findById(user.getKey())).withSelfRel());
@@ -87,27 +89,32 @@ public class UserServices implements UserDetailsService {
 	    
 	    if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
 	        throw new IllegalArgumentException("Password is required and cannot be empty");
-	    }	    
+	    }    
 	    
 	    var entity = DozerMapper.parseObject(user, User.class);
 	    
 	    String encodedPassword = PasswordUtil.encodePassword(user.getPassword());
 	    entity.setPassword(encodedPassword);    
-	      
 	    
-	    //if (entity.getEnabled()) entity.setCreatedAt(LocalDateTime.now());
+	    entity.setAccountNonExpired(true);
+	    entity.setAccountNonLocked(true);
+	    entity.setCredentialsNonExpired(true);
+	   // entity.setEnabled(true);
 	    
-	    Role defaultRole = roleRepository.findById(2L)
-	            .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
+	    if (entity.getEnabled()) entity.setCreatedAt(LocalDateTime.now());
+	    else entity.setCreatedAt(null);
 
-	        entity.setRoles(Collections.singletonList(defaultRole));	    
-	    
+	    Role defaultRole = roleRepository.findById(2L)
+	        .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
+	    entity.setRoles(Collections.singletonList(defaultRole));    
+
 	    var savedEntity = repository.save(entity);
 	    var vo = DozerMapper.parseObject(savedEntity, UserVO.class);
 	    
 	    vo.add(linkTo(methodOn(UserController.class).findById(vo.getKey())).withSelfRel());
 	    return vo;
 	}
+
 	
 	public UserVO update(UserVO user) throws Exception {
 	    if (user == null) throw new RequiredObjectIsNullException();
@@ -120,6 +127,10 @@ public class UserServices implements UserDetailsService {
 	    entity.setLastName(user.getLastName());
 	    entity.setUserName(user.getUserName());
 	    entity.setBio(user.getBio());
+	    entity.setEnabled(user.getEnabled());
+	    
+	    if (entity.getEnabled()) entity.setCreatedAt(LocalDateTime.now());
+	    else entity.setCreatedAt(null);
 	    
 	    if (user.getPassword() != null && !user.getPassword().isEmpty()) {
 	        entity.setPassword(PasswordUtil.encodePassword(user.getPassword())); 

@@ -17,7 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
-@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "password", "bio", "created_at", "enabled", "roles"})
+@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "bio", "created_at", "enabled", "roles"})
 public class UserVO extends RepresentationModel<UserVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -46,8 +46,7 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
     private LocalDateTime createdAt;
 
     @JsonProperty("enabled")
-    private Boolean enabled;    
-  
+    private Boolean enabled; 
    
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

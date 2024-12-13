@@ -46,7 +46,7 @@ public class DozerConverterTest {
         assertEquals(nowFormatted, formatLocalDateTime(output.getPublishedAt())); 
 
         assertEquals(true, output.getStatus()); 
-        assertEquals(Long.valueOf(1L), output.getUser().getId());
+        assertEquals(Long.valueOf(1L), output.getUser().getKey());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class DozerConverterTest {
         assertEquals(nowFormatted, formatLocalDateTime(outputZero.getUpdatedAt()));
         assertEquals(nowFormatted, formatLocalDateTime(outputZero.getPublishedAt()));
         assertEquals(true, outputZero.getStatus());
-        assertEquals(Long.valueOf(1L), outputZero.getUser().getId());
+        assertEquals(Long.valueOf(1L), outputZero.getUser().getKey());
       
         PostVO outputSeven = outputList.get(7);
         assertEquals(Long.valueOf(7L), outputSeven.getKey());
@@ -75,7 +75,7 @@ public class DozerConverterTest {
         assertEquals(nowFormatted, formatLocalDateTime(outputSeven.getUpdatedAt()));
         assertEquals(nowFormatted, formatLocalDateTime(outputSeven.getPublishedAt()));
         assertEquals(false, outputSeven.getStatus());
-        assertEquals(Long.valueOf(8L), outputSeven.getUser().getId());
+        assertEquals(Long.valueOf(8L), outputSeven.getUser().getKey());
 
         PostVO outputTwelve = outputList.get(12);
         assertEquals(Long.valueOf(12L), outputTwelve.getKey());
@@ -86,7 +86,7 @@ public class DozerConverterTest {
         assertEquals(nowFormatted, formatLocalDateTime(outputTwelve.getUpdatedAt()));
         assertEquals(nowFormatted, formatLocalDateTime(outputTwelve.getPublishedAt()));
         assertEquals(true, outputTwelve.getStatus());
-        assertEquals(Long.valueOf(13L), outputTwelve.getUser().getId());
+        assertEquals(Long.valueOf(13L), outputTwelve.getUser().getKey());
     }
 
 

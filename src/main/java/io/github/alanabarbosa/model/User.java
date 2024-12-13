@@ -4,15 +4,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
@@ -26,6 +23,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -87,6 +85,22 @@ public class User implements UserDetails, Serializable {
     private List<Role> roles;
     
     public User() {}
+    
+    @PrePersist
+    protected void onCreate() {
+        if (accountNonExpired == null) {
+            accountNonExpired = true;
+        }
+        if (accountNonLocked == null) {
+            accountNonLocked = true;
+        }
+        if (credentialsNonExpired == null) {
+            credentialsNonExpired = true;
+        }
+        if (enabled == null) {
+            enabled = true; 
+        }
+    }    
     
     public List<String> getPermissions() {
     	List<String> permissions = new ArrayList<>();

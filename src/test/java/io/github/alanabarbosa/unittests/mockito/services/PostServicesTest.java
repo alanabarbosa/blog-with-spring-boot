@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.anyLong;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -84,7 +84,7 @@ class PostServicesTest {
 		assertEquals(new CategoryVO(), result.getCategory());
 		assertEquals(new File(), result.getImageDesktop()); 
 		assertEquals(new File(), result.getImageMobile());
-		assertEquals(1L, result.getUser().getId());		
+		assertEquals(1L, result.getUser().getKey());		
 	}
 
 	@Test
@@ -117,7 +117,7 @@ class PostServicesTest {
 		assertEquals(new CategoryVO(), postOne.getCategory());
 		assertEquals(new File(), postOne.getImageDesktop()); 
 		assertEquals(new File(), postOne.getImageMobile());
-		assertEquals(2L, postOne.getUser().getId());
+		assertEquals(2L, postOne.getUser().getKey());
 		
 		var postFour = post.get(4);		
 		assertNotNull(postFour);
@@ -134,7 +134,7 @@ class PostServicesTest {
 		assertEquals(new CategoryVO(), postFour.getCategory());
 		assertEquals(new File(), postFour.getImageDesktop()); 
 		assertEquals(new File(), postFour.getImageMobile());
-		assertEquals(5L, postFour.getUser().getId());
+		assertEquals(5L, postFour.getUser().getKey());
 		
 		var postSeven = post.get(7);		
 		assertNotNull(postSeven);
@@ -151,7 +151,7 @@ class PostServicesTest {
 		assertEquals(new CategoryVO(), postSeven.getCategory());
 		assertEquals(new File(), postSeven.getImageDesktop()); 
 		assertEquals(new File(), postSeven.getImageMobile());
-		assertEquals(8L, postSeven.getUser().getId());		
+		assertEquals(8L, postSeven.getUser().getKey());		
 	}
 
 	@Test
@@ -192,7 +192,7 @@ class PostServicesTest {
 	    assertEquals(new CategoryVO(), result.getCategory());
 	    assertEquals(new File(), result.getImageDesktop()); 
 	    assertEquals(new File(), result.getImageMobile());
-	    assertEquals(2L, result.getUser().getId());
+	    assertEquals(2L, result.getUser().getKey());
 
 	    Post capturedPost = captor.getValue();
 
@@ -249,7 +249,7 @@ class PostServicesTest {
 	    assertEquals(new CategoryVO(), result.getCategory());
 	    assertEquals(new File(), result.getImageDesktop());
 	    assertEquals(new File(), result.getImageMobile());
-	    assertEquals(2L, result.getUser().getId());
+	    assertEquals(2L, result.getUser().getKey());
 
 	    Post capturedPost = captor.getValue();
 	    assertNotNull(capturedPost);
