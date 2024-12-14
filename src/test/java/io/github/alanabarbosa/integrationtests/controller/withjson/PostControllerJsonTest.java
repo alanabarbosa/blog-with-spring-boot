@@ -1,7 +1,6 @@
 package io.github.alanabarbosa.integrationtests.controller.withjson;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.fail;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +25,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.github.alanabarbosa.configs.TestConfigs;
 import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegrationTest;
+import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
+import io.github.alanabarbosa.integrationtests.vo.TokenVO;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.User;
@@ -43,7 +44,6 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 	private static RequestSpecification specification ;
 	private static ObjectMapper objectMapper;
 	private static PostVO post;
-	
 
 	LocalDateTime now = LocalDateTime.now();
 	
@@ -55,10 +55,36 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
 
-
 	    post = new PostVO();
 	}
-
+	
+	@Test
+	@Order(0)
+	public void authorization() throws JsonMappingException, JsonProcessingException {
+		AccountCredentialsVO user = new AccountCredentialsVO("alana", "admin123");
+		
+		var accessToken = given()
+				.basePath("/auth/signin")
+					.port(TestConfigs.SERVER_PORT)
+					.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.body(user)
+					.when()
+				.post()
+					.then()
+						.statusCode(200)
+							.extract()
+							.body()
+								.as(TokenVO.class)
+							.getAccessToken();
+		
+		specification = new RequestSpecBuilder()
+				.addHeader(TestConfigs.HEADER_PARAM_AUTHORIZATION, "Bearer " + accessToken)
+				.setBasePath("/api/post/v1")
+				.setPort(TestConfigs.SERVER_PORT)
+					.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+					.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+				.build();
+	}
 
 	@Test
 	@Order(1)
@@ -69,16 +95,17 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 	    objectMapper.registerModule(new JavaTimeModule());
 	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);		
 		
-	    specification = new RequestSpecBuilder()
+	 /*   specification = new RequestSpecBuilder()
 	            .addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
 	            .setBasePath("/api/post/v1")
 	            .setPort(TestConfigs.SERVER_PORT)
 		            .addFilter(new RequestLoggingFilter(LogDetail.ALL))
 		            .addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-	            .build();
+	            .build();*/
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
 					.body(post)
 					.when()
 					.post()
@@ -144,16 +171,17 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockPost();
 		
-		specification = new RequestSpecBuilder()
+		/*specification = new RequestSpecBuilder()
 				.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 				.setBasePath("/api/post/v1")
 				.setPort(TestConfigs.SERVER_PORT)
 					.addFilter(new RequestLoggingFilter(LogDetail.ALL))
 					.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-				.build();
+				.build();*/
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.body(post)
 				.when()
 					.post()
@@ -173,16 +201,17 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 		System.out.println("Inicio do testFindById");
 		mockPost();
 		
-		specification = new RequestSpecBuilder()
+		/*specification = new RequestSpecBuilder()
 				.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
 				.setBasePath("/api/post/v1")
 				.setPort(TestConfigs.SERVER_PORT)
 					.addFilter(new RequestLoggingFilter(LogDetail.ALL))
 					.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-				.build();
+				.build();*/
 			
 		var content = given().spec(specification)
-					.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
 						.pathParam("id", post.getId())
 						.when()
 						.get("{id}")
@@ -245,16 +274,17 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockPost();	
 		
-		specification = new RequestSpecBuilder()
+	/*	specification = new RequestSpecBuilder()
 				.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 				.setBasePath("/api/post/v1")
 				.setPort(TestConfigs.SERVER_PORT)
 					.addFilter(new RequestLoggingFilter(LogDetail.ALL))
 					.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-				.build();		
+				.build();	*/	
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.pathParam("id", post.getId())
 					.when()
 					.get("{id}")

@@ -84,7 +84,9 @@ class PostServicesTest {
 		assertEquals(new CategoryVO(), result.getCategory());
 		assertEquals(new File(), result.getImageDesktop()); 
 		assertEquals(new File(), result.getImageMobile());
-		assertEquals(1L, result.getUser().getKey());		
+		assertEquals(true, result.getUser().getAccountNonExpired());
+		assertEquals(true, result.getUser().getAccountNonLocked());
+		assertEquals(true, result.getUser().getCredentialsNonExpired());
 	}
 
 	@Test

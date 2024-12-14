@@ -96,13 +96,21 @@ public class UserServices implements UserDetailsService {
 	    String encodedPassword = PasswordUtil.encodePassword(user.getPassword());
 	    entity.setPassword(encodedPassword);    
 	    
-	    entity.setAccountNonExpired(true);
-	    entity.setAccountNonLocked(true);
-	    entity.setCredentialsNonExpired(true);
+
 	   // entity.setEnabled(true);
 	    
-	    if (entity.getEnabled()) entity.setCreatedAt(LocalDateTime.now());
-	    else entity.setCreatedAt(null);
+	    if (entity.getEnabled()) {
+	    	entity.setCreatedAt(LocalDateTime.now());
+		    entity.setAccountNonExpired(true);
+		    entity.setAccountNonLocked(true);
+		    entity.setCredentialsNonExpired(true);	    	
+	    }
+	    else {
+	    	entity.setCreatedAt(null);
+		    entity.setAccountNonExpired(false);
+		    entity.setAccountNonLocked(false);
+		    entity.setCredentialsNonExpired(false);	  	    	
+	    }
 
 	    Role defaultRole = roleRepository.findById(2L)
 	        .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
@@ -138,8 +146,8 @@ public class UserServices implements UserDetailsService {
 	    
 	    if (user.getRoles() != null && !user.getRoles().isEmpty()) {
 	        List<Role> roles = user.getRoles().stream()
-	            .map(roleVo -> roleRepository.findById(roleVo.getKey())
-	                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + roleVo.getKey())))
+	            .map(roleVo -> roleRepository.findById(roleVo.getId())
+	                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + roleVo.getId())))
 	            .collect(Collectors.toList());
 	        entity.setRoles(roles);
 	    }	    

@@ -23,7 +23,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -86,7 +85,7 @@ public class User implements UserDetails, Serializable {
     
     public User() {}
     
-    @PrePersist
+   /* @PrePersist
     protected void onCreate() {
         if (accountNonExpired == null) {
             accountNonExpired = true;
@@ -100,7 +99,7 @@ public class User implements UserDetails, Serializable {
         if (enabled == null) {
             enabled = true; 
         }
-    }    
+    }  */  
     
     public List<String> getPermissions() {
     	List<String> permissions = new ArrayList<>();

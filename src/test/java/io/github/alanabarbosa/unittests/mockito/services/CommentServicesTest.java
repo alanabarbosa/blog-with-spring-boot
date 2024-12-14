@@ -2,8 +2,8 @@ package io.github.alanabarbosa.unittests.mockito.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -24,10 +24,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
+import io.github.alanabarbosa.data.vo.v1.UserVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
-import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.Comment;
-import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.repositories.CommentRepository;
 import io.github.alanabarbosa.services.CommentServices;
 import io.github.alanabarbosa.unittests.mapper.mocks.MockComment;
@@ -140,13 +139,17 @@ class CommentServicesTest {
 
 	    assertNotNull(result);
 	    assertNotNull(result.getKey());
+	    assertNotNull(result.getLinks());
 	    
 	    assertTrue(result.toString().contains("[</api/comment/v1/1>;rel=\"self\"]"));
+	    
 	    assertEquals("Este é um comentario.1", result.getContent());
 	    assertEquals(now.truncatedTo(ChronoUnit.SECONDS), result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
-	    assertEquals(false, result.getStatus());	
+	    assertEquals(false, result.getStatus());
+	    assertEquals(2L, result.getPost().getKey());
+		assertEquals(2L, result.getUser().getKey());
 	    /*assertEquals(2L, result.getUser().getId());
-	    assertEquals(2L, result.getPost().getKey());*/
+	    assertEquals(2L, result.getPost().getKey());*/    
 
 	    Comment capturedPost = captor.getValue();
 
@@ -183,7 +186,7 @@ class CommentServicesTest {
 	    when(repository.findById(1L)).thenReturn(Optional.of(existingEntity));
 	    when(repository.save(captor.capture())).thenReturn(existingEntity);
 
-	   var result = service.update(vo);
+	    var result = service.update(vo);
 	    
 	    assertNotNull(result);
 	    assertNotNull(result.getKey());
@@ -191,7 +194,12 @@ class CommentServicesTest {
 	    assertTrue(result.toString().contains("[</api/comment/v1/1>;rel=\"self\"]"));
 	    assertEquals("Este é um comentario.1", result.getContent());
 	    assertEquals(now.truncatedTo(ChronoUnit.SECONDS), result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
+	    assertEquals(2L, result.getPost().getKey());
+		assertEquals(2L, result.getUser().getKey());
 	    assertEquals(false, result.getStatus());	
+		assertEquals(false, result.getUser().getAccountNonExpired());
+		assertEquals(false, result.getUser().getAccountNonLocked());
+		assertEquals(false, result.getUser().getCredentialsNonExpired());		    
 	    /*assertEquals(2L, result.getUser().getId());
 	    assertEquals(2L, result.getPost().getKey());*/
 
