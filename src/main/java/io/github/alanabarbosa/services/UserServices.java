@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.UserController;
+import io.github.alanabarbosa.data.vo.v1.UserResponseVO;
 import io.github.alanabarbosa.data.vo.v1.UserVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
@@ -52,14 +53,13 @@ public class UserServices implements UserDetailsService {
 		}
 	}
 	
-	public List<UserVO> findAll() {		
-	    logger.info("Finding all users!");		
-	    var users = DozerMapper.parseListObjects(repository.findAll(), UserVO.class);
-
-	    users.forEach(user -> logger.info("User: " + user.toString()));
+	public List<UserResponseVO> findAll() {        
+	    logger.info("Finding all users!");        
 	    
-	    return users.stream()
-	    	.filter(user -> user.getEnabled() == true)
+	    var usersResponseVO = DozerMapper.parseListObjects(repository.findAll(), UserResponseVO.class);
+
+	    return usersResponseVO.stream()
+	        .filter(user -> user.getEnabled() != null && user.getEnabled())
 	        .map(user -> {
 	            try {
 	                user.add(linkTo(methodOn(UserController.class).findById(user.getKey())).withSelfRel());
@@ -72,12 +72,13 @@ public class UserServices implements UserDetailsService {
 	        .collect(Collectors.toList());
 	}
 
+
 	
-	public UserVO findById(Long id) throws Exception {		
+	public UserResponseVO findById(Long id) throws Exception {		
 		logger.info("Finding one user!");		
 	    var entity = repository.findById(id)
 	    		.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));	    
-	    var vo = DozerMapper.parseObject(entity, UserVO.class);	    
+	    var vo = DozerMapper.parseObject(entity, UserResponseVO.class);	    
 	    vo.add(linkTo(methodOn(UserController.class).findById(id)).withSelfRel());
 	    return vo;
 	}

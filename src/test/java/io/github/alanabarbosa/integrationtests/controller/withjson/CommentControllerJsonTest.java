@@ -233,14 +233,6 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockComment();	
 		
-	/*	specification = new RequestSpecBuilder()
-				.addHeader(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
-				.setBasePath("/api/comment/v1")
-				.setPort(TestConfigs.SERVER_PORT)
-					.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-					.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-				.build();	*/	
-		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
@@ -313,7 +305,7 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	    
 	    //user.setRoles();
 	    
-	    post.setUser(user);
+	   // post.setUser(user);
 	    post.setCategory(category);
 	    
 	    comment.setPost(post);

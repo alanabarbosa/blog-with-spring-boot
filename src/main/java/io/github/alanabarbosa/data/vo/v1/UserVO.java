@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
@@ -21,7 +22,9 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
-@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "bio", "created_at", "enabled", "roles"})
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "password", "bio", "created_at", "enabled", "roles"})
 public class UserVO extends RepresentationModel<UserVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -40,21 +43,17 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
     private String userName;
     
     //@JsonProperty("password")
-	//@JsonIgnore
-    @JsonProperty(value = "password", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "password")
 	private String password;
 	
-    //@JsonProperty("account_non_expired")
-    @JsonProperty(value = "account_non_expired", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty("account_non_expired")
 	private Boolean accountNonExpired;
 	
    
-    ///@JsonProperty("account_non_locked")
-    @JsonProperty(value = "account_non_locked", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty("account_non_locked")
 	private Boolean accountNonLocked;
 	
-   // @JsonProperty("credentials_non_expired")
-    @JsonProperty(value = "credentials_non_expired", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty("credentials_non_expired")
 	private Boolean credentialsNonExpired;	
 
     @JsonProperty("bio")
@@ -66,9 +65,8 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
     @JsonProperty("enabled")
     private Boolean enabled;
     
-   // @JsonProperty("comments")
+    @JsonProperty("comments")
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER) 
-    @JsonProperty(value = "comments", access = JsonProperty.Access.WRITE_ONLY)
     private List<Comment> comments;
 
     @OneToOne

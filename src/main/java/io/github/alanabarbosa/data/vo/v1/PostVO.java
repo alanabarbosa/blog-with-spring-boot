@@ -50,7 +50,7 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @Mapping("user")
-    private UserVO user;
+    private UserResponseVO user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
@@ -146,11 +146,13 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 		this.status = status;
 	}
 
-	public UserVO getUser() {
+	
+
+	public UserResponseVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserVO user) {
+	public void setUser(UserResponseVO user) {
 		this.user = user;
 	}
 
