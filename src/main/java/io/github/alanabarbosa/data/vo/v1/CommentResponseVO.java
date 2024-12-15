@@ -16,7 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "content", "created_at","status"})
-public class CommentVO extends RepresentationModel<CommentVO> implements Serializable {
+public class CommentResponseVO extends RepresentationModel<CommentResponseVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
@@ -29,21 +29,19 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
     private LocalDateTime createdAt;
     private Boolean status;   
     
-    //@JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+   /* @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     @Mapping("post")
-    private PostVO post;
+    private PostResponseVO post;*/
     
-   // @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @Mapping("user")
     private UserResponseVO user;
 
-    public CommentVO() {}
+    public CommentResponseVO() {}
 
-    public CommentVO(Long key, String content, LocalDateTime createdAt) {
+    public CommentResponseVO(Long key, String content, LocalDateTime createdAt) {
         this.key = key;
         this.content = content;
         this.createdAt = createdAt;
@@ -80,15 +78,7 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 	public void setStatus(Boolean status) {
 		this.status = status;
 	}
-
-	public PostVO getPost() {
-		return post;
-	}
-
-	public void setPost(PostVO post) {
-		this.post = post;
-	}
-
+	
 	public UserResponseVO getUser() {
 		return user;
 	}
@@ -101,7 +91,7 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(content, createdAt, key, post, status, user);
+		result = prime * result + Objects.hash(content, createdAt, key, status, user);
 		return result;
 	}
 
@@ -113,9 +103,9 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CommentVO other = (CommentVO) obj;
+		CommentResponseVO other = (CommentResponseVO) obj;
 		return Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
-				&& Objects.equals(key, other.key) && Objects.equals(post, other.post)
+				&& Objects.equals(key, other.key)
 				&& Objects.equals(status, other.status) && Objects.equals(user, other.user);
 	}
 	

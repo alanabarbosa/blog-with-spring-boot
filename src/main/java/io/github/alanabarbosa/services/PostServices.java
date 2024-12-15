@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.PostController;
+import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
@@ -35,7 +36,7 @@ public class PostServices {
 	PostRepository repository;
 	
     @Autowired
-    private CommentRepository commentRepository;
+    CommentRepository commentRepository;
     
     public List<PostVO> findAll() {
         logger.info("Finding all posts!");
@@ -44,10 +45,11 @@ public class PostServices {
         posts.forEach(post -> {
             try {
                 List<Comment> comments = commentRepository.findByPostId(post.getKey());
-                List<CommentVO> commentVOs = comments.stream()
+                
+                List<CommentResponseVO> commentVOs = comments.stream()
                     .filter(comment -> comment.getStatus() == true)
                     .map(comment -> {
-                        CommentVO commentVO = DozerMapper.parseObject(comment, CommentVO.class);
+                    	CommentResponseVO commentVO = DozerMapper.parseObject(comment, CommentResponseVO.class);
                        // UserVO userVO = DozerMapper.parseObject(comment.getUser(), UserVO.class);
                         return commentVO;
                     })
@@ -72,7 +74,7 @@ public class PostServices {
         var vo = DozerMapper.parseObject(entity, PostVO.class);
         try {
             List<Comment> comments = commentRepository.findByPostId(id);
-            List<CommentVO> commentVOs = DozerMapper.parseListObjects(comments, CommentVO.class);
+            List<CommentResponseVO> commentVOs = DozerMapper.parseListObjects(comments, CommentResponseVO.class);
             vo.setComments(commentVOs);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error while processing comments for post " + id, e);

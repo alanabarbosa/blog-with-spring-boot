@@ -22,7 +22,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "title", "content", "createdAt", "updatedAt", "publishedAt", "slug", "status", "user_id"})
-public class PostVO extends RepresentationModel<PostVO> implements Serializable {
+public class PostResponseVO extends RepresentationModel<PostResponseVO> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -66,9 +66,9 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
     private File imageMobile;
     
     @OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
-    private List<CommentResponseVO> comments;
+    private List<CommentVO> comments;
 
-    public PostVO() {}
+    public PostResponseVO() {}
     
     @PrePersist
     public void prePresist() {
@@ -180,11 +180,11 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 		this.imageMobile = imageMobile;
 	}
 
-	public List<CommentResponseVO> getComments() {
+	public List<CommentVO> getComments() {
 		return comments;
 	}
 
-	public void setComments(List<CommentResponseVO> comments) {
+	public void setComments(List<CommentVO> comments) {
 		this.comments = comments;
 	}
 
@@ -205,7 +205,7 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PostVO other = (PostVO) obj;
+		PostResponseVO other = (PostResponseVO) obj;
 		return Objects.equals(category, other.category) && Objects.equals(comments, other.comments)
 				&& Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
 				&& Objects.equals(imageDesktop, other.imageDesktop) && Objects.equals(imageMobile, other.imageMobile)

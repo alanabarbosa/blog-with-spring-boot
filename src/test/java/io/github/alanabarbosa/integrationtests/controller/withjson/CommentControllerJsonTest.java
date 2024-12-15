@@ -26,6 +26,7 @@ import io.github.alanabarbosa.configs.TestConfigs;
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
+import io.github.alanabarbosa.data.vo.v1.UserResponseVO;
 import io.github.alanabarbosa.data.vo.v1.UserVO;
 import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegrationTest;
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
@@ -140,9 +141,9 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 
 		assertEquals(1L, persistedComment.getPost().getKey());
 		assertEquals(1L, persistedComment.getUser().getKey());
-		assertEquals(true, persistedComment.getUser().getAccountNonExpired());
+	/*	assertEquals(true, persistedComment.getUser().getAccountNonExpired());
 		assertEquals(true, persistedComment.getUser().getAccountNonLocked());
-		assertEquals(true, persistedComment.getUser().getCredentialsNonExpired());
+		assertEquals(true, persistedComment.getUser().getCredentialsNonExpired());*/
 	}
 	
 	@Test
@@ -310,7 +311,7 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	    
 	    comment.setPost(post);
 	    
-	    UserVO userVO = new UserVO();
+	    UserResponseVO userVO = new UserResponseVO();
 	    userVO.setKey(1L);
 	    userVO.setBio("This is a briograph");
 	    userVO.setCreatedAt(now);
@@ -318,9 +319,9 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	    userVO.setLastName("Goku");
 	    userVO.setUserName("songoku");
 	    userVO.setKey(1L);
-	    userVO.setAccountNonExpired(true);
+	    /*userVO.setAccountNonExpired(true);
 	    userVO.setAccountNonLocked(true);
-	    userVO.setCredentialsNonExpired(true);
+	    userVO.setCredentialsNonExpired(true);*/
 	    userVO.setEnabled(true);
 	    
 	    comment.setUser(userVO);	    
