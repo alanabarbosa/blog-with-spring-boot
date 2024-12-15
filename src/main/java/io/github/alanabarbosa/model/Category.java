@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "category")
 public class Category implements Serializable {
@@ -21,6 +23,7 @@ public class Category implements Serializable {
     private String description;
     
     @Column(name = "created_at", nullable = false)
+    @JsonProperty("created_at")
     private LocalDateTime createdAt;	
 
     public Category() {}

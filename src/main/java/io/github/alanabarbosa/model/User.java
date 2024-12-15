@@ -23,6 +23,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -44,6 +45,7 @@ public class User implements UserDetails, Serializable {
     private String lastName;
 
     @Column(name = "user_name", nullable = false, length = 25, unique = true)
+    @JsonProperty("user_name")
     private String userName;
     
 	@Column(nullable = false, name = "password")
@@ -51,15 +53,19 @@ public class User implements UserDetails, Serializable {
 	private String password;
 	
 	@Column(name = "account_non_expired")
+	@JsonProperty("account_non_expired")
 	private Boolean accountNonExpired;
 	
 	@Column(name = "account_non_locked")
+	@JsonProperty("account_non_locked")
 	private Boolean accountNonLocked;
 	
 	@Column(name = "credentials_non_expired")
+	@JsonProperty("credentials_non_expired")
 	private Boolean credentialsNonExpired;	
 
     @Column(nullable = false, length = 500)
+    @JsonProperty("bio")
     private String bio;
 
     @Column(name = "created_at", nullable = false)
@@ -85,7 +91,7 @@ public class User implements UserDetails, Serializable {
     
     public User() {}
     
-   /* @PrePersist
+   @PrePersist
     protected void onCreate() {
         if (accountNonExpired == null) {
             accountNonExpired = true;
@@ -99,7 +105,7 @@ public class User implements UserDetails, Serializable {
         if (enabled == null) {
             enabled = true; 
         }
-    }  */  
+    } 
     
     public List<String> getPermissions() {
     	List<String> permissions = new ArrayList<>();
@@ -177,7 +183,7 @@ public class User implements UserDetails, Serializable {
 	}
 
 	public Boolean getAccountNonExpired() {
-		return accountNonExpired;
+		return accountNonExpired = true; 
 	}
 
 	public void setAccountNonExpired(Boolean accountNonExpired) {
@@ -185,7 +191,7 @@ public class User implements UserDetails, Serializable {
 	}
 
 	public Boolean getAccountNonLocked() {
-		return accountNonLocked;
+		return accountNonLocked = true;
 	}
 
 	public void setAccountNonLocked(Boolean accountNonLocked) {
@@ -193,7 +199,7 @@ public class User implements UserDetails, Serializable {
 	}
 
 	public Boolean getCredentialsNonExpired() {
-		return credentialsNonExpired;
+		return credentialsNonExpired = true;
 	}
 
 	public void setCredentialsNonExpired(Boolean credentialsNonExpired) {

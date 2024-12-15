@@ -6,17 +6,22 @@ import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({"id", "name", "description","created_at"})
 public class CategoryVO extends RepresentationModel<CategoryVO> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	@Mapping("id")
 	@JsonProperty("id")
+	
     private Long key;
     private String name;	
     private String description;
+    
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
 

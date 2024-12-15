@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,6 +17,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "role")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Role implements GrantedAuthority, Serializable {
 
 	private static final long serialVersionUID = 1L;

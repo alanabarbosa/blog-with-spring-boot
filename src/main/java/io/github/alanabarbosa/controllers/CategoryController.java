@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
-import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.services.CategoryServices;
 import io.github.alanabarbosa.util.MediaType;
 import io.swagger.v3.oas.annotations.Operation;

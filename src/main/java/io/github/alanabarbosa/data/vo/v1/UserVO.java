@@ -35,7 +35,7 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
 
     @JsonProperty("last_name")
     private String lastName;
-
+    
     @JsonProperty("user_name")
     private String userName;
     
@@ -96,6 +96,22 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
     public void prePresist() {
     	if (createdAt == null) createdAt = LocalDateTime.now();
     }
+    
+    @PrePersist
+    protected void onCreate() {
+        if (accountNonExpired == null) {
+            accountNonExpired = true;
+        }
+        if (accountNonLocked == null) {
+            accountNonLocked = true;
+        }
+        if (credentialsNonExpired == null) {
+            credentialsNonExpired = true;
+        }
+        if (enabled == null) {
+            enabled = true; 
+        }
+    }     
 
 
 	public Long getKey() {
@@ -149,7 +165,7 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
 
 
 	public Boolean getAccountNonExpired() {
-		return accountNonExpired;
+		return accountNonExpired = true;
 	}
 
 
@@ -159,7 +175,7 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
 
 
 	public Boolean getAccountNonLocked() {
-		return accountNonLocked;
+		return accountNonLocked = true;
 	}
 
 
@@ -169,7 +185,7 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
 
 
 	public Boolean getCredentialsNonExpired() {
-		return credentialsNonExpired;
+		return credentialsNonExpired = true;
 	}
 
 

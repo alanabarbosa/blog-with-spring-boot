@@ -4,10 +4,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.springframework.security.core.GrantedAuthority;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.dozermapper.core.Mapping;
 
-public class RoleVO implements Serializable {
+public class RoleVO implements GrantedAuthority, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	@Mapping("id")
@@ -25,6 +27,11 @@ public class RoleVO implements Serializable {
         this.description = description;
         this.createdAt = createdAt;
     }
+    
+    @Override
+    public String getAuthority() {
+    	return this.name;
+    }    
 
 	public Long getKey() {
 		return key;

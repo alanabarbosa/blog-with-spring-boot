@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
@@ -13,8 +14,8 @@ import com.github.dozermapper.core.Mapping;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-
-@JsonPropertyOrder({"id", "content", "createdAt","status"})
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({"id", "content", "created_at","status"})
 public class CommentVO extends RepresentationModel<CommentVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -23,6 +24,7 @@ public class CommentVO extends RepresentationModel<CommentVO> implements Seriali
 	@JsonProperty("id")
     private Long key;
     private String content;
+    
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
     private Boolean status;   
