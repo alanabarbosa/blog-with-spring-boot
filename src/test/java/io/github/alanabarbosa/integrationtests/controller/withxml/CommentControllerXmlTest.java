@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.integrationtests.controller.withjson;
+package io.github.alanabarbosa.integrationtests.controller.withxml;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
@@ -21,8 +21,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.github.alanabarbosa.configs.TestConfigs;
@@ -40,26 +40,26 @@ import io.restassured.specification.RequestSpecification;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
-public class CommentControllerJsonTest extends AbstractIntegrationTest{
+public class CommentControllerXmlTest extends AbstractIntegrationTest{
 	
 	private static RequestSpecification specification;
-	private static ObjectMapper objectMapper;
+	private static XmlMapper objectMapper;
 	private static CommentVO comment;
 
 	LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 	
 	@BeforeAll
-	public static void setup() {
-	    objectMapper = new ObjectMapper();
+    public static void setup() {
+        objectMapper = new XmlMapper();
 	    objectMapper.registerModule(new JavaTimeModule());
 	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 	    objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 	    objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
 	    
 	    objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"));
-	    
-	    comment = new CommentVO();
-	}
+
+        comment = new CommentVO();
+    }
 	
 	@Test
 	@Order(0)
@@ -69,7 +69,8 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 		var accessToken = given()
 				.basePath("/auth/signin")
 					.port(TestConfigs.SERVER_PORT)
-					.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.contentType(TestConfigs.CONTENT_TYPE_XML)
+					.accept(TestConfigs.CONTENT_TYPE_XML)
 				.body(user)
 					.when()
 				.post()
@@ -94,13 +95,12 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	public void testCreate() throws JsonMappingException, JsonProcessingException {
 		mockComment();
 		
-	    ObjectMapper objectMapper = new ObjectMapper();
-	    objectMapper.registerModule(new JavaTimeModule());
+		objectMapper.registerModule(new JavaTimeModule());
 	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-	    
+		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.body(comment)
 					.when()
 					.post()
@@ -109,31 +109,31 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 						.extract()
 						.body()
 							.asString();
-		
-		System.out.println("Response Body: " + content);
-		
-		CommentVO persistedComment = objectMapper.readValue(content, CommentVO.class);
-		
-		comment = persistedComment;
-		
-		assertNotNull(persistedComment);
-		
-		assertNotNull(persistedComment.getKey());
-		assertNotNull(persistedComment.getContent());
-		assertTrue(persistedComment.getStatus());
-		assertNotNull(persistedComment.getCreatedAt());
-		assertNotNull(persistedComment.getPost());
-		assertNotNull(persistedComment.getUser());
-		
-		assertTrue(persistedComment.getKey() > 0);
-		
-		assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
-		/*assertTrue(persistedComment.getCreatedAt()
-			    .truncatedTo(ChronoUnit.SECONDS)
-			    .isEqual(now.truncatedTo(ChronoUnit.SECONDS)));*/
+        
+        CommentVO persistedComment = objectMapper.readValue(content, CommentVO.class);
+        comment = persistedComment;
 
-		assertEquals(1L, persistedComment.getPost().getId());
-		assertEquals(1L, persistedComment.getUser().getKey());
+        assertNotNull(persistedComment);
+        
+        assertNotNull(persistedComment.getKey());
+        assertNotNull(persistedComment.getContent());
+        assertTrue(persistedComment.getStatus());
+        assertNotNull(persistedComment.getCreatedAt());
+        assertNotNull(persistedComment.getPost());
+        assertNotNull(persistedComment.getUser());
+        
+        assertTrue(persistedComment.getKey() > 0);
+        
+        assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
+        assertEquals(true, persistedComment.getStatus());
+		assertTrue(persistedComment.getCreatedAt()
+				.truncatedTo(ChronoUnit.SECONDS)
+				.isEqual(now
+						.truncatedTo(ChronoUnit.SECONDS))); 
+		assertEquals(1L, persistedComment.getPost().getId());		
+        assertEquals(1L, persistedComment.getUser().getKey());
+
+
 	}
 	
 	@Test
@@ -142,7 +142,7 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 		mockComment();
 		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.body(comment)
 				.when()
@@ -160,15 +160,15 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	@Test
 	@Order(3)
 	public void testUpdate() throws JsonMappingException, JsonProcessingException {
+		//mockComment();
 		comment.setContent("Great article! Thanks for sharing.");
-		mockComment();
 		
-	    //ObjectMapper objectMapper = new ObjectMapper();
-	    objectMapper.registerModule(new JavaTimeModule());
+	   	objectMapper.registerModule(new JavaTimeModule());
 	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-	    
+		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.body(comment)
 					.when()
 					.post()
@@ -177,38 +177,32 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 						.extract()
 						.body()
 							.asString();
-		
-		CommentVO persistedComment = objectMapper.readValue(content, CommentVO.class);
-		
-		comment = persistedComment;
-		
-		assertNotNull(persistedComment);
-		
-		assertNotNull(persistedComment.getKey());
-		assertNotNull(persistedComment.getContent());
-		assertTrue(persistedComment.getStatus());
-		assertNotNull(persistedComment.getCreatedAt());
-		assertNotNull(persistedComment.getPost());
-		assertNotNull(persistedComment.getUser());
-		
-		assertEquals(comment.getKey(), persistedComment.getKey());
-		
-		assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
-		/*assertTrue(persistedComment.getCreatedAt()
-			    .truncatedTo(ChronoUnit.SECONDS)
-			    .isEqual(now.truncatedTo(ChronoUnit.SECONDS)));*/
+        
+        CommentVO persistedComment = objectMapper.readValue(content, CommentVO.class);
+        comment = persistedComment;
 
-		assertEquals(1L, persistedComment.getPost().getId());
-		assertEquals(1L, persistedComment.getUser().getKey());
+        assertNotNull(persistedComment.getKey());
+        assertNotNull(persistedComment.getContent());
+        assertTrue(persistedComment.getStatus());
+        assertNotNull(persistedComment.getCreatedAt());
+        assertNotNull(persistedComment.getPost());
+        assertNotNull(persistedComment.getUser());
+        
+        assertEquals(comment.getKey(), persistedComment.getKey());
+        
+        assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
+        assertEquals(1L, persistedComment.getUser().getKey());
+
+
 	}
 	
 	@Test
-	@Order(3)
+	@Order(4)
 	public void testFindById() throws JsonMappingException, JsonProcessingException {
 		mockComment();
 			
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
 						.pathParam("id", comment.getKey())
 						.when()
@@ -241,15 +235,20 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 		assertTrue(persistedComment.getKey() > 0);
 		
 		assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
+		
+		assertTrue(persistedComment.getCreatedAt()
+				.truncatedTo(ChronoUnit.SECONDS)
+				.isEqual(now
+						.truncatedTo(ChronoUnit.SECONDS)));	
 	} 
 	
 	@Test
-	@Order(4)
+	@Order(5)
 	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockComment();	
 		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.pathParam("id", comment.getKey())
 					.when()
@@ -263,14 +262,15 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	
 		assertNotNull(content);
 		assertEquals("Invalid CORS request", content);
-	}	
+	}
 	
 	@Test
 	@Order(6)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.when()
 					.get()
 				.then()
@@ -319,7 +319,7 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
-			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.contentType(TestConfigs.CONTENT_TYPE_XML)
 				.pathParam("id", comment.getKey())
 				.when()
 				.delete("{id}")
@@ -328,7 +328,7 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	}
 
 	private void mockComment() {
-	    comment.setContent("Great article! Thanks for sharing.");
+		comment.setContent("Great article! Thanks for sharing.");
 	    comment.setStatus(true);
 	    comment.setCreatedAt(now);
 	    
@@ -349,7 +349,7 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	    userVO.setLastName("Goku");
 	    userVO.setUserName("songoku");
 	    userVO.setEnabled(true);
-
+	
 	    comment.setPost(post);
 	    comment.setUser(userVO);
 	}

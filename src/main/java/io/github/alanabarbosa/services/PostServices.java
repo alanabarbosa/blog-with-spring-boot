@@ -89,6 +89,15 @@ public class PostServices {
 	
 	public PostVO create(PostVO post) throws Exception {		
 		if (post == null) throw new RequiredObjectIsNullException();
+		if (post != null) post.setCreatedAt(LocalDateTime.now());
+		
+	    if (post.getImageDesktop() != null && post.getImageDesktop().getId() == null) {
+	        post.setImageDesktop(null);
+	    }
+	    
+	    if (post.getImageMobile() != null && post.getImageMobile().getId() == null) {
+	        post.setImageMobile(null);
+	    }
 		
 		logger.info("Creating one post!");
 		
@@ -109,6 +118,18 @@ public class PostServices {
 	
 	public PostVO update(PostVO post) throws Exception {
 	    if (post == null) throw new RequiredObjectIsNullException();
+	    
+	    if (post != null) post.setCreatedAt(LocalDateTime.now());
+	    
+	    if (post.getImageDesktop() != null && post.getImageDesktop().getId() == null) {
+	        post.setImageDesktop(null);
+	    }
+	    
+	    if (post.getImageMobile() != null && post.getImageMobile().getId() == null) {
+	        post.setImageMobile(null);
+	    }    
+	    
+	    
 	    logger.info("Updating one post!");
 	    var entity = repository.findById(post.getKey())
 	            .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));

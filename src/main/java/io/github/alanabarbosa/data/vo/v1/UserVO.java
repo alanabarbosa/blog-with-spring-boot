@@ -48,7 +48,6 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
 	
     @JsonProperty("account_non_expired")
 	private Boolean accountNonExpired;
-	
    
     @JsonProperty("account_non_locked")
 	private Boolean accountNonLocked;

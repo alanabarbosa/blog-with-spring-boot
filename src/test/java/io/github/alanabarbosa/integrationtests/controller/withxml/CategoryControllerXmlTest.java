@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.integrationtests.controller.withjson;
+package io.github.alanabarbosa.integrationtests.controller.withxml;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -21,8 +19,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.github.alanabarbosa.configs.TestConfigs;
@@ -38,27 +36,26 @@ import io.restassured.specification.RequestSpecification;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
-public class CategoryControllerJsonTest extends AbstractIntegrationTest{
+public class CategoryControllerXmlTest extends AbstractIntegrationTest {
 	
-	private static RequestSpecification specification ;
-	private static ObjectMapper objectMapper;
+	private static RequestSpecification specification;
+	private static XmlMapper objectMapper;
+	
 	private static CategoryVO category;
 
-	LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-	
-	@BeforeAll
-	public static void setup() {
-	    objectMapper = new ObjectMapper();
+    @BeforeAll
+    public static void setup() {
+        objectMapper = new XmlMapper();
 	    objectMapper.registerModule(new JavaTimeModule());
 	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 	    objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 	    objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
 	    
 	    objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"));
-	    
-	    category = new CategoryVO();
-	}
-	
+
+        category = new CategoryVO();
+    }
+
 	@Test
 	@Order(0)
 	public void authorization() throws JsonMappingException, JsonProcessingException {
@@ -67,7 +64,8 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 		var accessToken = given()
 				.basePath("/auth/signin")
 					.port(TestConfigs.SERVER_PORT)
-					.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.contentType(TestConfigs.CONTENT_TYPE_XML)
+					.accept(TestConfigs.CONTENT_TYPE_XML)
 				.body(user)
 					.when()
 				.post()
@@ -87,48 +85,35 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 				.build();
 	}
 
-	@Test
-	@Order(1)
-	public void testCreate() throws JsonMappingException, JsonProcessingException {
-		mockCategory();
-		
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.registerModule(new JavaTimeModule());
-	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);	
-		
-	    var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
-					.body(category)
-					.when()
-					.post()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		CategoryVO persistedCategory = objectMapper.readValue(content, CategoryVO.class);
-		
-		category = persistedCategory;
-		
-		assertNotNull(persistedCategory);
-		
-		assertNotNull(persistedCategory.getKey());
-		assertNotNull(persistedCategory.getName());
-		assertNotNull(persistedCategory.getDescription());
-		assertNotNull(persistedCategory.getCreatedAt());
-		
-		assertTrue(persistedCategory.getKey() > 0);
-		
-		assertEquals("Technology", persistedCategory.getName());
-		assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());		
-		
-		/*assertTrue(persistedCategory.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));	*/
-	}
+    @Test
+    @Order(1)
+    public void testCreate() throws JsonProcessingException {
+        mockCategory();
+        
+        var content = given().spec(specification)
+                .contentType(TestConfigs.CONTENT_TYPE_XML)
+                .accept(TestConfigs.CONTENT_TYPE_XML)
+                	.body(category)
+                	.when()
+                	.post()
+                .then()
+                	.statusCode(200)
+                		.extract()
+                		.body()
+                			.asString();
+
+        CategoryVO persistedCategory = objectMapper.readValue(content, CategoryVO.class);
+        category = persistedCategory;
+
+        assertNotNull(persistedCategory.getKey());
+        assertNotNull(persistedCategory.getName());
+        assertNotNull(persistedCategory.getDescription());
+        assertNotNull(persistedCategory.getCreatedAt());
+
+        assertTrue(persistedCategory.getKey() > 0);
+        assertEquals("Technology", persistedCategory.getName());
+        assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());
+    }
 	
 	@Test
 	@Order(2)
@@ -136,7 +121,8 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 		mockCategory();
 		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.body(category)
 				.when()
@@ -149,7 +135,7 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 		
 		assertNotNull(content);
 		assertEquals("Invalid CORS request", content);		
-	}	
+	}
 	
 	@Test
 	@Order(3)
@@ -157,7 +143,8 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 		category.setName("Technology");
 		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.body(category)
 					.when()
 					.post()
@@ -170,74 +157,57 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 		CategoryVO persistedCategory = objectMapper.readValue(content, CategoryVO.class);
 		category = persistedCategory;
 		
-		category = persistedCategory;
-		
 		assertNotNull(persistedCategory);
 		
-		assertNotNull(persistedCategory.getKey());
-		assertNotNull(persistedCategory.getName());
-		assertNotNull(persistedCategory.getDescription());
-		assertNotNull(persistedCategory.getCreatedAt());
+        assertNotNull(persistedCategory.getKey());
+        assertNotNull(persistedCategory.getName());
+        assertNotNull(persistedCategory.getDescription());
+        assertNotNull(persistedCategory.getCreatedAt());
 		
-		assertTrue(persistedCategory.getKey() > 0);
+		assertEquals(category.getKey(), persistedCategory.getKey());
 		
-		assertEquals("Technology", persistedCategory.getName());
-		assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());		
-		assertTrue(persistedCategory.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));	
-	}	
+        assertEquals("Technology", persistedCategory.getName());
+        assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());
+	}
 	
 	@Test
 	@Order(4)
-	public void testFindById() throws JsonMappingException, JsonProcessingException {
-		mockCategory();
-		
-		
-			
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
-						.pathParam("id", category.getKey())
-						.when()
-						.get("{id}")
-					.then()
-						.statusCode(200)
-							.extract()
-							.body()
-								.asString();
-		
-		CategoryVO persistedCategory = objectMapper.readValue(content, CategoryVO.class);
-		category = persistedCategory;
-		
-		System.out.println(category);
-		
-		assertNotNull(persistedCategory);
-		
-		assertNotNull(persistedCategory.getKey());
-		assertNotNull(persistedCategory.getName());
-		assertNotNull(persistedCategory.getDescription());
-		assertNotNull(persistedCategory.getCreatedAt());
-		
-	    assertTrue(persistedCategory.getKey() > 0);
-		
-		assertEquals("Technology", persistedCategory.getName());
-		assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());
-		
-		assertTrue(persistedCategory.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));	
-	} 
+    public void testFindById() throws JsonProcessingException {
+        mockCategory();
+
+        var content = given().spec(specification)
+                .contentType(TestConfigs.CONTENT_TYPE_XML)
+                .accept(TestConfigs.CONTENT_TYPE_XML)
+                	.pathParam("id", category.getKey())
+                .when()
+                	.get("{id}")
+                .then()
+                	.statusCode(200)
+                	.extract()
+                		.body()
+                			.asString();
+
+        CategoryVO persistedCategory = objectMapper.readValue(content, CategoryVO.class);
+        category = persistedCategory;
+
+        assertNotNull(persistedCategory);
+        assertNotNull(persistedCategory.getKey());
+        assertNotNull(persistedCategory.getName());
+        assertNotNull(persistedCategory.getDescription());
+        assertNotNull(persistedCategory.getCreatedAt());
+
+        assertTrue(persistedCategory.getKey() > 0);
+        assertEquals("Technology", persistedCategory.getName());
+        assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());
+    }
 	
 	@Test
-	@Order(5)
+	@Order(4)
 	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockCategory();
 		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.pathParam("id", category.getKey())
 					.when()
@@ -251,14 +221,15 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 	
 		assertNotNull(content);
 		assertEquals("Invalid CORS request", content);
-	}	
+	}
 	
 	@Test
-	@Order(6)
+	@Order(5)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.when()
 					.get()
 				.then()
@@ -267,21 +238,21 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 						.body()
 							.asString();
 		
-		List<CategoryVO> categorie = objectMapper.readValue(content, new TypeReference<List<CategoryVO>>() {});
+		List<CategoryVO> c = objectMapper.readValue(content, new TypeReference<List<CategoryVO>>() {});
 		
-		CategoryVO founCategoryOne = categorie.get(0);
+		CategoryVO foundCategoryOne = c.get(0);
 		
-		assertNotNull(founCategoryOne.getKey());
-		assertNotNull(founCategoryOne.getName());
-		assertNotNull(founCategoryOne.getDescription());
-		assertNotNull(founCategoryOne.getCreatedAt());
+        assertNotNull(foundCategoryOne.getKey());
+        assertNotNull(foundCategoryOne.getName());
+        assertNotNull(foundCategoryOne.getDescription());
+        assertNotNull(foundCategoryOne.getCreatedAt());
 		
-		assertEquals(1, founCategoryOne.getKey());
+		assertEquals(1, foundCategoryOne.getKey());
 		
-		assertEquals("Technology", founCategoryOne.getName());
-		assertEquals("Posts related to technology trends and news", founCategoryOne.getDescription());
+        assertEquals("Technology", foundCategoryOne.getName());
+        assertEquals("Posts related to technology trends and news", foundCategoryOne.getDescription());
 		
-		CategoryVO foundCommentThree = categorie.get(3);
+		CategoryVO foundCommentThree = c.get(3);
 		
 		assertNotNull(foundCommentThree.getKey());
 		assertNotNull(foundCommentThree.getName());
@@ -291,7 +262,7 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 		assertEquals(4, foundCommentThree.getKey());
 		
 		assertEquals("Education", foundCommentThree.getName());
-		assertEquals("Resources and news about education", foundCommentThree.getDescription());		
+		assertEquals("Resources and news about education", foundCommentThree.getDescription());	
 	}
 	
 	@Test
@@ -299,7 +270,7 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
-			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.contentType(TestConfigs.CONTENT_TYPE_XML)
 				.pathParam("id", category.getKey())
 				.when()
 				.delete("{id}")
@@ -310,7 +281,5 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 	private void mockCategory() {
 	    category.setName("Technology");
 	    category.setDescription("Posts related to technology trends and news");
-	    category.setCreatedAt(now);
-	}	
-
+	}
 }

@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.model;
+package io.github.alanabarbosa.integrationtests.vo;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -7,58 +7,57 @@ import java.util.Objects;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.github.dozermapper.core.Mapping;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
-@Entity
-@Table(name = "comment")
-public class Comment implements Serializable {
+@XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({"id", "content", "created_at","status"})
+public class CommentVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Lob
-    @Column(nullable = false)
+    
+	@Mapping("id")
+	@JsonProperty("id")
+    private Long key;
     private String content;
-
+    
     @CreationTimestamp
-    @Column(name = "created_at")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
+    private Boolean status;   
     
-    @Column(nullable = false)
-    private Boolean status;    
-
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
-
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Mapping("post")
+    private PostVO post;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Mapping("user")
+    private UserResponseVO user;
 
-    public Comment() {}
+    public CommentVO() {}
 
-	public Long getId() {
-		return id;
+    public CommentVO(Long key, String content, LocalDateTime createdAt) {
+        this.key = key;
+        this.content = content;
+        this.createdAt = createdAt;
+    }
+    
+	public Long getKey() {
+		return key;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setKey(Long key) {
+		this.key = key;
 	}
 
 	public String getContent() {
@@ -85,38 +84,42 @@ public class Comment implements Serializable {
 		this.status = status;
 	}
 
-	public Post getPost() {
+	public PostVO getPost() {
 		return post;
 	}
 
-	public void setPost(Post post) {
+	public void setPost(PostVO post) {
 		this.post = post;
 	}
 
-	public User getUser() {
+	public UserResponseVO getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(UserResponseVO user) {
 		this.user = user;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(content, createdAt, id, post, status, user);
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(content, createdAt, key, post, status, user);
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Comment other = (Comment) obj;
+		CommentVO other = (CommentVO) obj;
 		return Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
-				&& Objects.equals(id, other.id) && Objects.equals(post, other.post)
+				&& Objects.equals(key, other.key) && Objects.equals(post, other.post)
 				&& Objects.equals(status, other.status) && Objects.equals(user, other.user);
 	}
+	
 }

@@ -3,6 +3,7 @@ package io.github.alanabarbosa.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -52,12 +53,19 @@ public class CommentServices {
 	}
 	
 	public CommentVO create(CommentVO comment) throws Exception {
-	    if (comment == null) throw new RequiredObjectIsNullException();	    
-	    var entity = DozerMapper.parseObject(comment, Comment.class);	    
-	    var savedEntity = repository.save(entity);	    
+	    if (comment == null) throw new RequiredObjectIsNullException();	 
+	    
+	    if (comment.getUser() == null || comment.getUser().getKey() == null) {
+	        throw new RuntimeException("User is required to create a comment.");
+	    }
+	    
+	    if (comment.getStatus() && comment.getCreatedAt() == null) comment.setCreatedAt(LocalDateTime.now());
+	    	
+	    var entity = DozerMapper.parseObject(comment, Comment.class);
+	    var savedEntity = repository.save(entity);
 	    var fullComment = repository.findByIdWithRelations(savedEntity.getId())
-	        .orElseThrow(() -> new RuntimeException("Comment not found"));	    
-	    var vo = DozerMapper.parseObject(fullComment, CommentVO.class);	    
+	        .orElseThrow(() -> new RuntimeException("Comment not found")); 
+	    var vo = DozerMapper.parseObject(fullComment, CommentVO.class);
 	    vo.add(linkTo(methodOn(CommentController.class).findById(vo.getKey())).withSelfRel());
 	    return vo;
 	}

@@ -3,6 +3,7 @@ package io.github.alanabarbosa.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CategoryController;
-import io.github.alanabarbosa.controllers.CommentController;
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
@@ -58,6 +58,10 @@ public class CategoryServices {
 	public CategoryVO create(CategoryVO category) throws Exception {
 		if (category == null) throw new RequiredObjectIsNullException();
 		logger.info("Creating one category!");
+		
+        if (category.getCreatedAt() == null) {
+        	category.setCreatedAt(LocalDateTime.now());
+        }
 		
 		var entity = DozerMapper.parseObject(category, Category.class);
 		

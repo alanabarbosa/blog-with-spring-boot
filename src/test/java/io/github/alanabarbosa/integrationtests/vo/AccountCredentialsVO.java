@@ -2,6 +2,9 @@ package io.github.alanabarbosa.integrationtests.vo;
 
 import java.io.Serializable;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class AccountCredentialsVO implements Serializable{
 
 	private static final long serialVersionUID = 1L;

@@ -1,54 +1,46 @@
-package io.github.alanabarbosa.model;
+package io.github.alanabarbosa.integrationtests.vo;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import org.springframework.security.core.GrantedAuthority;
+import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.github.dozermapper.core.Mapping;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.xml.bind.annotation.XmlRootElement;
+
 @XmlRootElement
-@Entity
-@Table(name = "role")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Role implements GrantedAuthority, Serializable {
+@JsonPropertyOrder({"id", "name", "description","created_at"})
+public class CategoryVO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	@Mapping("id")
+	@JsonProperty("id")	
+    private Long key;
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-	
-	@Column(nullable = false, length = 255)
-    private String name;
-	
-	@Column(length = 255)
+    private String name;	
     private String description;
     
-    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    @JsonProperty("created_at")
     private LocalDateTime createdAt;
 
-    public Role() {}
-    
-    @Override
-    public String getAuthority() {
-    	return this.name;
-    }
+    public CategoryVO() {
+        this.createdAt = LocalDateTime.now();
+    }    
 
-	public Long getId() {
-		return id;
+	public Long getKey() {
+		return key;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setKey(Long key) {
+		this.key = key;
 	}
 
 	public String getName() {
@@ -66,7 +58,7 @@ public class Role implements GrantedAuthority, Serializable {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
+	
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
@@ -77,19 +69,22 @@ public class Role implements GrantedAuthority, Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdAt, description, id, name);
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(createdAt, description, key, name);
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Role other = (Role) obj;
+		CategoryVO other = (CategoryVO) obj;
 		return Objects.equals(createdAt, other.createdAt) && Objects.equals(description, other.description)
-				&& Objects.equals(id, other.id) && Objects.equals(name, other.name);
+				&& Objects.equals(key, other.key) && Objects.equals(name, other.name);
 	}
 }

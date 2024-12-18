@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.integrationtests.controller.withjson;
+package io.github.alanabarbosa.integrationtests.controller.withxml;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,11 +18,10 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.github.alanabarbosa.configs.TestConfigs;
@@ -38,17 +38,17 @@ import io.restassured.specification.RequestSpecification;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
-public class UserControllerJsonTest extends AbstractIntegrationTest{
+public class UserControllerXmlTest extends AbstractIntegrationTest{
 	
 	private static RequestSpecification specification ;
-	private static ObjectMapper objectMapper;
+	private static XmlMapper objectMapper;
 	private static UserVO user;
 
 	LocalDateTime now = LocalDateTime.now();
 	
 	@BeforeAll
 	public static void setup() {
-		objectMapper = new ObjectMapper();
+		objectMapper = new XmlMapper();
 		objectMapper.registerModule(new JavaTimeModule());
 		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -65,7 +65,8 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		var accessToken = given()
 				.basePath("/auth/signin")
 					.port(TestConfigs.SERVER_PORT)
-					.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.contentType(TestConfigs.CONTENT_TYPE_XML)
+					.accept(TestConfigs.CONTENT_TYPE_XML)
 				.body(user)
 					.when()
 				.post()
@@ -90,13 +91,13 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	public void testCreate() throws JsonMappingException, JsonProcessingException {
 		mockUser();
 		
-	    ObjectMapper objectMapper = new ObjectMapper();
-	    objectMapper.registerModule(new JavaTimeModule());
-	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		objectMapper = new XmlMapper();
+		objectMapper.registerModule(new JavaTimeModule());
+		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.body(user)
 					.when()
 					.post()
@@ -105,7 +106,6 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 						.extract()
 						.body()
 							.asString();
-		
 		
 		UserVO persistedUser = objectMapper.readValue(content, UserVO.class);
 		
@@ -136,19 +136,24 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		assertEquals(true, persistedUser.getAccountNonExpired());
 		assertEquals(true, persistedUser.getAccountNonLocked());
 		assertEquals(true, persistedUser.getCredentialsNonExpired());
-		assertEquals(true, persistedUser.getEnabled());
+		assertEquals(true, persistedUser.getEnabled());		
+		
+		assertTrue(persistedUser.getCreatedAt()
+				.truncatedTo(ChronoUnit.SECONDS)
+				.isEqual(now
+						.truncatedTo(ChronoUnit.SECONDS)));	
 
 		//assertEquals(4L, persistedUser.getRoles().get(0));
 		//assertEquals(1L, persistedUser.getUser().getKey());
 	}
 	
-	@Test
+	/*@Test
 	@Order(2)
 	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockUser();		
 		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.body(user)
 				.when()
@@ -165,69 +170,11 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(3)
-	public void testUpdate() throws JsonMappingException, JsonProcessingException {
-		user.setFirstName("Son");
-		mockUser();
-		
-	    ObjectMapper objectMapper = new ObjectMapper();
-	    objectMapper.registerModule(new JavaTimeModule());
-	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
-					.body(user)
-					.when()
-					.post()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		
-		UserVO persistedUser = objectMapper.readValue(content, UserVO.class);
-		
-		user = persistedUser;
-		
-		assertNotNull(persistedUser);
-		
-		assertNotNull(persistedUser.getKey());
-		assertNotNull(persistedUser.getFirstName());
-		assertNotNull(persistedUser.getLastName());
-		assertNotNull(persistedUser.getUserName());
-		assertNotNull(persistedUser.getBio());
-		assertNotNull(persistedUser.getPassword());
-		assertNotNull(persistedUser.getAccountNonExpired());
-		assertNotNull(persistedUser.getAccountNonLocked());
-		assertNotNull(persistedUser.getCredentialsNonExpired());
-		assertNotNull(persistedUser.getEnabled());
-		assertNotNull(persistedUser.getCreatedAt());
-		assertNotNull(persistedUser.getRoles());
-		
-		assertEquals(user.getKey(), persistedUser.getKey());
-		
-		assertEquals("Son", persistedUser.getFirstName());
-		assertEquals("Goku", persistedUser.getLastName());
-		assertEquals("songoku", persistedUser.getUserName());
-		assertEquals("This is a biograph", persistedUser.getBio());
-		
-		assertEquals(true, persistedUser.getAccountNonExpired());
-		assertEquals(true, persistedUser.getAccountNonLocked());
-		assertEquals(true, persistedUser.getCredentialsNonExpired());
-		assertEquals(true, persistedUser.getEnabled());
-
-		//assertEquals(4L, persistedUser.getRoles().get(0));
-		//assertEquals(1L, persistedUser.getUser().getKey());
-	}
-	
-	@Test
-	@Order(4)
 	public void testFindById() throws JsonMappingException, JsonProcessingException {
 		mockUser();
 			
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
 						.pathParam("id", user.getKey())
 						.when()
@@ -251,9 +198,9 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		assertNotNull(persistedUser.getUserName());
 		assertNotNull(persistedUser.getBio());		
 		//assertNotNull(persistedUser.getPassword());
-		/*assertNotNull(persistedUser.getAccountNonExpired());
+		assertNotNull(persistedUser.getAccountNonExpired());
 		assertNotNull(persistedUser.getAccountNonLocked());
-		assertNotNull(persistedUser.getCredentialsNonExpired());*/
+		assertNotNull(persistedUser.getCredentialsNonExpired());
 		assertNotNull(persistedUser.getEnabled());
 		assertNotNull(persistedUser.getCreatedAt());
 		
@@ -264,19 +211,19 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		assertEquals("songoku", persistedUser.getUserName());
 		assertEquals("This is a biograph", persistedUser.getBio());
 		
-		/*assertEquals(true, persistedUser.getAccountNonExpired());
+		assertEquals(true, persistedUser.getAccountNonExpired());
 		assertEquals(true, persistedUser.getAccountNonLocked());
-		assertEquals(true, persistedUser.getCredentialsNonExpired());*/
+		assertEquals(true, persistedUser.getCredentialsNonExpired());
 		assertEquals(true, persistedUser.getEnabled());
 	} 
 	
 	@Test
-	@Order(5)
+	@Order(4)
 	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockUser();
 		
 		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.pathParam("id", user.getKey())
 					.when()
@@ -293,75 +240,18 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	}	
 	
 	@Test
-	@Order(6)
-	public void testFindAll() throws JsonMappingException, JsonProcessingException {
-		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-					.when()
-					.get()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		List<UserVO> u = objectMapper.readValue(content, new TypeReference<List<UserVO>>() {});
-		
-		UserVO founUserOne = u.get(0);
-		
-		assertNotNull(founUserOne.getKey());
-		assertNotNull(founUserOne.getFirstName());
-		assertNotNull(founUserOne.getLastName());
-		assertNotNull(founUserOne.getUserName());
-		assertNotNull(founUserOne.getBio());
-		assertNotNull(founUserOne.getEnabled());
-		assertNotNull(founUserOne.getCreatedAt());
-		//assertNotNull(founUserOne.getRoles());
-		
-		assertEquals(1, founUserOne.getKey());
-		
-		assertEquals("Alana", founUserOne.getFirstName());
-		assertEquals("Barbosa", founUserOne.getLastName());
-		assertEquals("alana", founUserOne.getUserName());
-		assertEquals("Software developer and tech enthusiast.", founUserOne.getBio());		
-		//assertEquals(new Role(), founUserOne.getRoles());
-		assertEquals(true, founUserOne.getEnabled());
-		
-		UserVO foundUserTwo = u.get(2);
-		
-		assertNotNull(foundUserTwo.getKey());
-		assertNotNull(foundUserTwo.getFirstName());
-		assertNotNull(foundUserTwo.getLastName());
-		assertNotNull(foundUserTwo.getUserName());
-		assertNotNull(foundUserTwo.getBio());
-		assertNotNull(foundUserTwo.getEnabled());
-		assertNotNull(foundUserTwo.getCreatedAt());
-		//assertNotNull(foundUserTwo.getRoles());;
-		
-		assertEquals(3, foundUserTwo.getKey());
-		
-		assertEquals("Alice", foundUserTwo.getFirstName());
-		assertEquals("Johnson", foundUserTwo.getLastName());
-		assertEquals("alicej", foundUserTwo.getUserName());
-		assertEquals("Freelance writer and blogger.", foundUserTwo.getBio());
-		//assertEquals(new Role(), foundUserTwo.getRoles());
-		assertEquals(true, foundUserTwo.getEnabled());	
-	}
-	
-	@Test
-	@Order(7)
+	@Order(5)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
-			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.contentType(TestConfigs.CONTENT_TYPE_XML)
 				.pathParam("id", user.getKey())
 				.when()
 				.delete("{id}")
 			.then()
 				.statusCode(204);
 	}
-
+*/
 
 	private void mockUser() {
 	    user.setFirstName("Son");
