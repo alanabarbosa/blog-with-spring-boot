@@ -42,7 +42,7 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
     private LocalDateTime createdAt;
     
     @JsonProperty("enabled")
-    private Boolean enabled;    
+    private Boolean enabled;
 
     @OneToOne
     @JoinColumn(name = "file_id")

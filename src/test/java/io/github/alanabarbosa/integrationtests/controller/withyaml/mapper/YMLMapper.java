@@ -1,5 +1,7 @@
 package io.github.alanabarbosa.integrationtests.controller.withyaml.mapper;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,7 +11,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 
+import io.github.alanabarbosa.model.Category;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
@@ -27,12 +31,16 @@ public class YMLMapper implements ObjectMapper{
 		objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 	    objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);		
 		
-		objectMapper.registerModule(new JavaTimeModule());
-		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-		
-		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-		
-		typeFactory = TypeFactory.defaultInstance();
+	    JavaTimeModule javaTimeModule = new JavaTimeModule();
+	    DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+	    javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(formatter));
+	    
+	    objectMapper.registerModule(javaTimeModule);
+	    objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+	    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+	    typeFactory = TypeFactory.defaultInstance();
+
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -43,6 +51,15 @@ public class YMLMapper implements ObjectMapper{
 	        Class type = (Class)context.getType();
 	        
 	        logger.info("Trying to deserialize object of type " + type);
+	        
+	        Object object = objectMapper.readValue(dataToDeserialize, typeFactory.constructType(type));
+	        
+	        if (object instanceof Category) {
+	            Category category = (Category) object;
+	            if (category.getName() == null) {
+	                throw new RuntimeException("Field 'name' cannot be null");
+	            }
+	        }
 
 	        return objectMapper.readValue(dataToDeserialize, typeFactory.constructType(type));
 	    } catch (JsonMappingException e) {

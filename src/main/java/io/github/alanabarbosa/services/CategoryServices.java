@@ -56,14 +56,15 @@ public class CategoryServices {
 	}
 	
 	public CategoryVO create(CategoryVO category) throws Exception {
+		logger.info("Creating one category!");	
 		if (category == null) throw new RequiredObjectIsNullException();
-		logger.info("Creating one category!");
 		
         if (category.getCreatedAt() == null) {
         	category.setCreatedAt(LocalDateTime.now());
         }
-		
+        
 		var entity = DozerMapper.parseObject(category, Category.class);
+		logger.info("Category entity name after mapping: " + entity.getName());
 		
 		var vo = DozerMapper.parseObject(repository.save(entity), CategoryVO.class);		
 	    vo.add(linkTo(methodOn(CategoryController.class).findById(vo.getKey())).withSelfRel());

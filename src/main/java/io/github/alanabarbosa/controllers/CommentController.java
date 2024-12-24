@@ -79,6 +79,31 @@ public class CommentController {
 		return service.findById(id);
 	}
 	
+	@GetMapping(value="/user/{userId}",
+		    produces = { MediaType.APPLICATION_JSON, 
+		                 MediaType.APPLICATION_XML, 
+		                 MediaType.APPLICATION_YML })
+		@Operation(summary = "Finds Comments By User ID", description = "Finds Comments By User ID",
+		    tags = {"Comment"},
+		    responses = {
+		        @ApiResponse(description = "Success", responseCode = "200,", 
+		            content = {
+		                @Content(
+		                    mediaType = "application/json",
+		                    array = @ArraySchema(schema = @Schema(implementation = CommentVO.class))
+		                )
+		            }),
+		        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
+		        @ApiResponse(description = "Unauthorized", responseCode = "401,", content = @Content),
+		        @ApiResponse(description = "Not Found", responseCode = "404,", content = @Content),
+		        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
+		    }
+		)
+		public List<CommentVO> findCommentsByUserId(@PathVariable(value = "userId") Long userId) throws Exception {
+		    return service.findCommentsByUserId(userId);
+		}
+	
+	
 	@PostMapping(			
 			consumes = { MediaType.APPLICATION_JSON, 
 					MediaType.APPLICATION_XML, 

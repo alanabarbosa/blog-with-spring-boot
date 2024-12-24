@@ -27,6 +27,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.github.alanabarbosa.configs.TestConfigs;
 import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegrationTest;
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
+import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
 import io.github.alanabarbosa.integrationtests.vo.UserVO;
 import io.github.alanabarbosa.model.Role;
@@ -351,6 +352,52 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(7)
+	public void testDisableUserById() throws JsonMappingException, JsonProcessingException {
+			
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.pathParam("id", user.getKey())
+					.when()
+					.patch("{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		UserVO persistedUser = objectMapper.readValue(content, UserVO.class);
+		
+		System.out.println(user);
+		
+		assertNotNull(persistedUser);
+		
+		assertNotNull(persistedUser.getKey());
+		assertNotNull(persistedUser.getFirstName());
+		assertNotNull(persistedUser.getLastName());
+		assertNotNull(persistedUser.getUserName());
+		assertNotNull(persistedUser.getBio());		
+		//assertNotNull(persistedUser.getPassword());
+		/*assertNotNull(persistedUser.getAccountNonExpired());
+		assertNotNull(persistedUser.getAccountNonLocked());
+		assertNotNull(persistedUser.getCredentialsNonExpired());*/
+		assertNotNull(persistedUser.getEnabled());
+		assertNotNull(persistedUser.getCreatedAt());
+		
+		assertTrue(persistedUser.getKey() > 0);
+		
+		assertEquals("Son", persistedUser.getFirstName());
+		assertEquals("Goku", persistedUser.getLastName());
+		assertEquals("songoku", persistedUser.getUserName());
+		assertEquals("This is a biograph", persistedUser.getBio());
+		
+		/*assertEquals(true, persistedUser.getAccountNonExpired());
+		assertEquals(true, persistedUser.getAccountNonLocked());
+		assertEquals(true, persistedUser.getCredentialsNonExpired());*/
+		assertEquals(true, persistedUser.getEnabled());
+	}	
+	
+	@Test
+	@Order(8)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
@@ -375,7 +422,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	    user.setCredentialsNonExpired(true);
 	    user.setEnabled(true);
 	    
-	    user.setCreatedAt(now);
+	    //user.setCreatedAt(now);
 	    
 	    Role role = new Role();
 	    role.setId(1L);

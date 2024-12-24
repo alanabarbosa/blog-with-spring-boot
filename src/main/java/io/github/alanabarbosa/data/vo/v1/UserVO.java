@@ -24,7 +24,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "password", "bio", "created_at", "enabled", "roles"})
+@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "password", "bio", "created_at", "account_non_expired", "account_non_locked", "credentials_non_expired",  "enabled", "roles"})
 public class UserVO extends RepresentationModel<UserVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;

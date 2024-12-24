@@ -9,6 +9,7 @@ import org.springframework.hateoas.RepresentationModel;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.github.dozermapper.core.Mapping;
 
 import io.github.alanabarbosa.model.File;
@@ -19,7 +20,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "bio", "created_at", "enabled", "roles"})
+@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "bio",  "enabled", "created_at","roles"})
 public class UserResponseVO extends RepresentationModel<UserResponseVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -41,6 +42,7 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
     private String bio;
 
     @JsonProperty("created_at")
+    @JacksonXmlProperty(localName = "created_at")
     private LocalDateTime createdAt;
     
     @JsonProperty("enabled")
@@ -55,7 +57,7 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
     @PrePersist
     public void prePresist() {
     	if (createdAt == null) createdAt = LocalDateTime.now();
-    }   
+    } 
 
 
 	public Long getKey() {

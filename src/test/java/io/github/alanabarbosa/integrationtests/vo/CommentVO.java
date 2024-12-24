@@ -6,12 +6,13 @@ import java.util.Objects;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.github.dozermapper.core.Mapping;
 
+import io.github.alanabarbosa.model.User;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -30,19 +31,21 @@ public class CommentVO implements Serializable {
     private String content;
     
     @CreationTimestamp
+    @JacksonXmlProperty(localName = "created_at")
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
     private Boolean status;   
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false)
     @Mapping("post")
     private PostVO post;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @Mapping("user")
-    private UserResponseVO user;
+    @JsonProperty("user")
+    private User user;
 
     public CommentVO() {}
 
@@ -92,11 +95,11 @@ public class CommentVO implements Serializable {
 		this.post = post;
 	}
 
-	public UserResponseVO getUser() {
+	public User getUser() {
 		return user;
 	}
 
-	public void setUser(UserResponseVO user) {
+	public void setUser(User user) {
 		this.user = user;
 	}
 

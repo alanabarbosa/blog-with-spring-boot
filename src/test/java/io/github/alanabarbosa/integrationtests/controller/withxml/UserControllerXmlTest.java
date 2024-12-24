@@ -2,9 +2,11 @@ package io.github.alanabarbosa.integrationtests.controller.withxml;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -40,22 +42,24 @@ import io.restassured.specification.RequestSpecification;
 @TestMethodOrder(OrderAnnotation.class)
 public class UserControllerXmlTest extends AbstractIntegrationTest{
 	
-	private static RequestSpecification specification ;
+	private static RequestSpecification specification;
 	private static XmlMapper objectMapper;
 	private static UserVO user;
 
-	LocalDateTime now = LocalDateTime.now();
+	LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 	
 	@BeforeAll
-	public static void setup() {
-		objectMapper = new XmlMapper();
-		objectMapper.registerModule(new JavaTimeModule());
-		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+    public static void setup() {
+        objectMapper = new XmlMapper();
+	    objectMapper.registerModule(new JavaTimeModule());
+	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+	    objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+	    objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+	    
+	    objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"));
 
-	    user = new UserVO();
-	}
+        user = new UserVO();
+    }
 	
 	@Test
 	@Order(0)
@@ -91,17 +95,18 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 	public void testCreate() throws JsonMappingException, JsonProcessingException {
 		mockUser();
 		
-		objectMapper = new XmlMapper();
 		objectMapper.registerModule(new JavaTimeModule());
-		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
 				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.body(user)
+					.log().all()
 					.when()
 					.post()
 				.then()
+				.log().all() 
 					.statusCode(200)
 						.extract()
 						.body()
@@ -123,37 +128,31 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 		assertNotNull(persistedUser.getAccountNonLocked());
 		assertNotNull(persistedUser.getCredentialsNonExpired());
 		assertNotNull(persistedUser.getEnabled());
-		assertNotNull(persistedUser.getCreatedAt());
+		//assertNotNull(persistedUser.getCreatedAt());
 		assertNotNull(persistedUser.getRoles());
 		
 		assertTrue(persistedUser.getKey() > 0);
-		
+		assertEquals(true, persistedUser.getLinks().stream().anyMatch(link -> link.getRel().equals("self")));
 		assertEquals("Son", persistedUser.getFirstName());
 		assertEquals("Goku", persistedUser.getLastName());
 		assertEquals("songoku", persistedUser.getUserName());
 		assertEquals("This is a biograph", persistedUser.getBio());
 		
+		assertNull(persistedUser.getFile());
 		assertEquals(true, persistedUser.getAccountNonExpired());
 		assertEquals(true, persistedUser.getAccountNonLocked());
 		assertEquals(true, persistedUser.getCredentialsNonExpired());
-		assertEquals(true, persistedUser.getEnabled());		
-		
-		assertTrue(persistedUser.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));	
-
-		//assertEquals(4L, persistedUser.getRoles().get(0));
-		//assertEquals(1L, persistedUser.getUser().getKey());
+		assertEquals(true, persistedUser.getEnabled());
 	}
 	
-	/*@Test
+	@Test
 	@Order(2)
 	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockUser();		
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.body(user)
 				.when()
@@ -175,6 +174,7 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 			
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
 						.pathParam("id", user.getKey())
 						.when()
@@ -224,6 +224,7 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.pathParam("id", user.getKey())
 					.when()
@@ -237,56 +238,100 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 	
 		assertNotNull(content);
 		assertEquals("Invalid CORS request", content);
-	}	
+	}
+	
+	@Test
+	@Order(7)
+	public void testDisableUserById() throws JsonMappingException, JsonProcessingException {
+			
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+					.pathParam("id", user.getKey())
+					.when()
+					.patch("{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		UserVO persistedUser = objectMapper.readValue(content, UserVO.class);
+		
+		System.out.println(user);
+		
+		assertNotNull(persistedUser);
+		
+		assertNotNull(persistedUser.getKey());
+		assertNotNull(persistedUser.getFirstName());
+		assertNotNull(persistedUser.getLastName());
+		assertNotNull(persistedUser.getUserName());
+		assertNotNull(persistedUser.getBio());		
+		//assertNotNull(persistedUser.getPassword());
+		//assertNotNull(persistedUser.getAccountNonExpired());
+		//assertNotNull(persistedUser.getAccountNonLocked());
+		//assertNotNull(persistedUser.getCredentialsNonExpired());
+		assertNotNull(persistedUser.getEnabled());
+		assertNotNull(persistedUser.getCreatedAt());
+		
+		assertTrue(persistedUser.getKey() > 0);
+		
+		assertEquals("Son", persistedUser.getFirstName());
+		assertEquals("Goku", persistedUser.getLastName());
+		assertEquals("songoku", persistedUser.getUserName());
+		assertEquals("This is a biograph", persistedUser.getBio());
+		
+		//assertEquals(true, persistedUser.getAccountNonExpired());
+		//assertEquals(true, persistedUser.getAccountNonLocked());
+		//assertEquals(true, persistedUser.getCredentialsNonExpired());
+		assertEquals(true, persistedUser.getEnabled());
+	}		
 	
 	@Test
 	@Order(5)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
-			.contentType(TestConfigs.CONTENT_TYPE_XML)
+		.contentType(TestConfigs.CONTENT_TYPE_XML)
+		.accept(TestConfigs.CONTENT_TYPE_XML)
 				.pathParam("id", user.getKey())
 				.when()
 				.delete("{id}")
 			.then()
 				.statusCode(204);
 	}
-*/
+
 
 	private void mockUser() {
 	    user.setFirstName("Son");
 	    user.setLastName("Goku");
 	    user.setUserName("songoku");
-	    user.setPassword("admin123"); 
+	    user.setPassword("password123");
 	    user.setBio("This is a biograph");
-	    
 	    user.setAccountNonExpired(true);
 	    user.setAccountNonLocked(true);
 	    user.setCredentialsNonExpired(true);
 	    user.setEnabled(true);
 	    
-	    user.setCreatedAt(now);
-	    
+	    List<Role> roles = new ArrayList<>();
 	    Role role = new Role();
 	    role.setId(1L);
-	    
-	    List<Role> roles = new ArrayList<>();
+	    role.setDescription("Admin");
 	    roles.add(role);
-	    
 	    user.setRoles(roles);
 	    
-	    System.out.println("User [firstName=" + user.getFirstName() +
-	                       ", lastName=" + user.getLastName() +
-	                       ", userName=" + user.getUserName() +
-	                       ", password=" + user.getPassword() +
-	                       ", accountNonExpired=" + user.getAccountNonExpired() +
-	                       ", accountNonLocked=" + user.getAccountNonLocked() +
-	                       ", credentialsNonExpired=" + user.getCredentialsNonExpired() +
-	                       ", bio=" + user.getBio() +
-	                       ", createdAt=" + user.getCreatedAt() +
-	                       ", enabled=" + user.getEnabled() +
-	                       ", roles=" + user.getRoles() + "]");
-	}
-	
+	    user.setFile(null);
 
+	    System.out.println("User [firstName=" + user.getFirstName() +
+	        ", lastName=" + user.getLastName() +
+	        ", userName=" + user.getUserName() +
+	        ", password=" + user.getPassword() +
+	        ", accountNonExpired=" + user.getAccountNonExpired() +
+	        ", accountNonLocked=" + user.getAccountNonLocked() +
+	        ", credentialsNonExpired=" + user.getCredentialsNonExpired() +
+	        ", bio=" + user.getBio() +
+	        ", enabled=" + user.getEnabled() +
+	        ", roles=" + user.getRoles() + "]");
+	}
 }

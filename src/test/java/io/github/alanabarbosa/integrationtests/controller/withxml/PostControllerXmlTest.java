@@ -4,7 +4,6 @@ import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -118,8 +117,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 		
 		post = persistedPost;
 		
-		assertNotNull(persistedPost);
-		
+		assertNotNull(persistedPost);		
 		assertNotNull(persistedPost.getId());
 		assertNotNull(persistedPost.getTitle());
 		assertNotNull(persistedPost.getContent());
@@ -134,12 +132,10 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 		//assertNull(persistedPost.getImageMobile());
 		
 		assertTrue(persistedPost.getId() > 0);
-		
 		assertEquals("Content Negotiation using Spring MVC", persistedPost.getTitle());
 		assertEquals("In this post I want to discuss how to configure and use content", persistedPost.getContent());
 		assertEquals("content-negotiation-using-spring-mvc", persistedPost.getSlug());
 		assertEquals(true, persistedPost.getStatus());
-		
 		//assertTrue(persistedPost.getCreatedAt()
 		//		.truncatedTo(ChronoUnit.SECONDS)
 		//		.isEqual(now
@@ -149,14 +145,13 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 		//		.truncatedTo(ChronoUnit.SECONDS)
 		//		.isEqual(now
 		//				.truncatedTo(ChronoUnit.SECONDS)));
-	
 		assertEquals(null, persistedPost.getImageDesktop().getId()); 
 		assertEquals(null, persistedPost.getImageMobile().getId());
 		assertEquals(1L, persistedPost.getCategory().getId());
 		assertEquals(1L, persistedPost.getUser().getId());		
 	}
 	
-	/*@Test
+	@Test
 	@Order(2)
 	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockPost();
@@ -175,7 +170,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 		
 		assertNotNull(content);
 		assertEquals("Invalid CORS request", content);		
-	}*/
+	}
 	
 	@Test
 	@Order(3)
@@ -185,66 +180,58 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 		objectMapper.registerModule(new JavaTimeModule());
 	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);	
 	    
-		try {
-			var content = given().spec(specification)
-					.contentType(TestConfigs.CONTENT_TYPE_XML)
-					.accept(TestConfigs.CONTENT_TYPE_XML)
-						.body(post)
-						.when()
-						.post()
-					.then()
-						.statusCode(200)
-							.extract()
-							.body()
-								.asString();
-			
-			PostVO persistedPost = objectMapper.readValue(content, PostVO.class);
-			
-			post = persistedPost;
-			
-			assertNotNull(persistedPost);
-			
-			assertNotNull(persistedPost.getId());
-			assertNotNull(persistedPost.getTitle());
-			assertNotNull(persistedPost.getContent());
-			assertNotNull(persistedPost.getSlug());
-			assertTrue(persistedPost.getStatus()); 
-			assertNotNull(persistedPost.getCreatedAt());
-			assertNotNull(persistedPost.getUpdatedAt());
-			assertNotNull(persistedPost.getPublishedAt());		
-			assertNotNull(persistedPost.getCategory());
-			assertNotNull(persistedPost.getUser());
-			//assertNull(persistedPost.getImageDesktop());
-			//assertNull(persistedPost.getImageMobile());			
-			
-		    assertEquals(post.getId(), persistedPost.getId());
-			
-			assertEquals("Content Negotiation using Spring MVC", persistedPost.getTitle());
-			assertEquals("In this post I want to discuss how to configure and use content", persistedPost.getContent());
-			
-			assertEquals("content-negotiation-using-spring-mvc", persistedPost.getSlug());
-			assertEquals(true, persistedPost.getStatus());
-			
-			assertTrue(persistedPost.getCreatedAt()
-					.truncatedTo(ChronoUnit.SECONDS)
-					.isEqual(now
-							.truncatedTo(ChronoUnit.SECONDS)));
-			
-			assertTrue(persistedPost.getUpdatedAt()
-					.truncatedTo(ChronoUnit.SECONDS)
-					.isEqual(now
-							.truncatedTo(ChronoUnit.SECONDS)));
-			
-			assertEquals(1L, persistedPost.getCategory().getId());
-			assertEquals(1L, persistedPost.getUser().getId());				
-			
-		} catch (Exception e) {
-			System.out.println("Erro durante a requisição: " + e.getMessage());
-			e.printStackTrace();
-			fail("Teste falhou: " + e.getMessage());
-		}
+	
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+					.body(post)
+					.when()
+					.post()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
 		
-		System.out.println("Finalizando teste de update");
+		PostVO persistedPost = objectMapper.readValue(content, PostVO.class);
+		
+		post = persistedPost;
+		
+		assertNotNull(persistedPost);
+		
+		assertNotNull(persistedPost.getId());
+		assertNotNull(persistedPost.getTitle());
+		assertNotNull(persistedPost.getContent());
+		assertNotNull(persistedPost.getSlug());
+		assertTrue(persistedPost.getStatus()); 
+		assertNotNull(persistedPost.getCreatedAt());
+		assertNotNull(persistedPost.getUpdatedAt());
+		assertNotNull(persistedPost.getPublishedAt());		
+		assertNotNull(persistedPost.getCategory());
+		assertNotNull(persistedPost.getUser());
+		//assertNull(persistedPost.getImageDesktop());
+		//assertNull(persistedPost.getImageMobile());			
+		
+	    assertEquals(post.getId(), persistedPost.getId());
+		
+		assertEquals("Content Negotiation using Spring MVC", persistedPost.getTitle());
+		assertEquals("In this post I want to discuss how to configure and use content", persistedPost.getContent());
+		
+		assertEquals("content-negotiation-using-spring-mvc", persistedPost.getSlug());
+		assertEquals(true, persistedPost.getStatus());
+		
+		/*assertTrue(persistedPost.getCreatedAt()
+				.truncatedTo(ChronoUnit.SECONDS)
+				.isEqual(now
+						.truncatedTo(ChronoUnit.SECONDS)));
+		
+		assertTrue(persistedPost.getUpdatedAt()
+				.truncatedTo(ChronoUnit.SECONDS)
+				.isEqual(now
+						.truncatedTo(ChronoUnit.SECONDS)));*/
+		
+		assertEquals(1L, persistedPost.getCategory().getId());
+		assertEquals(1L, persistedPost.getUser().getId());				
 	}
 	
 	@Test
@@ -317,7 +304,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	}	
 	
 	@Test
-	@Order(5)
+	@Order(6)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -386,6 +373,45 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(7)
+	public void testDisablePostById() throws JsonMappingException, JsonProcessingException {
+			
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+					.pathParam("id", post.getId())
+					.when()
+					.patch("{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		PostVO persistedPost = objectMapper.readValue(content, PostVO.class);
+		
+		assertNotNull(persistedPost);
+		
+		assertNotNull(persistedPost.getId());
+		assertNotNull(persistedPost.getTitle());
+		assertNotNull(persistedPost.getContent());
+		assertNotNull(persistedPost.getSlug());
+		assertTrue(persistedPost.getStatus()); 
+		assertNotNull(persistedPost.getCreatedAt());
+		assertNotNull(persistedPost.getUpdatedAt());
+		assertNotNull(persistedPost.getPublishedAt());		
+		assertNotNull(persistedPost.getCategory());
+		assertNotNull(persistedPost.getUser());
+		/*assertNull(persistedPost.getImageDesktop());
+	    assertNull(persistedPost.getImageMobile());*/
+		
+		assertEquals(post.getId(), persistedPost.getId());
+		
+		assertEquals("Content Negotiation using Spring MVC", persistedPost.getTitle());
+		assertEquals("In this post I want to discuss how to configure and use content", persistedPost.getContent());
+	}	
+	
+	@Test
+	@Order(8)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
@@ -438,7 +464,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	    post.setUser(user);
 	    post.setCategory(category);
 	    post.setImageDesktop(null);
-	    post.setImageMobile(null);	    
+	    post.setImageMobile(null);   
 	}	
 
 }

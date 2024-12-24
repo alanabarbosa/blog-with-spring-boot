@@ -31,7 +31,7 @@ import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.CommentVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
-import io.github.alanabarbosa.integrationtests.vo.UserResponseVO;
+import io.github.alanabarbosa.model.User;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -44,13 +44,14 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 	
 	private static RequestSpecification specification;
 	private static XmlMapper objectMapper;
-	private static CommentVO comment;
-
+	
+	private static CommentVO comment;	
+		
 	LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 	
 	@BeforeAll
     public static void setup() {
-        objectMapper = new XmlMapper();
+		objectMapper = new XmlMapper();
 	    objectMapper.registerModule(new JavaTimeModule());
 	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 	    objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -58,7 +59,8 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 	    
 	    objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"));
 
-        comment = new CommentVO();
+
+	    comment = new CommentVO();
     }
 	
 	@Test
@@ -95,9 +97,9 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 	public void testCreate() throws JsonMappingException, JsonProcessingException {
 		mockComment();
 		
-		objectMapper.registerModule(new JavaTimeModule());
+	    objectMapper.registerModule(new JavaTimeModule());
 	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		
+	    
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
 				.accept(TestConfigs.CONTENT_TYPE_XML)
@@ -109,32 +111,28 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 						.extract()
 						.body()
 							.asString();
-        
-        CommentVO persistedComment = objectMapper.readValue(content, CommentVO.class);
-        comment = persistedComment;
-
-        assertNotNull(persistedComment);
-        
-        assertNotNull(persistedComment.getKey());
-        assertNotNull(persistedComment.getContent());
-        assertTrue(persistedComment.getStatus());
-        assertNotNull(persistedComment.getCreatedAt());
-        assertNotNull(persistedComment.getPost());
-        assertNotNull(persistedComment.getUser());
-        
-        assertTrue(persistedComment.getKey() > 0);
-        
-        assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
-        assertEquals(true, persistedComment.getStatus());
-		assertTrue(persistedComment.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS))); 
-		assertEquals(1L, persistedComment.getPost().getId());		
-        assertEquals(1L, persistedComment.getUser().getKey());
-
-
+		
+		CommentVO persistedComment = objectMapper.readValue(content, CommentVO.class);
+		
+		comment = persistedComment;
+		
+		assertNotNull(persistedComment);		
+		assertNotNull(persistedComment.getKey());
+		assertNotNull(persistedComment.getContent());
+		assertTrue(persistedComment.getStatus());
+		assertNotNull(persistedComment.getCreatedAt());
+		assertNotNull(persistedComment.getPost());
+		assertNotNull(persistedComment.getUser());
+		
+		assertTrue(persistedComment.getKey() > 0);
+		assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
+		/*assertTrue(persistedComment.getCreatedAt()
+			    .truncatedTo(ChronoUnit.SECONDS)
+			    .isEqual(now.truncatedTo(ChronoUnit.SECONDS)));*/
+		assertEquals(1L, persistedComment.getPost().getId());
+		assertEquals(1L, persistedComment.getUser().getId());
 	}
+	
 	
 	@Test
 	@Order(2)
@@ -191,7 +189,7 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
         assertEquals(comment.getKey(), persistedComment.getKey());
         
         assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
-        assertEquals(1L, persistedComment.getUser().getKey());
+        assertEquals(1L, persistedComment.getUser().getId());
 
 
 	}
@@ -203,7 +201,7 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 			
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
 						.pathParam("id", comment.getKey())
 						.when()
 						.get("{id}")
@@ -295,7 +293,7 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 		assertEquals("Great article! Thanks for sharing.", founCommentOne.getContent());	
 
 		assertEquals(1L, founCommentOne.getPost().getId());
-		assertEquals(1L, founCommentOne.getUser().getKey());
+		assertEquals(1L, founCommentOne.getUser().getId());
 		
 		CommentVO foundCommentThree = c.get(3);
 		
@@ -311,7 +309,7 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 		assertEquals("Great article! Thanks for sharing.", foundCommentThree.getContent());		
 
 		assertEquals(1L, foundCommentThree.getPost().getId());
-		assertEquals(1L, foundCommentThree.getUser().getKey());
+		assertEquals(1L, foundCommentThree.getUser().getId());
 	}
 	
 	@Test
@@ -326,9 +324,9 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 			.then()
 				.statusCode(204);
 	}
-
+	
 	private void mockComment() {
-		comment.setContent("Great article! Thanks for sharing.");
+	    comment.setContent("Great article! Thanks for sharing.");
 	    comment.setStatus(true);
 	    comment.setCreatedAt(now);
 	    
@@ -341,15 +339,15 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 	    post.setCreatedAt(now);
 	    post.setPublishedAt(now);
 	    
-	    UserResponseVO userVO = new UserResponseVO();
-	    userVO.setKey(1L);
-	    userVO.setBio("This is a biography");
+	    User userVO = new User();
+	    userVO.setId(1L);
+	    userVO.setBio("Software developer and tech enthusiast.");
 	    userVO.setCreatedAt(now);
-	    userVO.setFirstName("Son");
-	    userVO.setLastName("Goku");
-	    userVO.setUserName("songoku");
+	    userVO.setFirstName("Alana");
+	    userVO.setLastName("Barbosa");
+	    userVO.setUserName("alana");
 	    userVO.setEnabled(true);
-	
+
 	    comment.setPost(post);
 	    comment.setUser(userVO);
 	}

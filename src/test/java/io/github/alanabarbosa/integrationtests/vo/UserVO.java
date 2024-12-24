@@ -21,12 +21,12 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({"id", "first_name", "last_name", "user_name", "password", "bio", "created_at", "enabled", "roles"})
+@JsonPropertyOrder({"id", "first_name", "last_name", "user_name", "password", "bio", "created_at", "account_non_expired", "account_non_locked", "credentials_non_expired", "enabled", "roles"})
 public class UserVO extends RepresentationModel<UserVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -39,6 +39,7 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
     private String firstName;
 
     @JsonProperty("last_name")
+    
     private String lastName;
     
     @JsonProperty("user_name")
@@ -69,7 +70,7 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Comment> comments;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id")
     private File file;
 
@@ -83,10 +84,10 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
 
     public UserVO() {}
 
-    @PrePersist
+  /*  @PrePersist
     public void prePersist() {
         if (createdAt == null) createdAt = LocalDateTime.now();
-    }
+    }*/
 
     public Long getKey() {
         return key;

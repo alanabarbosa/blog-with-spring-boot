@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
-import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
@@ -26,6 +25,7 @@ import io.github.alanabarbosa.model.User;
 import io.github.alanabarbosa.repositories.CommentRepository;
 import io.github.alanabarbosa.repositories.PostRepository;
 import io.github.alanabarbosa.util.NormalizeSlug;
+import jakarta.transaction.Transactional;
 
 @Service
 public class PostServices {
@@ -84,8 +84,6 @@ public class PostServices {
         
         return vo;
     }
-
-
 	
 	public PostVO create(PostVO post) throws Exception {		
 		if (post == null) throw new RequiredObjectIsNullException();
@@ -98,6 +96,11 @@ public class PostServices {
 	    if (post.getImageMobile() != null && post.getImageMobile().getId() == null) {
 	        post.setImageMobile(null);
 	    }
+	    
+	    if (post.getCategory() != null && post.getCategory().getName() == null) {
+	        throw new IllegalArgumentException("Category name cannot be null");
+	    }
+
 		
 		logger.info("Creating one post!");
 		
@@ -159,6 +162,29 @@ public class PostServices {
 	    
 	    return vo;
 	}
+	
+	@Transactional
+	public PostVO disablePost(Long id) throws Exception {
+        logger.info("Disabling one Post!");
+        
+        var entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
+        
+        if (!entity.getStatus()) entity.setPublishedAt(null);
+        
+        var vo = DozerMapper.parseObject(entity, PostVO.class);
+       
+        /* try {
+            List<Comment> comments = commentRepository.findByPostId(id);
+            List<CommentResponseVO> commentVOs = DozerMapper.parseListObjects(comments, CommentResponseVO.class);
+            vo.setComments(commentVOs);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error while processing comments for post " + id, e);
+        }*/
+        
+        vo.add(linkTo(methodOn(PostController.class).findById(id)).withSelfRel());        
+        return vo;
+    }	
 
 	
 	public void delete(Long id) {

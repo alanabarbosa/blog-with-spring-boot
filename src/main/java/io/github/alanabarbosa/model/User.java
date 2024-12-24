@@ -11,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,11 +24,13 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
 @Entity
 @Table(name = "users")
+@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "password", "bio", "created_at", "account_non_expired", "account_non_locked", "credentials_non_expired",  "enabled", "roles"})
 public class User implements UserDetails, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -68,16 +71,17 @@ public class User implements UserDetails, Serializable {
     @JsonProperty("bio")
     private String bio;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
-
+    
+    @JsonProperty("enabled")
     private Boolean enabled;
     
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER) 
     private List<Comment> comments;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id")
     private File file;
 
@@ -91,7 +95,7 @@ public class User implements UserDetails, Serializable {
     
     public User() {}
     
-   @PrePersist
+   /*@PrePersist
     protected void onCreate() {
         if (accountNonExpired == null) {
             accountNonExpired = true;
@@ -105,7 +109,7 @@ public class User implements UserDetails, Serializable {
         if (enabled == null) {
             enabled = true; 
         }
-    } 
+    } */
     
     public List<String> getPermissions() {
     	List<String> permissions = new ArrayList<>();

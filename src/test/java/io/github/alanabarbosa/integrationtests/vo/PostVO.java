@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.Comment;
@@ -18,12 +19,12 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({"id", "title", "content","created_at", "updated_at", "published_at", "slug", "status", "category_id", "image_desktop_id", "image_mobile_id", "comments"})
 public class PostVO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
