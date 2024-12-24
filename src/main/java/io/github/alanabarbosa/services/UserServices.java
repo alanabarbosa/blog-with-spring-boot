@@ -4,7 +4,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CommentController;
+import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.controllers.UserController;
 import io.github.alanabarbosa.data.vo.v1.UserResponseVO;
 import io.github.alanabarbosa.data.vo.v1.UserVO;
@@ -70,6 +71,7 @@ public class UserServices implements UserDetailsService {
 	            try {
 	                user.add(linkTo(methodOn(UserController.class).findById(user.getKey())).withSelfRel());
 	                user.add(linkTo(methodOn(CommentController.class).findCommentsByUserId(user.getKey())).withRel("comments"));
+	                user.add(linkTo(methodOn(PostController.class).findPostsByUserId(user.getKey())).withRel("posts"));
 	                return user;
 	            } catch (Exception e) {
 	                logger.severe("Error adding HATEOAS link: " + e.getMessage());
@@ -90,6 +92,7 @@ public class UserServices implements UserDetailsService {
 	    
 	    vo.add(linkTo(methodOn(UserController.class).findById(id)).withSelfRel());
 	    vo.add(linkTo(methodOn(CommentController.class).findCommentsByUserId(vo.getKey())).withRel("comments"));
+	    vo.add(linkTo(methodOn(PostController.class).findPostsByUserId(vo.getKey())).withRel("posts"));
 	    return vo;
 	}
 	
@@ -126,7 +129,17 @@ public class UserServices implements UserDetailsService {
 
 	    Role defaultRole = roleRepository.findById(2L)
 	        .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
-	    entity.setRoles(Collections.singletonList(defaultRole));    
+
+	    List<Role> roles = user.getRoles() != null ? user.getRoles().stream()
+	        .map(roleVo -> roleRepository.findById(roleVo.getId())
+	            .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + roleVo.getId())))
+	        .collect(Collectors.toList()) : new ArrayList<>();
+
+	    if (!roles.contains(defaultRole)) {
+	        roles.add(defaultRole);
+	    }
+
+	    entity.setRoles(roles);  
 
 	    var savedEntity = repository.save(entity);
 	    var vo = DozerMapper.parseObject(savedEntity, UserVO.class);

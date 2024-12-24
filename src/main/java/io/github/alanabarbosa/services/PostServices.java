@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import io.github.alanabarbosa.controllers.CommentController;
 import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
+import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.data.vo.v1.PostResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
@@ -102,6 +103,16 @@ public class PostServices {
         return vo;
     }
 	
+    public List<PostResponseVO> findPostsByCommentId(Long commentId) {
+        var comments = repository.findPostsByCommentId(commentId);
+        return DozerMapper.parseListObjects(comments, PostResponseVO.class);
+    }
+    
+    public List<PostResponseVO> findPostsByUserId(Long commentId) {
+        var comments = repository.findPostsByUserId(commentId);
+        return DozerMapper.parseListObjects(comments, PostResponseVO.class);
+    }
+    
 	public PostVO create(PostVO post) throws Exception {		
 		if (post == null) throw new RequiredObjectIsNullException();
 		if (post != null) post.setCreatedAt(LocalDateTime.now());
@@ -202,7 +213,6 @@ public class PostServices {
         vo.add(linkTo(methodOn(PostController.class).findById(id)).withSelfRel());        
         return vo;
     }	
-
 	
 	public void delete(Long id) {
 		logger.info("Deleting one post!");

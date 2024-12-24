@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.services.PostServices;
@@ -55,7 +56,6 @@ public class PostController {
     public List<PostResponseVO> findAll() {
         return service.findAll();
     }
-
     
     @CrossOrigin(origins = "http://localhost:8080")
     @GetMapping(value="/{id}",
@@ -81,6 +81,54 @@ public class PostController {
     public PostResponseVO findById(@PathVariable(value = "id") Long id) throws Exception {
         return service.findById(id);
     }
+    
+    @GetMapping(value="/comment/{commentId}",
+    	    produces = { MediaType.APPLICATION_JSON, 
+    	                 MediaType.APPLICATION_XML, 
+    	                 MediaType.APPLICATION_YML })
+    	@Operation(summary = "Finds Posts By Comment ID", description = "Finds Posts By Comment ID",
+    	    tags = {"Post"},
+    	    responses = {
+    	        @ApiResponse(description = "Success", responseCode = "200,", 
+    	            content = {
+    	                @Content(
+    	                    mediaType = "application/json",
+    	                    array = @ArraySchema(schema = @Schema(implementation = PostResponseVO.class))
+    	                )
+    	            }),
+    	        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
+    	        @ApiResponse(description = "Unauthorized", responseCode = "401,", content = @Content),
+    	        @ApiResponse(description = "Not Found", responseCode = "404,", content = @Content),
+    	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
+    	    }
+    	)
+    public List<PostResponseVO> findPostsByCommentId(@PathVariable(value = "commentId") Long commentId) throws Exception {
+	    return service.findPostsByCommentId(commentId);
+	}
+    
+    @GetMapping(value="/user/{userId}",
+    	    produces = { MediaType.APPLICATION_JSON, 
+    	                 MediaType.APPLICATION_XML, 
+    	                 MediaType.APPLICATION_YML })
+    	@Operation(summary = "Finds Posts By User ID", description = "Finds Posts By User ID",
+    	    tags = {"Post"},
+    	    responses = {
+    	        @ApiResponse(description = "Success", responseCode = "200,", 
+    	            content = {
+    	                @Content(
+    	                    mediaType = "application/json",
+    	                    array = @ArraySchema(schema = @Schema(implementation = PostResponseVO.class))
+    	                )
+    	            }),
+    	        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
+    	        @ApiResponse(description = "Unauthorized", responseCode = "401,", content = @Content),
+    	        @ApiResponse(description = "Not Found", responseCode = "404,", content = @Content),
+    	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
+    	    }
+    	)
+    public List<PostResponseVO> findPostsByUserId(@PathVariable(value = "userId") Long userId) throws Exception {
+	    return service.findPostsByCommentId(userId);
+	}    
     
     @CrossOrigin(origins = { "http://localhost:8080", "https://alanabarbosa.com.br"})
     @PostMapping(
@@ -131,7 +179,6 @@ public class PostController {
     public PostVO update(@RequestBody PostVO post) throws Exception {
         return service.update(post);
     }
-    
     
     //@CrossOrigin(origins = "http://localhost:8080")
     @PatchMapping(value="/{id}",
