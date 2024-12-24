@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.alanabarbosa.data.vo.v1.PostResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.services.PostServices;
 import io.github.alanabarbosa.util.MediaType;
@@ -42,7 +43,7 @@ public class PostController {
             @ApiResponse(description = "Success", responseCode = "200,", 
                 content = {
                     @Content(mediaType = "application/json",
-                        array = @ArraySchema(schema = @Schema(implementation = PostVO.class))
+                        array = @ArraySchema(schema = @Schema(implementation = PostResponseVO.class))
                     )
                 }),
             @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -51,7 +52,7 @@ public class PostController {
             @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
         }
     )
-    public List<PostVO> findAll() {
+    public List<PostResponseVO> findAll() {
         return service.findAll();
     }
 
@@ -68,7 +69,7 @@ public class PostController {
 					content = {
 							@Content(
 									mediaType = "application/json",
-									array = @ArraySchema(schema = @Schema(implementation = PostVO.class))
+									array = @ArraySchema(schema = @Schema(implementation = PostResponseVO.class))
 							)
 					}),
 			@ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -77,7 +78,7 @@ public class PostController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)    
-    public PostVO findById(@PathVariable(value = "id") Long id) throws Exception {
+    public PostResponseVO findById(@PathVariable(value = "id") Long id) throws Exception {
         return service.findById(id);
     }
     

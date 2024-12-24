@@ -69,7 +69,12 @@ public class CommentServices {
     public List<CommentVO> findCommentsByUserId(Long userId) {
         var comments = repository.findCommentsByUserId(userId);
         return DozerMapper.parseListObjects(comments, CommentVO.class);
-    }	
+    }
+    
+    public List<CommentVO> findCommentsByPostId(Long postId) {
+        var comments = repository.findCommentsByUserId(postId);
+        return DozerMapper.parseListObjects(comments, CommentVO.class);
+    }    
 	
 	public CommentVO create(CommentVO comment) throws Exception {
 	    if (comment == null) throw new RequiredObjectIsNullException();

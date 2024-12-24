@@ -12,8 +12,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import io.github.alanabarbosa.controllers.CommentController;
 import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
+import io.github.alanabarbosa.data.vo.v1.PostResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
@@ -38,11 +40,25 @@ public class PostServices {
     @Autowired
     CommentRepository commentRepository;
     
-    public List<PostVO> findAll() {
+    public List<PostResponseVO> findAll() {
         logger.info("Finding all posts!");
 
-        List<PostVO> posts = DozerMapper.parseListObjects(repository.findAll(), PostVO.class);
-        posts.forEach(post -> {
+        var postsResponseVO = DozerMapper.parseListObjects(repository.findAll(), PostResponseVO.class);
+        
+        return postsResponseVO.stream()
+        		.map(post -> {
+        			try {
+        				post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withSelfRel());
+                        post.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(post.getKey())).withRel("comments"));
+                        return post;
+        			} catch (Exception e) {
+    	                logger.severe("Error adding HATEOAS link: " + e.getMessage());
+    	                return post;
+    	            }
+        		})
+        		.collect(Collectors.toList());
+        
+       /* posts.forEach(post -> {
             try {
                 List<Comment> comments = commentRepository.findByPostId(post.getKey());
                 
@@ -55,31 +71,32 @@ public class PostServices {
                     })
                     .collect(Collectors.toList());
 
-                post.setComments(commentVOs);
+                //post.setComments(commentVOs);
                 post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withSelfRel());
+                post.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(post.getKey())).withRel("comments"));                
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "Error while processing comments for post " + post.getKey(), e);
             }
-        });
-        return posts;
+        });*/
+        //return postsResponseVO;
     }
 
 	
-    public PostVO findById(Long id) throws Exception {
+    public PostResponseVO findById(Long id) throws Exception {
         logger.info("Finding one post by ID!");
         
         var entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
         
-        var vo = DozerMapper.parseObject(entity, PostVO.class);
-        try {
+        var vo = DozerMapper.parseObject(entity, PostResponseVO.class);
+       /* try {
             List<Comment> comments = commentRepository.findByPostId(id);
             List<CommentResponseVO> commentVOs = DozerMapper.parseListObjects(comments, CommentResponseVO.class);
             vo.setComments(commentVOs);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error while processing comments for post " + id, e);
-        }
-        
+        }*/
+        vo.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(vo.getKey())).withRel("comments"));
         vo.add(linkTo(methodOn(PostController.class).findById(id)).withSelfRel());
         
         return vo;
