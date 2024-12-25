@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
+import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
 import io.github.alanabarbosa.data.vo.v1.PostResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.services.PostServices;
@@ -82,30 +82,6 @@ public class PostController {
         return service.findById(id);
     }
     
-    @GetMapping(value="/comment/{commentId}",
-    	    produces = { MediaType.APPLICATION_JSON, 
-    	                 MediaType.APPLICATION_XML, 
-    	                 MediaType.APPLICATION_YML })
-    	@Operation(summary = "Finds Posts By Comment ID", description = "Finds Posts By Comment ID",
-    	    tags = {"Post"},
-    	    responses = {
-    	        @ApiResponse(description = "Success", responseCode = "200,", 
-    	            content = {
-    	                @Content(
-    	                    mediaType = "application/json",
-    	                    array = @ArraySchema(schema = @Schema(implementation = PostResponseVO.class))
-    	                )
-    	            }),
-    	        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
-    	        @ApiResponse(description = "Unauthorized", responseCode = "401,", content = @Content),
-    	        @ApiResponse(description = "Not Found", responseCode = "404,", content = @Content),
-    	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
-    	    }
-    	)
-    public List<PostResponseVO> findPostsByCommentId(@PathVariable(value = "commentId") Long commentId) throws Exception {
-	    return service.findPostsByCommentId(commentId);
-	}
-    
     @GetMapping(value="/user/{userId}",
     	    produces = { MediaType.APPLICATION_JSON, 
     	                 MediaType.APPLICATION_XML, 
@@ -117,7 +93,7 @@ public class PostController {
     	            content = {
     	                @Content(
     	                    mediaType = "application/json",
-    	                    array = @ArraySchema(schema = @Schema(implementation = PostResponseVO.class))
+    	                    array = @ArraySchema(schema = @Schema(implementation = PostBasicVO.class))
     	                )
     	            }),
     	        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -126,8 +102,8 @@ public class PostController {
     	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
     	    }
     	)
-    public List<PostResponseVO> findPostsByUserId(@PathVariable(value = "userId") Long userId) throws Exception {
-	    return service.findPostsByCommentId(userId);
+    public List<PostBasicVO> findPostsByUserId(@PathVariable(value = "userId") Long userId) throws Exception {
+	    return service.findPostsByUserId(userId);
 	}    
     
     @CrossOrigin(origins = { "http://localhost:8080", "https://alanabarbosa.com.br"})

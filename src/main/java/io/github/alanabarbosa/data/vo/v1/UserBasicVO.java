@@ -18,7 +18,7 @@ import jakarta.persistence.PrePersist;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "first_name", "last_name","user_name", "bio", "created_at", "enabled", "roles"})
-public class UserPostVO implements Serializable {
+public class UserBasicVO extends RepresentationModel<UserBasicVO>  implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,11 +29,11 @@ public class UserPostVO implements Serializable {
     @JsonProperty("first_name")
     private String firstName;
 
-    @JsonProperty("last_name")
+    /*@JsonProperty("last_name")
     private String lastName;
     
-    @JsonProperty("user_name")
-    private String userName;
+    //@JsonProperty("user_name")
+    //private String userName;
 
     @JsonProperty("bio")
     private String bio;
@@ -48,19 +48,15 @@ public class UserPostVO implements Serializable {
     @JoinColumn(name = "file_id")
     private File file;
 
-    public UserPostVO() {}
+    public UserBasicVO() {}
     
 
-/* public List<String> getRoleNames() {
+ 	public List<String> getRoleNames() {
         return roles.stream()
             .map(RoleVO::getName)
             .collect(Collectors.toList());
     }*/
     
-    @PrePersist
-    public void prePresist() {
-    	if (createdAt == null) createdAt = LocalDateTime.now();
-    }   
 
 
 	public Long getKey() {
@@ -83,30 +79,45 @@ public class UserPostVO implements Serializable {
 	}
 
 
-	public String getLastName() {
+	@Override
+	public int hashCode() {
+		return Objects.hash(firstName, key);
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserBasicVO other = (UserBasicVO) obj;
+		return Objects.equals(firstName, other.firstName) && Objects.equals(key, other.key);
+	}
+
+
+	/*public String getLastName() {
 		return lastName;
 	}
 
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
-	}
+	}*/
 
 
-	public String getUserName() {
+	/*public String getUserName() {
 		return userName;
 	}
 
 
 	public void setUserName(String userName) {
 		this.userName = userName;
-	}
+	}*/
 
-
-	
-
-
-	public String getBio() {
+	/*public String getBio() {
 		return bio;
 	}
 
@@ -149,7 +160,7 @@ public class UserPostVO implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(bio, createdAt, enabled, file, firstName, key, lastName, userName);
+		result = prime * result + Objects.hash(bio, createdAt, enabled, file, firstName, key, lastName);
 		return result;
 	}
 
@@ -162,11 +173,13 @@ public class UserPostVO implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		UserPostVO other = (UserPostVO) obj;
+		UserBasicVO other = (UserBasicVO) obj;
 		return  Objects.equals(bio, other.bio) && Objects.equals(createdAt, other.createdAt)
 				&& Objects.equals(enabled, other.enabled) && Objects.equals(file, other.file)
 				&& Objects.equals(firstName, other.firstName) && Objects.equals(key, other.key)
-				&& Objects.equals(lastName, other.lastName)
-				&& Objects.equals(userName, other.userName);
-	} 
+				&& Objects.equals(lastName, other.lastName);
+	} */
+	
+	
+	
 }

@@ -50,12 +50,12 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @Mapping("user")
-    private UserPostVO user;
+    private UserBasicVO user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     @Mapping("category")
-    private CategoryPostVO category;
+    private CategoryBasicVO category;
     
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "image_desktop_id", nullable = true)
@@ -65,8 +65,8 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
     @JoinColumn(name = "image_mobile_id", nullable = true)
     private File imageMobile;
     
-    /*@OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
-    private List<CommentVO> comments;*/
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
+    private List<CommentBasicVO> comments;
 
     public PostResponseVO() {}
     
@@ -148,19 +148,19 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
 
 	
 
-	public UserPostVO getUser() {
+	public UserBasicVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserPostVO user) {
+	public void setUser(UserBasicVO user) {
 		this.user = user;
 	}
 
-	public CategoryPostVO getCategory() {
+	public CategoryBasicVO getCategory() {
 		return category;
 	}
 
-	public void setCategory(CategoryPostVO category) {
+	public void setCategory(CategoryBasicVO category) {
 		this.category = category;
 	}
 
@@ -180,19 +180,19 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
 		this.imageMobile = imageMobile;
 	}
 
-	/*public List<CommentVO> getComments() {
+	public List<CommentBasicVO> getComments() {
 		return comments;
 	}
 
-	public void setComments(List<CommentVO> comments) {
+	public void setComments(List<CommentBasicVO> comments) {
 		this.comments = comments;
-	}*/
+	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(category, content, createdAt, imageDesktop, imageMobile, key,
+		result = prime * result + Objects.hash(category, comments, content, createdAt, imageDesktop, imageMobile, key,
 				publishedAt, slug, status, title, updatedAt, user);
 		return result;
 	}
@@ -206,7 +206,7 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
 		if (getClass() != obj.getClass())
 			return false;
 		PostResponseVO other = (PostResponseVO) obj;
-		return Objects.equals(category, other.category)
+		return Objects.equals(category, other.category) && Objects.equals(comments, other.comments)
 				&& Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
 				&& Objects.equals(imageDesktop, other.imageDesktop) && Objects.equals(imageMobile, other.imageMobile)
 				&& Objects.equals(key, other.key) && Objects.equals(publishedAt, other.publishedAt)
@@ -214,6 +214,7 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
 				&& Objects.equals(title, other.title) && Objects.equals(updatedAt, other.updatedAt)
 				&& Objects.equals(user, other.user);
 	}
+
 /*
 	@Override
 	public String toString() {

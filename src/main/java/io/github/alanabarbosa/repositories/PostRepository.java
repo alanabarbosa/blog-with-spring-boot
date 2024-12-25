@@ -17,12 +17,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	@Modifying
 	@Query("UPDATE Post p SET p.status = false WHERE p.id =:id")
 	void disablePost(@Param("id") Long id);
-	
-    @Query("SELECT p FROM Post p WHERE p.user.id = :userId")
-    List<Post> findPostsByCommentId(@Param("userId") Long userId);
     
     @Query("SELECT p FROM Post p WHERE p.user.id = :userId")
     List<Post> findPostsByUserId(@Param("userId") Long userId);
-	//@Query("SELECT p FROM Poster p WHERE p.id =:id")
-    //void findByPostId(Long postId);
 }

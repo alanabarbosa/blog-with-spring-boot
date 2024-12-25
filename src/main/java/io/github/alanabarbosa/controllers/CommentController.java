@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.services.CommentServices;
@@ -90,7 +91,7 @@ public class CommentController {
 	            content = {
 	                @Content(
 	                    mediaType = "application/json",
-	                    array = @ArraySchema(schema = @Schema(implementation = CommentResponseVO.class))
+	                    array = @ArraySchema(schema = @Schema(implementation = CommentBasicVO.class))
 	                )
 	            }),
 	        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -99,7 +100,7 @@ public class CommentController {
 	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 	    }
 	)
-	public List<CommentResponseVO> findCommentsByUserId(@PathVariable(value = "userId") Long userId) throws Exception {
+	public List<CommentBasicVO> findCommentsByUserId(@PathVariable(value = "userId") Long userId) throws Exception {
 	    return service.findCommentsByUserId(userId);
 	}
 	
@@ -114,7 +115,7 @@ public class CommentController {
 		            content = {
 		                @Content(
 		                    mediaType = "application/json",
-		                    array = @ArraySchema(schema = @Schema(implementation = CommentResponseVO.class))
+		                    array = @ArraySchema(schema = @Schema(implementation = CommentBasicVO.class))
 		                )
 		            }),
 		        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -123,7 +124,7 @@ public class CommentController {
 		        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		    }
 		)
-	public List<CommentResponseVO> findCommentsByPostId(@PathVariable(value = "postId") Long postId) throws Exception {
+	public List<CommentBasicVO> findCommentsByPostId(@PathVariable(value = "postId") Long postId) throws Exception {
 		    return service.findCommentsByPostId(postId);
 		}	
 	

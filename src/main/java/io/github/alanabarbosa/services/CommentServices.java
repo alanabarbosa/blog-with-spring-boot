@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CommentController;
 import io.github.alanabarbosa.controllers.PostController;
+import io.github.alanabarbosa.controllers.UserController;
+import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
@@ -30,21 +32,21 @@ public class CommentServices {
 	
 	@Autowired
 	CommentRepository repository;	
+	
 	@Transactional
 	public List<CommentResponseVO> findAll() {		
 		logger.info("Finding all comments!");		
 		
-		//var comments = DozerMapper.parseListObjects(repository.findAll(), CommentVO.class);
 		var commentsResponseVO = DozerMapper.parseListObjects(repository.findAllWithUser(), CommentResponseVO.class);
 		
 		return commentsResponseVO.stream()
         .map(comment -> {
             try {
             	comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withSelfRel());
-            	comment.add(linkTo(methodOn(PostController.class).findPostsByCommentId(comment.getKey())).withRel("posts"));
-                /*if (c.getUser() != null && c.getUser().getKey() != null) {
-                    c.getUser().add(linkTo(methodOn(UserController.class).findById(c.getUser().getKey())).withSelfRel());
-                }*/
+            	comment.getUser().add(linkTo(methodOn(UserController.class).findById(comment.getUser().getKey())).withRel("author"));
+            	 if (comment.getPost() != null) {
+                     comment.getPost().add(linkTo(methodOn(PostController.class).findById(comment.getPost().getKey())).withRel("post"));
+                 }
             	return comment;
             } catch (Exception e) {
             	logger.severe("Error adding HATEOAS link: " + e.getMessage());
@@ -53,7 +55,6 @@ public class CommentServices {
         })
         .collect(Collectors.toList());
 	    
-		//return commentsResponseVO;
 	}
 	
 	@Transactional
@@ -66,18 +67,44 @@ public class CommentServices {
 	    var vo = DozerMapper.parseObject(entity, CommentResponseVO.class);	  
 	    
 	    vo.add(linkTo(methodOn(CommentController.class).findById(id)).withSelfRel());
-	    vo.add(linkTo(methodOn(PostController.class).findPostsByCommentId(vo.getKey())).withRel("posts"));
+	    vo.getUser().add(linkTo(methodOn(UserController.class).findById(vo.getUser().getKey())).withRel("author"));	    
+	   	 if (vo.getPost() != null) {
+	   		vo.getPost().add(linkTo(methodOn(PostController.class).findById(vo.getPost().getKey())).withRel("post"));
+	     }	    
 	    return vo;
 	}
 	
-    public List<CommentResponseVO> findCommentsByUserId(Long userId) {
-        var comments = repository.findCommentsByUserId(userId);
-        return DozerMapper.parseListObjects(comments, CommentResponseVO.class);
+    public List<CommentBasicVO> findCommentsByUserId(Long userId) {
+    	var comments = repository.findCommentsByUserId(userId);
+    	var commentsResponseVO = DozerMapper.parseListObjects(comments, CommentBasicVO.class);
+
+    	return commentsResponseVO.stream()
+    	    .map(comment -> {
+    	        try {
+    	            comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withRel("comment-details"));
+    	            return comment;
+    	        } catch (Exception e) {
+    	            logger.severe("Error adding HATEOAS link: " + e.getMessage());
+    	            return comment;
+    	        }
+    	    })
+    	    .collect(Collectors.toList());
     }
     
-    public List<CommentResponseVO> findCommentsByPostId(Long postId) {
-        var comments = repository.findCommentsByUserId(postId);
-        return DozerMapper.parseListObjects(comments, CommentResponseVO.class);
+    public List<CommentBasicVO> findCommentsByPostId(Long postId) {
+        var comments = repository.findCommentsByPostId(postId);
+    	var commentsResponseVO = DozerMapper.parseListObjects(comments, CommentBasicVO.class);
+    	return commentsResponseVO.stream()
+        	    .map(comment -> {
+        	        try {
+        	            comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withRel("comment-details"));
+        	            return comment;
+        	        } catch (Exception e) {
+        	            logger.severe("Error adding HATEOAS link: " + e.getMessage());
+        	            return comment;
+        	        }
+        	    })
+        	    .collect(Collectors.toList());    	
     }    
 	
 	public CommentVO create(CommentVO comment) throws Exception {

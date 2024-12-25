@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "name", "description","created_at"})
-public class CategoryPostVO implements Serializable {
+public class CategoryBasicVO extends RepresentationModel<CategoryBasicVO>  implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -21,12 +21,12 @@ public class CategoryPostVO implements Serializable {
 	
     private Long key;
     private String name;	
-    private String description;
+   /* private String description;
     
     @JsonProperty("created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt;*/
 
-    public CategoryPostVO() {}
+    public CategoryBasicVO() {}
 
 	public Long getKey() {
 		return key;
@@ -44,7 +44,7 @@ public class CategoryPostVO implements Serializable {
 		this.name = name;
 	}
 
-	public String getDescription() {
+	/*public String getDescription() {
 		return description;
 	}
 
@@ -58,7 +58,7 @@ public class CategoryPostVO implements Serializable {
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
-	}
+	}*/
 
     @Override
     public boolean equals(Object obj) {
@@ -66,15 +66,13 @@ public class CategoryPostVO implements Serializable {
             return true;
         if (obj == null || getClass() != obj.getClass())
             return false;
-        CategoryPostVO categoryVO = (CategoryPostVO) obj;
+        CategoryBasicVO categoryVO = (CategoryBasicVO) obj;
         return Objects.equals(key, categoryVO.key) &&
-               Objects.equals(name, categoryVO.name) &&
-               Objects.equals(description, categoryVO.description) &&
-               Objects.equals(createdAt, categoryVO.createdAt);
+               Objects.equals(name, categoryVO.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, name, description, createdAt);
+        return Objects.hash(key, name);
     }
 }

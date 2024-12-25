@@ -17,7 +17,7 @@ import jakarta.persistence.ManyToOne;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "content", "created_at","status"})
-public class CommentResponseVO extends RepresentationModel<CommentResponseVO> implements Serializable {
+public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
@@ -28,21 +28,11 @@ public class CommentResponseVO extends RepresentationModel<CommentResponseVO> im
     
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
-    private Boolean status;   
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    @Mapping("post")
-    private PostBasicVO post;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @Mapping("user")
-    private UserBasicVO user;
+    private Boolean status;    
 
-    public CommentResponseVO() {}
+    public CommentBasicVO() {}
 
-    public CommentResponseVO(Long key, String content, LocalDateTime createdAt) {
+    public CommentBasicVO(Long key, String content, LocalDateTime createdAt) {
         this.key = key;
         this.content = content;
         this.createdAt = createdAt;
@@ -79,28 +69,14 @@ public class CommentResponseVO extends RepresentationModel<CommentResponseVO> im
 	public void setStatus(Boolean status) {
 		this.status = status;
 	}
-
-	public PostBasicVO getPost() {
-		return post;
-	}
-
-	public void setPost(PostBasicVO post) {
-		this.post = post;
-	}
-
-	public UserBasicVO getUser() {
-		return user;
-	}
-
-	public void setUser(UserBasicVO user) {
-		this.user = user;
-	}
+	
+	
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(content, createdAt, key, status, user);
+		result = prime * result + Objects.hash(content, createdAt, key, status);
 		return result;
 	}
 
@@ -112,10 +88,11 @@ public class CommentResponseVO extends RepresentationModel<CommentResponseVO> im
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CommentResponseVO other = (CommentResponseVO) obj;
+		CommentBasicVO other = (CommentBasicVO) obj;
 		return Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
 				&& Objects.equals(key, other.key)
-				&& Objects.equals(status, other.status) && Objects.equals(user, other.user);
+				&& Objects.equals(status, other.status);
 	}
+
 	
 }
