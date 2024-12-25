@@ -493,12 +493,10 @@ public class PostControllerYamlTest extends AbstractIntegrationTest{
 	    
 	    Category category = new Category();
 	    category.setId(1L);
-	    category.setCreatedAt(now);
-	    category.setDescription("This is a description a category");
 	    category.setName("This is a category");	 
+	    category.setDescription("This is a description a category");
+	    category.setCreatedAt(now);
 	    
-	    System.out.println("Category Name: " + category.getName());
-
 	    User user = new User();
 	    user.setId(1L);
 	    user.setFirstName("Alana");

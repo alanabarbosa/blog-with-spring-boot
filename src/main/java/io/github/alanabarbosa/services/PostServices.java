@@ -5,7 +5,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -14,15 +13,12 @@ import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CommentController;
 import io.github.alanabarbosa.controllers.PostController;
-import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
-import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.data.vo.v1.PostResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
 import io.github.alanabarbosa.model.Category;
-import io.github.alanabarbosa.model.Comment;
 import io.github.alanabarbosa.model.Post;
 import io.github.alanabarbosa.model.User;
 import io.github.alanabarbosa.repositories.CommentRepository;
@@ -51,6 +47,7 @@ public class PostServices {
         			try {
         				post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withSelfRel());
                         post.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(post.getKey())).withRel("comments"));
+                        
                         return post;
         			} catch (Exception e) {
     	                logger.severe("Error adding HATEOAS link: " + e.getMessage());
@@ -90,6 +87,7 @@ public class PostServices {
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
         
         var vo = DozerMapper.parseObject(entity, PostResponseVO.class);
+        
        /* try {
             List<Comment> comments = commentRepository.findByPostId(id);
             List<CommentResponseVO> commentVOs = DozerMapper.parseListObjects(comments, CommentResponseVO.class);
@@ -97,6 +95,7 @@ public class PostServices {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error while processing comments for post " + id, e);
         }*/
+        
         vo.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(vo.getKey())).withRel("comments"));
         vo.add(linkTo(methodOn(PostController.class).findById(id)).withSelfRel());
         
@@ -114,6 +113,8 @@ public class PostServices {
     }
     
 	public PostVO create(PostVO post) throws Exception {		
+		logger.info("Creating one post!");
+		
 		if (post == null) throw new RequiredObjectIsNullException();
 		if (post != null) post.setCreatedAt(LocalDateTime.now());
 		
@@ -125,12 +126,9 @@ public class PostServices {
 	        post.setImageMobile(null);
 	    }
 	    
-	    if (post.getCategory() != null && post.getCategory().getName() == null) {
-	        throw new IllegalArgumentException("Category name cannot be null");
+	    if (post.getCategory() != null && post.getCategory().getKey() == null) {
+	        throw new IllegalArgumentException("Category ID cannot be null");
 	    }
-
-		
-		logger.info("Creating one post!");
 		
 		var entity = DozerMapper.parseObject(post, Post.class);		
 		
@@ -139,15 +137,18 @@ public class PostServices {
 		
 	    var slugFormatted = NormalizeSlug.normalizeString(entity.getTitle());	    
 	    if (!slugFormatted.isEmpty()) entity.setSlug(slugFormatted);
-		var savedPost = repository.save(entity);
 		
+	    var savedPost = repository.save(entity);		
 		var vo =  DozerMapper.parseObject(repository.save(savedPost), PostVO.class);
 	    vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withSelfRel());
+	    vo.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(vo.getKey())).withRel("comments"));
 	    
 	    return vo;
 	}
 	
 	public PostVO update(PostVO post) throws Exception {
+		logger.info("Updating one post!");
+		
 	    if (post == null) throw new RequiredObjectIsNullException();
 	    
 	    if (post != null) post.setCreatedAt(LocalDateTime.now());
@@ -160,8 +161,6 @@ public class PostServices {
 	        post.setImageMobile(null);
 	    }    
 	    
-	    
-	    logger.info("Updating one post!");
 	    var entity = repository.findById(post.getKey())
 	            .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
 	    
@@ -174,7 +173,8 @@ public class PostServices {
 	    entity.setUpdatedAt(post.getUpdatedAt());
 	    entity.setStatus(post.getStatus());
 	    
-	    if (entity.getStatus() == false) entity.setPublishedAt(null);	    
+	    if (entity.getStatus() == false) entity.setPublishedAt(null);
+	    
 	    var user = DozerMapper.parseObject(post.getUser(), User.class);	    
 	    entity.setUser(user);
 	    
@@ -186,7 +186,9 @@ public class PostServices {
 	    
 	    var updatedPost = repository.save(entity);
 	    var vo = DozerMapper.parseObject(repository.save(updatedPost), PostVO.class);
+	    
 	    vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withSelfRel());
+	    vo.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(vo.getKey())).withRel("comments"));
 	    
 	    return vo;
 	}
@@ -194,6 +196,8 @@ public class PostServices {
 	@Transactional
 	public PostVO disablePost(Long id) throws Exception {
         logger.info("Disabling one Post!");
+        
+        repository.disablePost(id);
         
         var entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
@@ -216,6 +220,7 @@ public class PostServices {
 	
 	public void delete(Long id) {
 		logger.info("Deleting one post!");
+		
 		var entity =  repository.findById(id)
 	    		.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
 		

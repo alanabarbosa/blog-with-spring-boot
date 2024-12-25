@@ -65,8 +65,8 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
     @JoinColumn(name = "image_mobile_id", nullable = true)
     private File imageMobile;
     
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
-    private List<CommentResponseVO> comments;
+    /*@OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
+    private List<CommentResponseVO> comments;*/
 
     public PostVO() {}
     
@@ -180,19 +180,19 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 		this.imageMobile = imageMobile;
 	}
 
-	public List<CommentResponseVO> getComments() {
+	/*public List<CommentResponseVO> getComments() {
 		return comments;
 	}
 
 	public void setComments(List<CommentResponseVO> comments) {
 		this.comments = comments;
-	}
+	}*/
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(category, comments, content, createdAt, imageDesktop, imageMobile, key,
+		result = prime * result + Objects.hash(category, content, createdAt, imageDesktop, imageMobile, key,
 				publishedAt, slug, status, title, updatedAt, user);
 		return result;
 	}
@@ -206,7 +206,7 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 		if (getClass() != obj.getClass())
 			return false;
 		PostVO other = (PostVO) obj;
-		return Objects.equals(category, other.category) && Objects.equals(comments, other.comments)
+		return Objects.equals(category, other.category)
 				&& Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
 				&& Objects.equals(imageDesktop, other.imageDesktop) && Objects.equals(imageMobile, other.imageMobile)
 				&& Objects.equals(key, other.key) && Objects.equals(publishedAt, other.publishedAt)

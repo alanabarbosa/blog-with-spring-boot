@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "name", "description","created_at"})
-public class CategoryVO extends RepresentationModel<CategoryVO> implements Serializable {
+public class CategoryPostVO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -26,7 +26,7 @@ public class CategoryVO extends RepresentationModel<CategoryVO> implements Seria
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
 
-    public CategoryVO() {}
+    public CategoryPostVO() {}
 
 	public Long getKey() {
 		return key;
@@ -66,7 +66,7 @@ public class CategoryVO extends RepresentationModel<CategoryVO> implements Seria
             return true;
         if (obj == null || getClass() != obj.getClass())
             return false;
-        CategoryVO categoryVO = (CategoryVO) obj;
+        CategoryPostVO categoryVO = (CategoryPostVO) obj;
         return Objects.equals(key, categoryVO.key) &&
                Objects.equals(name, categoryVO.name) &&
                Objects.equals(description, categoryVO.description) &&

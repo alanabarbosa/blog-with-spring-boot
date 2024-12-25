@@ -50,12 +50,12 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @Mapping("user")
-    private UserResponseVO user;
+    private UserPostVO user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     @Mapping("category")
-    private CategoryVO category;
+    private CategoryPostVO category;
     
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "image_desktop_id", nullable = true)
@@ -148,19 +148,19 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
 
 	
 
-	public UserResponseVO getUser() {
+	public UserPostVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserResponseVO user) {
+	public void setUser(UserPostVO user) {
 		this.user = user;
 	}
 
-	public CategoryVO getCategory() {
+	public CategoryPostVO getCategory() {
 		return category;
 	}
 
-	public void setCategory(CategoryVO category) {
+	public void setCategory(CategoryPostVO category) {
 		this.category = category;
 	}
 

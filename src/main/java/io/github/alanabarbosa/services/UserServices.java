@@ -81,8 +81,6 @@ public class UserServices implements UserDetailsService {
 	        .collect(Collectors.toList());
 	}
 
-
-	
 	public UserResponseVO findById(Long id) throws Exception {		
 		logger.info("Finding one user!");	
 		
