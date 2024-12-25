@@ -8,11 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.Comment;
 import io.github.alanabarbosa.model.Post;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
+	
+	@Query("SELECT p FROM Post p WHERE p.category.id = :categoryId") 
+	List<Post> findByCategoryId(Long categoryId);
 	
 	@Modifying
 	@Query("UPDATE Post p SET p.status = false WHERE p.id =:id")

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.alanabarbosa.data.vo.v1.CategoryResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
 import io.github.alanabarbosa.services.CategoryServices;
 import io.github.alanabarbosa.util.MediaType;
@@ -65,7 +66,7 @@ public class CategoryController {
 					content = {
 							@Content(
 									mediaType = "application/json",
-									array = @ArraySchema(schema = @Schema(implementation = CategoryVO.class))
+									array = @ArraySchema(schema = @Schema(implementation = CategoryResponseVO.class))
 							)
 					}),
 			@ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -74,7 +75,7 @@ public class CategoryController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)	
-	public CategoryVO findById(@PathVariable(value = "id") Long id) throws Exception {
+	public CategoryResponseVO findById(@PathVariable(value = "id") Long id) throws Exception {
 		return service.findById(id);
 	}
 	
