@@ -78,7 +78,7 @@ public class PostController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)    
-    public PostResponseVO findById(@PathVariable(value = "id") Long id) throws Exception {
+    public PostResponseVO findById(@PathVariable Long id) throws Exception {
         return service.findById(id);
     }
     
@@ -102,7 +102,7 @@ public class PostController {
     	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
     	    }
     	)
-    public List<PostBasicVO> findPostsByUserId(@PathVariable(value = "userId") Long userId) throws Exception {
+    public List<PostBasicVO> findPostsByUserId(@PathVariable Long userId) throws Exception {
 	    return service.findPostsByUserId(userId);
 	}
     
@@ -126,7 +126,7 @@ public class PostController {
     	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
     	    }
     	)
-    public List<PostBasicVO> findByCategoryId(@PathVariable(value = "categoryId") Long categoryId) throws Exception {
+    public List<PostBasicVO> findByCategoryId(@PathVariable Long categoryId) throws Exception {
 	    return service.findByCategoryId(categoryId);
 	}     
     
@@ -201,7 +201,7 @@ public class PostController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)    
-    public PostVO disablePost(@PathVariable(value = "id") Long id) throws Exception {
+    public PostVO disablePost(@PathVariable Long id) throws Exception {
         return service.disablePost(id);
     } 
     
@@ -216,7 +216,7 @@ public class PostController {
 				@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)    
-    public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws Exception {
+    public ResponseEntity<?> delete(@PathVariable Long id) throws Exception {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }    

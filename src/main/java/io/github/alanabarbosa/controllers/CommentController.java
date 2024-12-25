@@ -76,7 +76,7 @@ public class CommentController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	) 	
-	public CommentResponseVO findById(@PathVariable(value = "id") Long id) throws Exception {
+	public CommentResponseVO findById(@PathVariable Long id) throws Exception {
 		return service.findById(id);
 	}
 	
@@ -100,7 +100,7 @@ public class CommentController {
 	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 	    }
 	)
-	public List<CommentBasicVO> findCommentsByUserId(@PathVariable(value = "userId") Long userId) throws Exception {
+	public List<CommentBasicVO> findCommentsByUserId(@PathVariable Long userId) throws Exception {
 	    return service.findCommentsByUserId(userId);
 	}
 	
@@ -188,7 +188,7 @@ public class CommentController {
 				@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	) 	
-	public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws Exception {
+	public ResponseEntity<?> delete(@PathVariable Long id) throws Exception {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
 	}	

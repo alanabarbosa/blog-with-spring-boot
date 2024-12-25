@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.data.vo.v1.UserResponseVO;
 import io.github.alanabarbosa.data.vo.v1.UserVO;
-import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.services.UserServices;
 import io.github.alanabarbosa.util.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
@@ -78,7 +76,7 @@ public class UserController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	) 	
-	public UserResponseVO findById(@PathVariable(value = "id") Long id) throws Exception {
+	public UserResponseVO findById(@PathVariable Long id) throws Exception {
 		return service.findById(id);
 	}
 	
@@ -151,7 +149,7 @@ public class UserController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)    
-    public UserVO disableUser(@PathVariable(value = "id") Long id) throws Exception {
+    public UserVO disableUser(@PathVariable Long id) throws Exception {
         return service.disableUser(id);
     }	
 	
@@ -166,7 +164,7 @@ public class UserController {
 				@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	) 	
-	public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws Exception {
+	public ResponseEntity<?> delete(@PathVariable Long id) throws Exception {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
 	}

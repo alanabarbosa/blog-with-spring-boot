@@ -75,7 +75,7 @@ public class CategoryController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)	
-	public CategoryResponseVO findById(@PathVariable(value = "id") Long id) throws Exception {
+	public CategoryResponseVO findById(@PathVariable Long id) throws Exception {
 		return service.findById(id);
 	}
 	
@@ -139,7 +139,7 @@ public class CategoryController {
 				@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	) 	
-	public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws Exception {
+	public ResponseEntity<?> delete(@PathVariable Long id) throws Exception {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
 	}	
