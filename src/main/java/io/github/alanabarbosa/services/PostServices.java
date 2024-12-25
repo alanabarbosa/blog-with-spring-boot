@@ -179,6 +179,24 @@ public class PostServices {
     	    .collect(Collectors.toList()); 
     }
     
+    public List<PostBasicVO> findByCategoryId(Long categoryId) {
+        //var comments = repository.findPostsByUserId(commentId);
+        var categories = repository.findByCategoryId(categoryId);
+    	var categoriesResponseVO = DozerMapper.parseListObjects(categories, PostBasicVO.class);
+
+    	return categoriesResponseVO.stream()
+    	    .map(category -> {
+    	        try {
+    	        	category.add(linkTo(methodOn(PostController.class).findById(category.getKey())).withRel("post-details"));
+    	            return category;
+    	        } catch (Exception e) {
+    	            logger.severe("Error adding HATEOAS link: " + e.getMessage());
+    	            return category;
+    	        }
+    	    })
+    	    .collect(Collectors.toList()); 
+    }    
+    
 	public PostVO create(PostVO post) throws Exception {		
 		logger.info("Creating one post!");
 		

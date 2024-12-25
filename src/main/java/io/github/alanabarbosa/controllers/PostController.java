@@ -104,7 +104,31 @@ public class PostController {
     	)
     public List<PostBasicVO> findPostsByUserId(@PathVariable(value = "userId") Long userId) throws Exception {
 	    return service.findPostsByUserId(userId);
-	}    
+	}
+    
+    @GetMapping(value="/category/{categoryId}",
+    	    produces = { MediaType.APPLICATION_JSON, 
+    	                 MediaType.APPLICATION_XML, 
+    	                 MediaType.APPLICATION_YML })
+    	@Operation(summary = "Finds Posts By Category ID", description = "Finds Posts By Category ID",
+    	    tags = {"Post"},
+    	    responses = {
+    	        @ApiResponse(description = "Success", responseCode = "200,", 
+    	            content = {
+    	                @Content(
+    	                    mediaType = "application/json",
+    	                    array = @ArraySchema(schema = @Schema(implementation = PostBasicVO.class))
+    	                )
+    	            }),
+    	        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
+    	        @ApiResponse(description = "Unauthorized", responseCode = "401,", content = @Content),
+    	        @ApiResponse(description = "Not Found", responseCode = "404,", content = @Content),
+    	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
+    	    }
+    	)
+    public List<PostBasicVO> findByCategoryId(@PathVariable(value = "categoryId") Long categoryId) throws Exception {
+	    return service.findByCategoryId(categoryId);
+	}     
     
     @CrossOrigin(origins = { "http://localhost:8080", "https://alanabarbosa.com.br"})
     @PostMapping(
