@@ -3,9 +3,9 @@ CREATE TABLE IF NOT EXISTS post (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL,
+    updated_at DATETIME DEFAULT NULL,
     published_at DATETIME,
-    slug VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NULL,
     status BOOLEAN NOT NULL,
     user_id BIGINT NOT NULL,
     category_id BIGINT NOT NULL,
@@ -16,3 +16,6 @@ CREATE TABLE IF NOT EXISTS post (
     CONSTRAINT fk_post_image_desktop FOREIGN KEY (image_desktop_id) REFERENCES files(id),
     CONSTRAINT fk_post_image_mobile FOREIGN KEY (image_mobile_id) REFERENCES files(id)
 );
+
+
+

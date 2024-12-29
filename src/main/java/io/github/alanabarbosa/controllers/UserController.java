@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.alanabarbosa.data.vo.v1.UserResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.UserResponseVO;
 import io.github.alanabarbosa.data.vo.v1.UserVO;
 import io.github.alanabarbosa.services.UserServices;
@@ -33,8 +34,8 @@ public class UserController {
 	@Autowired
 	private UserServices service;
 	
-	@GetMapping(produces = { MediaType.APPLICATION_JSON, 
-			MediaType.APPLICATION_XML, 
+	@GetMapping(produces = { MediaType.APPLICATION_JSON,
+			MediaType.APPLICATION_XML,
 			MediaType.APPLICATION_YML })
 	@Operation(summary = " Finds all User", description = "Finds all User",
 		tags = {"User"},
@@ -52,7 +53,7 @@ public class UserController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)	
-	public List<UserResponseVO> findAll() {
+	public List<UserResponseBasicVO> findAll() {
 		return service.findAll();
 	}
 	

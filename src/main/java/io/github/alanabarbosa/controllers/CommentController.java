@@ -43,7 +43,7 @@ public class CommentController {
 					content = {
 							@Content(
 									mediaType = "application/json",
-									array = @ArraySchema(schema = @Schema(implementation = CommentResponseVO.class))
+									array = @ArraySchema(schema = @Schema(implementation = CommentBasicVO.class))
 							)
 					}),
 			@ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -52,7 +52,7 @@ public class CommentController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)	
-	public List<CommentResponseVO> findAll() {
+	public List<CommentBasicVO> findAll() {
 		return service.findAll();
 	}
 	

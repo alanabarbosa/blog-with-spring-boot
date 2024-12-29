@@ -60,7 +60,7 @@ class CommentServicesTest {
 		var result = service.findById(1L);		
 		assertNotNull(result);
 		assertNotNull(result.getKey());			
-		assertTrue(result.toString().contains("[</api/comment/v1/1>;rel=\"self\"]"));
+		assertTrue(result.toString().contains("[</api/comment/v1/1>;rel=\"comment-details\"]"));
 		assertEquals("Este é um comentario.0", result.getContent());
 		assertEquals(now, result.getCreatedAt());
 		assertEquals(true, result.getStatus());	
@@ -72,9 +72,13 @@ class CommentServicesTest {
 		
 		LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 		
-		when(repository.findAll()).thenReturn(list);
+		System.out.println("Tamanho da lista mockada: " + list.size());
+		when(repository.findAllWithUser()).thenReturn(list); 
 		
 		var comment = service.findAll();
+		
+		System.out.println("tamanho total: " + comment.size());
+		System.out.println("tamanho total: " + comment);
 		
 		assertNotNull(comment);
 		assertEquals(14, comment.size());
@@ -82,26 +86,20 @@ class CommentServicesTest {
 		var commentOne = comment.get(1);		
 		assertNotNull(commentOne);
 		assertNotNull(commentOne.getKey());		
-		assertTrue(commentOne.toString().contains("[</api/comment/v1/1>;rel=\"self\"]"));
+		assertTrue(commentOne.toString().contains("[</api/comment/v1/1>;rel=\"comment-details\"]"));
 		assertEquals("Este é um comentario.1", commentOne.getContent());
-		assertEquals(now, commentOne.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
-		assertEquals(false, commentOne.getStatus());
 		
 		var CommentFour = comment.get(4);		
 		assertNotNull(CommentFour);
 		assertNotNull(CommentFour.getKey());		
-		assertTrue(CommentFour.toString().contains("[</api/comment/v1/4>;rel=\"self\"]"));
+		assertTrue(CommentFour.toString().contains("[</api/comment/v1/4>;rel=\"comment-details\"]"));
 		assertEquals("Este é um comentario.4", CommentFour.getContent());
-		assertEquals(now, CommentFour.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
-		assertEquals(true, CommentFour.getStatus());
 		
 		var CommentSeven = comment.get(7);		
 		assertNotNull(CommentSeven);
 		assertNotNull(CommentSeven.getKey());		
-		assertTrue(CommentSeven.toString().contains("[</api/comment/v1/7>;rel=\"self\"]"));
+		assertTrue(CommentSeven.toString().contains("[</api/comment/v1/7>;rel=\"comment-details\"]"));
 		assertEquals("Este é um comentario.7", CommentSeven.getContent());
-		assertEquals(now, CommentSeven.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
-		assertEquals(false, CommentSeven.getStatus());	
 	
 	}
 
@@ -131,7 +129,9 @@ class CommentServicesTest {
 	    assertNotNull(result.getKey());
 	    assertNotNull(result.getLinks());
 	    
-	    assertTrue(result.toString().contains("[</api/comment/v1/1>;rel=\"self\"]"));
+	    System.out.println("to string: " + result.toString());
+	    
+	    assertTrue(result.toString().contains("[</api/comment/v1/1>;rel=\"comment-details\"]"));
 	    
 	    assertEquals("Este é um comentario.1", result.getContent());
 	    assertEquals(now.truncatedTo(ChronoUnit.SECONDS), result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
@@ -179,7 +179,9 @@ class CommentServicesTest {
 	    assertNotNull(result);
 	    assertNotNull(result.getKey());
 	    
-	    assertTrue(result.toString().contains("[</api/comment/v1/1>;rel=\"self\"]"));
+	    System.out.println("tostring update" + result.toString());
+	    
+	    assertTrue(result.toString().contains("[</api/comment/v1/1>;rel=\"comment-details\"]"));
 	    assertEquals("Este é um comentario.1", result.getContent());
 	    assertEquals(now.truncatedTo(ChronoUnit.SECONDS), result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
 	    assertEquals(2L, result.getPost().getKey());
@@ -190,7 +192,6 @@ class CommentServicesTest {
 	    assertEquals(existingEntity.getId(), capturedPost.getId());
 	    assertEquals(existingEntity.getContent(), capturedPost.getContent());
 	}
-
 	
 	@Test
 	void testUpdateWithNullComment() throws Exception {
@@ -212,5 +213,4 @@ class CommentServicesTest {
 		when(repository.findById(1L)).thenReturn(Optional.of(entity));		
 		service.delete(1L);
 	}
-
 }

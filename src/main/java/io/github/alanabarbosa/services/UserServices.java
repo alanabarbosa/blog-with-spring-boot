@@ -16,18 +16,23 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CommentController;
-import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.controllers.UserController;
+import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
+import io.github.alanabarbosa.data.vo.v1.UserResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.UserResponseVO;
 import io.github.alanabarbosa.data.vo.v1.UserVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
+import io.github.alanabarbosa.model.Post;
 import io.github.alanabarbosa.model.Role;
 import io.github.alanabarbosa.model.User;
 import io.github.alanabarbosa.repositories.CommentRepository;
+import io.github.alanabarbosa.repositories.PostRepository;
 import io.github.alanabarbosa.repositories.RoleRepository;
 import io.github.alanabarbosa.repositories.UserRepository;
+import io.github.alanabarbosa.util.ConvertToVO;
+import io.github.alanabarbosa.util.HateoasUtils;
 import io.github.alanabarbosa.util.PasswordUtil;
 import jakarta.transaction.Transactional;
 
@@ -43,7 +48,10 @@ public class UserServices implements UserDetailsService {
 	RoleRepository roleRepository;
 	
 	@Autowired
-    private CommentRepository commentRepository;	
+    CommentRepository commentRepository;
+	
+	@Autowired
+	PostRepository postRepository;
 	
 	public UserServices(UserRepository repository) {
 		this.repository = repository;
@@ -60,18 +68,17 @@ public class UserServices implements UserDetailsService {
 		}
 	}
 	
-	public List<UserResponseVO> findAll() {        
-	    logger.info("Finding all users!");        
+	@Transactional
+	public List<UserResponseBasicVO> findAll() {        
+	    logger.info("Finding all users!");
 	    
-	    var usersResponseVO = DozerMapper.parseListObjects(repository.findAll(), UserResponseVO.class);
+	    var users = DozerMapper.parseListObjects(repository.findAll(), UserResponseBasicVO.class);
 
-	    return usersResponseVO.stream()
+	    return users.stream()
 	        .filter(user -> user.getEnabled() != null && user.getEnabled())
 	        .map(user -> {
 	            try {
-	                user.add(linkTo(methodOn(UserController.class).findById(user.getKey())).withSelfRel());
-	                user.add(linkTo(methodOn(CommentController.class).findCommentsByUserId(user.getKey())).withRel("comments"));
-	                user.add(linkTo(methodOn(PostController.class).findPostsByUserId(user.getKey())).withRel("posts"));
+	                user.add(linkTo(methodOn(UserController.class).findById(user.getKey())).withRel("user-details"));
 	                return user;
 	            } catch (Exception e) {
 	                logger.severe("Error adding HATEOAS link: " + e.getMessage());
@@ -85,18 +92,27 @@ public class UserServices implements UserDetailsService {
 		logger.info("Finding one user!");	
 		
 	    var entity = repository.findById(id)
-	    		.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));	    
+	    		.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
+	    
 	    var vo = DozerMapper.parseObject(entity, UserResponseVO.class);	
 	    
-	    vo.add(linkTo(methodOn(UserController.class).findById(id)).withSelfRel());
-	    vo.add(linkTo(methodOn(CommentController.class).findCommentsByUserId(vo.getKey())).withRel("comments"));
-	    vo.add(linkTo(methodOn(PostController.class).findPostsByUserId(vo.getKey())).withRel("posts"));
+	    List<Post> posts = postRepository.findPostsByUserId(id);
+	    List<PostBasicVO> postVOs = ConvertToVO
+	    		.processEntities(id, posts, PostBasicVO.class, "Error while processing posts for user");
+	    vo.setPosts(postVOs);
+	    
+	    HateoasUtils.addCommentLinks(vo.getComments());
+	    HateoasUtils.addPostLinks(vo.getPosts());
+	    
+	    vo.add(linkTo(methodOn(UserController.class).findById(vo.getKey())).withRel("user-details"));
+	    
 	    return vo;
 	}
 	
 	@Transactional
 	public UserVO create(UserVO user) throws Exception {
 		logger.info("Creating one user!");
+		
 	    if (user == null) throw new RequiredObjectIsNullException();
 	    
 	    if (user.getEnabled() == true) user.setCreatedAt(LocalDateTime.now()); 
@@ -109,7 +125,8 @@ public class UserServices implements UserDetailsService {
 	    
 	    var entity = DozerMapper.parseObject(user, User.class);
 	    
-	    String encodedPassword = PasswordUtil.encodePassword(user.getPassword());
+	    String encodedPassword = PasswordUtil
+	    		.encodePassword(user.getPassword());
 	    entity.setPassword(encodedPassword);	    
 
 	    if (entity.getEnabled()) {
@@ -146,7 +163,6 @@ public class UserServices implements UserDetailsService {
 	    return vo;
 	}
 
-	
 	public UserVO update(UserVO user) throws Exception {
 	    if (user == null) throw new RequiredObjectIsNullException();
 	    logger.info("Updating one user!");		
@@ -188,23 +204,12 @@ public class UserServices implements UserDetailsService {
         var entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
         
-        //if (!entity.getEnabled()) entity.setPublishedAt(null);
-        
-        var vo = DozerMapper.parseObject(entity, UserVO.class);
-       
-        /* try {
-            List<Comment> comments = commentRepository.findByPostId(id);
-            List<CommentResponseVO> commentVOs = DozerMapper.parseListObjects(comments, CommentResponseVO.class);
-            vo.setComments(commentVOs);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error while processing comments for post " + id, e);
-        }*/
+        var vo = DozerMapper.parseObject(entity, UserVO.class);       
         
         vo.add(linkTo(methodOn(UserController.class).findById(id)).withSelfRel());        
         return vo;
     }	
 
-	
 	public void delete(Long id) {
 		logger.info("Deleting one user!");
 		
@@ -213,6 +218,4 @@ public class UserServices implements UserDetailsService {
 		
 		repository.delete(entity);
 	}	
-	
-	
 }

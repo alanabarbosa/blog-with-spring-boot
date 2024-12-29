@@ -34,19 +34,15 @@ public class CommentServices {
 	CommentRepository repository;	
 	
 	@Transactional
-	public List<CommentResponseVO> findAll() {		
+	public List<CommentBasicVO> findAll() {		
 		logger.info("Finding all comments!");		
 		
-		var commentsResponseVO = DozerMapper.parseListObjects(repository.findAllWithUser(), CommentResponseVO.class);
+		var commentsResponseVO = DozerMapper.parseListObjects(repository.findAllWithUser(), CommentBasicVO.class);
 		
 		return commentsResponseVO.stream()
         .map(comment -> {
             try {
-            	comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withSelfRel());
-            	comment.getUser().add(linkTo(methodOn(UserController.class).findById(comment.getUser().getKey())).withRel("author"));
-            	 if (comment.getPost() != null) {
-                     comment.getPost().add(linkTo(methodOn(PostController.class).findById(comment.getPost().getKey())).withRel("post"));
-                 }
+            	comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withRel("comment-details"));            	
             	return comment;
             } catch (Exception e) {
             	logger.severe("Error adding HATEOAS link: " + e.getMessage());
@@ -66,14 +62,14 @@ public class CommentServices {
 	    
 	    var vo = DozerMapper.parseObject(entity, CommentResponseVO.class);	  
 	    
-	    vo.add(linkTo(methodOn(CommentController.class).findById(id)).withSelfRel());
-	    vo.getUser().add(linkTo(methodOn(UserController.class).findById(vo.getUser().getKey())).withRel("author"));	    
+	    vo.add(linkTo(methodOn(CommentController.class).findById(id)).withRel("comment-details"));
+	    vo.getUser().add(linkTo(methodOn(UserController.class).findById(vo.getUser().getKey())).withRel("user-details"));	    
 	   	 if (vo.getPost() != null) {
-	   		vo.getPost().add(linkTo(methodOn(PostController.class).findById(vo.getPost().getKey())).withRel("post"));
+	   		vo.getPost().add(linkTo(methodOn(PostController.class).findById(vo.getPost().getKey())).withRel("post-details"));
 	     }	    
 	    return vo;
 	}
-	
+	@Transactional
     public List<CommentBasicVO> findCommentsByUserId(Long userId) {
     	var comments = repository.findCommentsByUserId(userId);
     	var commentsResponseVO = DozerMapper.parseListObjects(comments, CommentBasicVO.class);
@@ -119,7 +115,7 @@ public class CommentServices {
 	    
 	    var vo = DozerMapper.parseObject(fullComment, CommentVO.class);	
 	    
-	    vo.add(linkTo(methodOn(CommentController.class).findById(vo.getKey())).withSelfRel());
+	    vo.add(linkTo(methodOn(CommentController.class).findById(vo.getKey())).withRel("comment-details"));
 	    return vo;
 	}
 	
@@ -141,7 +137,7 @@ public class CommentServices {
 		entity.setUser(user);
 	    
 		var vo = DozerMapper.parseObject(repository.save(entity), CommentVO.class);		
-		vo.add(linkTo(methodOn(CommentController.class).findById(vo.getKey())).withSelfRel());
+		vo.add(linkTo(methodOn(CommentController.class).findById(vo.getKey())).withRel("comment-details"));
 		return vo;
 	}
 	

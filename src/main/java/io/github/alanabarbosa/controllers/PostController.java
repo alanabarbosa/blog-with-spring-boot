@@ -53,7 +53,7 @@ public class PostController {
             @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
         }
     )
-    public List<PostResponseVO> findAll() {
+    public List<PostBasicVO> findAll() {
         return service.findAll();
     }
     

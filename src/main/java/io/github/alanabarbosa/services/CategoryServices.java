@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CategoryController;
 import io.github.alanabarbosa.controllers.PostController;
+import io.github.alanabarbosa.data.vo.v1.CategoryBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
 import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
@@ -36,11 +37,11 @@ public class CategoryServices {
 	@Autowired
 	PostRepository postRepository;
 	
-	public List<CategoryVO> findAll() {
+	public List<CategoryBasicVO> findAll() {
 		
 		logger.info("Finding all categories!");
 		
-		var categories = DozerMapper.parseListObjects(repository.findAll(), CategoryVO.class);
+		var categories = DozerMapper.parseListObjects(repository.findAll(), CategoryBasicVO.class);
 		categories
 			.stream()
 			.forEach(c -> {
@@ -63,23 +64,19 @@ public class CategoryServices {
 
 	    try {
 	        List<Post> posts = postRepository.findByCategoryId(id);
-	       // List<PostBasicVO> postsVOs = DozerMapper.parseListObjects(posts, PostBasicVO.class);
-	        
-	        //List<PostBasicVO> postsVOs = new ArrayList<>();
-	        
 	        List<PostBasicVO> postsVOs = posts.stream()
-	                .map(post -> {
-	                    PostBasicVO postVO = new PostBasicVO();
-	                    postVO.setKey(post.getId());
-	                    postVO.setTitle(post.getTitle());
-	                    try {
-	                        postVO.add(linkTo(methodOn(PostController.class).findById(post.getId())).withRel("posts-details"));
-	                    } catch (Exception e) {
-	                        logger.severe("Error adding HATEOAS link: " + e.getMessage());
-	                    }
-	                    return postVO;
-	                })
-	                .collect(Collectors.toList());
+                .map(post -> {
+                    PostBasicVO postVO = new PostBasicVO();
+                    postVO.setKey(post.getId());
+                    postVO.setTitle(post.getTitle());
+                    try {
+                        postVO.add(linkTo(methodOn(PostController.class).findById(post.getId())).withRel("posts-details"));
+                    } catch (Exception e) {
+                        logger.severe("Error adding HATEOAS link: " + e.getMessage());
+                    }
+                    return postVO;
+                })
+                .collect(Collectors.toList());
 	        
 	        vo.setPosts(postsVOs);
 	    } catch (Exception e) {
@@ -90,7 +87,8 @@ public class CategoryServices {
         /*if (!vo.getPosts().isEmpty()) {
         	vo.getPosts().forEach(post -> {
                 try {
-                	post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withRel("posts-details"));
+                	post.add(linkTo(methodOn(PostController.class)
+                	.findById(post.getKey())).withRel("posts-details"));
                 } catch (Exception e) {
                     logger.severe("Error adding HATEOAS link for post: " + e.getMessage());
                 }

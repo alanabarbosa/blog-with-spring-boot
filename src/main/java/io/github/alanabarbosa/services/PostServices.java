@@ -29,6 +29,8 @@ import io.github.alanabarbosa.model.Post;
 import io.github.alanabarbosa.model.User;
 import io.github.alanabarbosa.repositories.CommentRepository;
 import io.github.alanabarbosa.repositories.PostRepository;
+import io.github.alanabarbosa.util.ConvertToVO;
+import io.github.alanabarbosa.util.HateoasUtils;
 import io.github.alanabarbosa.util.NormalizeSlug;
 import jakarta.transaction.Transactional;
 
@@ -43,64 +45,15 @@ public class PostServices {
     @Autowired
     CommentRepository commentRepository;
     
-    public List<PostResponseVO> findAll() {
+    @Transactional
+    public List<PostBasicVO> findAll() {
         logger.info("Finding all posts!");
 
-        List<PostResponseVO> posts = DozerMapper.parseListObjects(repository.findAll(), PostResponseVO.class);
-        
-        /*return postsResponseVO.stream()
-        		.map(post -> {
-        			try {
-        				post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withSelfRel());
-                        post.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(post.getKey())).withRel("comments"));
-                        post.getUser().add(linkTo(methodOn(UserController.class).findById(post.getUser().getKey())).withRel("author"));
-                        post.getCategory().add(linkTo(methodOn(CategoryController.class).findById(post.getUser().getKey())).withRel("category"));
-                        
-                        if (!post.getComments().isEmpty()) {
-                        	post.getComments().forEach(comment -> {
-                                try {
-                                    comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withSelfRel());
-                                } catch (Exception e) {
-                                    logger.severe("Error adding HATEOAS link for comment: " + e.getMessage());
-                                }
-                            });
-                        }
-
-
-                        return post;
-        			} catch (Exception e) {
-    	                logger.severe("Error adding HATEOAS link: " + e.getMessage());
-    	                return post;
-    	            }
-        		})
-        		.collect(Collectors.toList());*/
+        List<PostBasicVO> posts = DozerMapper.parseListObjects(repository.findAll(), PostBasicVO.class);
         
         posts.forEach(post -> {
             try {
-                List<Comment> comments = commentRepository.findByPostId(post.getKey());
-                List<CommentBasicVO> commentVOs = comments.stream()
-                    .filter(comment -> comment.getStatus() == true)
-                    .map(comment -> {
-                    	CommentBasicVO commentVO = DozerMapper.parseObject(comment, CommentBasicVO.class);
-                       // UserVO userVO = DozerMapper.parseObject(comment.getUser(), UserVO.class);
-                        return commentVO;
-                    })
-                    .collect(Collectors.toList());
-
-                post.setComments(commentVOs);
-                //post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withSelfRel());
-                post.getUser().add(linkTo(methodOn(UserController.class).findById(post.getUser().getKey())).withRel("author"));
-                post.getCategory().add(linkTo(methodOn(CategoryController.class).findById(post.getUser().getKey())).withRel("category"));                
-                post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withSelfRel());
-                if (!post.getComments().isEmpty()) {
-                	post.getComments().forEach(comment -> {
-                        try {
-                            comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withRel("comments"));
-                        } catch (Exception e) {
-                            logger.severe("Error adding HATEOAS link for comment: " + e.getMessage());
-                        }
-                    });
-                }                
+                post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withRel("post-details"));
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "Error while processing comments for post " + post.getKey(), e);
             }
@@ -108,7 +61,6 @@ public class PostServices {
         return posts;
     }
 
-	
     public PostResponseVO findById(Long id) throws Exception {
         logger.info("Finding one post by ID!");
         
@@ -116,27 +68,17 @@ public class PostServices {
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
         
         var vo = DozerMapper.parseObject(entity, PostResponseVO.class);
+                
+        List<Comment> comments = commentRepository.findByPostId(id);
+        List<CommentBasicVO> commentVOs = ConvertToVO
+        		.processEntities(id, comments, CommentBasicVO.class, "Error while processing comments for post");
+        vo.setComments(commentVOs);
         
-        try {
-            List<Comment> comments = commentRepository.findByPostId(id);
-            List<CommentBasicVO> commentVOs = DozerMapper.parseListObjects(comments, CommentBasicVO.class);
-            vo.setComments(commentVOs);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error while processing comments for post " + id, e);
-        }
+        vo.add(linkTo(methodOn(PostController.class).findById(id)).withRel("post-details"));
+        vo.getUser().add(linkTo(methodOn(UserController.class).findById(vo.getUser().getKey())).withRel("user-details"));
+        vo.getCategory().add(linkTo(methodOn(CategoryController.class).findById(vo.getUser().getKey())).withRel("category-details"));
         
-        vo.add(linkTo(methodOn(PostController.class).findById(id)).withSelfRel());
-        vo.getUser().add(linkTo(methodOn(UserController.class).findById(vo.getUser().getKey())).withRel("author"));
-        vo.getCategory().add(linkTo(methodOn(CategoryController.class).findById(vo.getUser().getKey())).withRel("category"));                
-        if (!vo.getComments().isEmpty()) {
-        	vo.getComments().forEach(comment -> {
-                try {
-                    comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withRel("comments"));
-                } catch (Exception e) {
-                    logger.severe("Error adding HATEOAS link for comment: " + e.getMessage());
-                }
-            });
-        }         
+        HateoasUtils.addCommentLinks(vo.getComments());        
         
         return vo;
     }
@@ -224,7 +166,7 @@ public class PostServices {
 	    if (!slugFormatted.isEmpty()) entity.setSlug(slugFormatted);
 		
 	    var savedPost = repository.save(entity);		
-		var vo =  DozerMapper.parseObject(repository.save(savedPost), PostVO.class);
+		var vo =  DozerMapper.parseObject(savedPost, PostVO.class);
 	    vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withSelfRel());
 	    vo.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(vo.getKey())).withRel("comments"));
 	    

@@ -20,6 +20,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "title", "content", "createdAt", "updatedAt", "publishedAt", "slug", "status", "user_id"})
 public class PostResponseVO extends RepresentationModel<PostResponseVO> implements Serializable {
@@ -65,7 +66,7 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
     @JoinColumn(name = "image_mobile_id", nullable = true)
     private File imageMobile;
     
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY) 
     private List<CommentBasicVO> comments;
 
     public PostResponseVO() {}

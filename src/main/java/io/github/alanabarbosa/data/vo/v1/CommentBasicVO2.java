@@ -17,7 +17,7 @@ import jakarta.persistence.ManyToOne;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "content"})
-public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implements Serializable {
+public class CommentBasicVO2 extends RepresentationModel<CommentBasicVO2> implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
@@ -26,9 +26,9 @@ public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implemen
     private Long key;
     private String content;
 
-    public CommentBasicVO() {}
+    public CommentBasicVO2() {}
 
-    public CommentBasicVO(Long key, String content, LocalDateTime createdAt) {
+    public CommentBasicVO2(Long key, String content, LocalDateTime createdAt) {
         this.key = key;
         this.content = content;
        // this.createdAt = createdAt;
@@ -82,7 +82,7 @@ public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implemen
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CommentBasicVO other = (CommentBasicVO) obj;
+		CommentBasicVO2 other = (CommentBasicVO2) obj;
 		return Objects.equals(content, other.content) && Objects.equals(key, other.key);
 	}
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ import io.github.alanabarbosa.data.vo.v1.UserVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.model.Role;
 import io.github.alanabarbosa.model.User;
+import io.github.alanabarbosa.repositories.PostRepository;
 import io.github.alanabarbosa.repositories.RoleRepository;
 import io.github.alanabarbosa.repositories.UserRepository;
 import io.github.alanabarbosa.services.UserServices;
@@ -45,7 +47,11 @@ class UserServicesTest {
     UserRepository repository;
     
     @Mock
-    private RoleRepository roleRepository;    
+    RoleRepository roleRepository;  
+    
+    @Mock
+    PostRepository postRepository;  
+       
 
     @BeforeEach
     void setUpMocks() throws Exception {
@@ -57,16 +63,25 @@ class UserServicesTest {
     void testFindById() throws Exception {
         User user = input.mockEntity();
         user.setId(1L);
+        
+        System.out.println("tostring user " + user.toString());
 
         LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-
         user.setCreatedAt(now);
 
         when(repository.findById(1L)).thenReturn(Optional.of(user));
+
+        when(postRepository.findPostsByUserId(1L)).thenReturn(Collections.emptyList());
+
         var result = service.findById(1L);
+        
         assertNotNull(result);
         assertNotNull(result.getKey());
-        assertTrue(result.toString().contains("[</api/user/v1/1>;rel=\"self\"]"));
+        assertNotNull(result.getLinks());
+        
+        System.out.println("toString " + result.toString());
+        
+        assertTrue(result.toString().contains("[</api/user/v1/1>;rel=\"user-details\"]"));
         assertEquals("This is a first name.0", result.getFirstName());
         assertEquals("This is a first name.0", result.getFirstName());
         assertEquals("This is a last name.0", result.getLastName());
@@ -97,16 +112,13 @@ class UserServicesTest {
         assertNotNull(userOne);
         assertNotNull(userOne.getKey());
         assertNotNull(userOne.getLinks());
-        assertTrue(userOne.toString().contains("[</api/user/v1/2>;rel=\"self\"]"));
+        assertTrue(userOne.toString().contains("[</api/user/v1/2>;rel=\"user-details\"]"));
         assertEquals("This is a first name.2", userOne.getFirstName());
-        assertEquals("This is a last name.2", userOne.getLastName());
         //assertEquals("This is a password.2", userOne.getPassword());
-        assertEquals("This is a bio.2", userOne.getBio());
         //assertEquals(true, userOne.getAccountNonExpired());
        // assertEquals(true, userOne.getAccountNonLocked());
        // assertEquals(true, userOne.getCredentialsNonExpired());
         assertEquals(true, userOne.getEnabled());
-        assertEquals(now, userOne.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
 
         var userFour = user.get(4);
         assertNotNull(userFour);
@@ -115,12 +127,9 @@ class UserServicesTest {
         
         System.out.println("Links to String: " + userFour.toString());
         
-        assertTrue(userFour.toString().contains("[</api/user/v1/8>;rel=\"self\"]"));
+        assertTrue(userFour.toString().contains("[</api/user/v1/8>;rel=\"user-details\"]"));
         assertEquals("This is a first name.8", userFour.getFirstName());
-        assertEquals("This is a last name.8", userFour.getLastName());
         //assertEquals("This is a password.8", userFour.getPassword());
-        assertEquals("This is a bio.8", userFour.getBio());
-        assertEquals(now, userFour.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
        // assertEquals(true, userFour.getAccountNonExpired());
         //assertEquals(true, userFour.getAccountNonLocked());
         //assertEquals(true, userFour.getCredentialsNonExpired());
@@ -130,15 +139,8 @@ class UserServicesTest {
         assertNotNull(userSeven);
         assertNotNull(userSeven.getKey());
         assertNotNull(userSeven.getLinks());
-        assertTrue(userSeven.toString().contains("[</api/user/v1/12>;rel=\"self\"]"));
+        assertTrue(userSeven.toString().contains("[</api/user/v1/12>;rel=\"user-details\"]"));
         assertEquals("This is a first name.12", userSeven.getFirstName());
-        assertEquals("This is a last name.12", userSeven.getLastName());
-       // assertEquals("This is a password.12", userSeven.getPassword());
-        assertEquals("This is a bio.12", userSeven.getBio());
-        assertEquals(now, userSeven.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
-       // assertEquals(true, userSeven.getAccountNonExpired());
-       // assertEquals(true, userSeven.getAccountNonLocked());
-       // assertEquals(true, userSeven.getCredentialsNonExpired());
         assertEquals(true, userSeven.getEnabled());        
     }
 

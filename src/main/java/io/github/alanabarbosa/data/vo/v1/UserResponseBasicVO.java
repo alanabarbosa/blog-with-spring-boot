@@ -17,10 +17,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "bio", "created_at", "enabled", "roles"})
-public class UserResponseVO extends RepresentationModel<UserResponseVO> implements Serializable {
+@JsonPropertyOrder({"id", "first_name", "enabled"})
+public class UserResponseBasicVO extends RepresentationModel<UserResponseBasicVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,7 +32,7 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
     @JsonProperty("first_name")
     private String firstName;
 
-    @JsonProperty("last_name")
+   /* @JsonProperty("last_name")
     private String lastName;
     
     @JsonProperty("user_name")
@@ -43,8 +44,7 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
     
-    @JsonProperty("enabled")
-    private Boolean enabled;
+
 
     @OneToOne
     @JoinColumn(name = "file_id")
@@ -54,9 +54,12 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
     private List<CommentBasicVO> comments;
     
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY) 
-    private List<PostBasicVO> posts;
+    private List<PostBasicVO> posts;*/
+    
+    @JsonProperty("enabled")
+    private Boolean enabled;
 
-    public UserResponseVO() {}
+    public UserResponseBasicVO() {}
     
 	public Long getKey() {
 		return key;
@@ -74,7 +77,37 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
 		this.firstName = firstName;
 	}
 
-	public String getLastName() {
+	public Boolean getEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(key, firstName, enabled);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserResponseBasicVO other = (UserResponseBasicVO) obj;
+		return Objects.equals(key, other.key) 
+				&& Objects.equals(firstName, other.firstName)
+				&& Objects.equals(enabled, other.enabled);
+	}
+
+	/*public String getLastName() {
 		return lastName;
 	}
 
@@ -104,14 +137,6 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
-	}
-
-	public Boolean getEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(Boolean enabled) {
-		this.enabled = enabled;
 	}
 
 	public File getFile() {
@@ -155,11 +180,12 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		UserResponseVO other = (UserResponseVO) obj;
+		UserResponseBasicVO other = (UserResponseBasicVO) obj;
 		return Objects.equals(bio, other.bio) && Objects.equals(comments, other.comments)
 				&& Objects.equals(createdAt, other.createdAt) && Objects.equals(enabled, other.enabled)
 				&& Objects.equals(file, other.file) && Objects.equals(firstName, other.firstName)
 				&& Objects.equals(key, other.key) && Objects.equals(lastName, other.lastName)
 				&& Objects.equals(posts, other.posts) && Objects.equals(userName, other.userName);
-	} 
+	} */
+	
 }
