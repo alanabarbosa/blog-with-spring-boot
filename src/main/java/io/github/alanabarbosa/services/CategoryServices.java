@@ -10,6 +10,11 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CategoryController;
@@ -37,21 +42,33 @@ public class CategoryServices {
 	@Autowired
 	PostRepository postRepository;
 	
-	public List<CategoryBasicVO> findAll() {
+	@Autowired
+	PagedResourcesAssembler<CategoryBasicVO> assembler; 
+	
+	public PagedModel<EntityModel<CategoryBasicVO>> findAll(Pageable pageable) {
 		
 		logger.info("Finding all categories!");
 		
-		var categories = DozerMapper.parseListObjects(repository.findAll(), CategoryBasicVO.class);
-		categories
-			.stream()
-			.forEach(c -> {
-				try {
-					c.add(linkTo(methodOn(CategoryController.class).findById(c.getKey())).withRel("category-details"));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			});		
-		return categories;
+		var categoryPage = repository.findAll(pageable);
+        
+        var categoryVosPage = categoryPage.map(c -> DozerMapper.parseObject(c, CategoryBasicVO.class));
+        
+        categoryVosPage.map(category -> {
+        	try {
+        		category.add(linkTo(methodOn(CategoryController.class)
+						.findById(category.getKey())).withRel("post-details"));
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, "Error while processing posts " + category.getKey(), e);
+			}
+        	return category;
+        });
+        
+        Link link = linkTo(methodOn(CategoryController.class).findAll(
+        		pageable.getPageNumber(),
+        		pageable.getPageSize(), 
+        		"asc")).withSelfRel();
+        
+        return assembler.toModel(categoryVosPage, link);
 	}
 	
 	public CategoryResponseVO findById(Long id) throws Exception {

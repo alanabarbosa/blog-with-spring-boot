@@ -6,16 +6,23 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CommentController;
+import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.controllers.UserController;
 import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
 import io.github.alanabarbosa.data.vo.v1.UserResponseBasicVO;
@@ -53,6 +60,9 @@ public class UserServices implements UserDetailsService {
 	@Autowired
 	PostRepository postRepository;
 	
+	@Autowired
+	PagedResourcesAssembler<UserResponseBasicVO> assembler; 	
+	
 	public UserServices(UserRepository repository) {
 		this.repository = repository;
 	}
@@ -68,25 +78,53 @@ public class UserServices implements UserDetailsService {
 		}
 	}
 	
-	@Transactional
-	public List<UserResponseBasicVO> findAll() {        
+	public PagedModel<EntityModel<UserResponseBasicVO>> findAll(Pageable pageable) {        
 	    logger.info("Finding all users!");
 	    
-	    var users = DozerMapper.parseListObjects(repository.findAll(), UserResponseBasicVO.class);
-
-	    return users.stream()
-	        .filter(user -> user.getEnabled() != null && user.getEnabled())
-	        .map(user -> {
-	            try {
-	                user.add(linkTo(methodOn(UserController.class).findById(user.getKey())).withRel("user-details"));
-	                return user;
-	            } catch (Exception e) {
-	                logger.severe("Error adding HATEOAS link: " + e.getMessage());
-	                return user;
-	            }
-	        })
-	        .collect(Collectors.toList());
+	    var userPage = repository.findAll(pageable);
+        
+        var userVosPage = userPage.map(u -> DozerMapper.parseObject(u, UserResponseBasicVO.class));
+        
+        userVosPage.map(user -> {
+        	try {
+        		user.add(linkTo(methodOn(UserController.class)
+        				.findById(user.getKey())).withRel("user-details"));
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, "Error while processing users " + user.getKey(), e);
+			}
+        	return user;
+        });
+        
+        Link link = linkTo(methodOn(UserController.class).findAll(
+        		pageable.getPageNumber(),
+        		pageable.getPageSize(), 
+        		"asc")).withSelfRel();
+        
+        return assembler.toModel(userVosPage, link);
 	}
+	
+	public PagedModel<EntityModel<UserResponseBasicVO>> findUsersByName(String firstname, Pageable pageable) {
+		
+		logger.info("Finding user for name!");	
+		
+		var userPage = repository.findUsersByName(firstname, pageable);
+		
+		var userVosPage = userPage.map(u -> DozerMapper.parseObject(u, UserResponseBasicVO.class));
+		
+		userVosPage.map(user -> {
+			try {
+				return user.add(linkTo(methodOn(UserController.class)
+						.findById(user.getKey())).withRel("user-details"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return user;
+		});
+			
+		Link link = linkTo(methodOn(UserController.class)
+			.findAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+		return assembler.toModel(userVosPage, link );
+	}	
 
 	public UserResponseVO findById(Long id) throws Exception {		
 		logger.info("Finding one user!");	

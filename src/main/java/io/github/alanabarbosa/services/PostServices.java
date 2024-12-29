@@ -10,6 +10,12 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+//import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CategoryController;
@@ -20,6 +26,7 @@ import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
 import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
 import io.github.alanabarbosa.data.vo.v1.PostResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
+import io.github.alanabarbosa.data.vo.v1.UserResponseBasicVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
@@ -45,20 +52,32 @@ public class PostServices {
     @Autowired
     CommentRepository commentRepository;
     
-    @Transactional
-    public List<PostBasicVO> findAll() {
+	@Autowired
+	PagedResourcesAssembler<PostBasicVO> assembler;    
+    
+    public PagedModel<EntityModel<PostBasicVO>> findAll(Pageable pageable) {
         logger.info("Finding all posts!");
-
-        List<PostBasicVO> posts = DozerMapper.parseListObjects(repository.findAll(), PostBasicVO.class);
         
-        posts.forEach(post -> {
-            try {
-                post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withRel("post-details"));
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Error while processing comments for post " + post.getKey(), e);
-            }
+        var postPage = repository.findAll(pageable);
+        
+        var postVosPage = postPage.map(p -> DozerMapper.parseObject(p, PostBasicVO.class));
+        
+        postVosPage.map(post -> {
+        	try {
+				post.add(linkTo(methodOn(PostController.class)
+						.findById(post.getKey())).withRel("post-details"));
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, "Error while processing posts " + post.getKey(), e);
+			}
+        	return post;
         });
-        return posts;
+        
+        Link link = linkTo(methodOn(PostController.class).findAll(
+        		pageable.getPageNumber(),
+        		pageable.getPageSize(), 
+        		"asc")).withSelfRel();
+        
+        return assembler.toModel(postVosPage, link);
     }
 
     public PostResponseVO findById(Long id) throws Exception {
@@ -103,40 +122,63 @@ public class PostServices {
     	    .collect(Collectors.toList());    
     }*/
     
-    public List<PostBasicVO> findPostsByUserId(Long userId) {
-        //var comments = repository.findPostsByUserId(commentId);
-        var posts = repository.findPostsByUserId(userId);
-    	var postsResponseVO = DozerMapper.parseListObjects(posts, PostBasicVO.class);
+    public PagedModel<EntityModel<PostBasicVO>> findPostsByUserId(Long userId, Pageable pageable) {
+        logger.info("Finding posts for user id!");  
 
-    	return postsResponseVO.stream()
-    	    .map(post -> {
-    	        try {
-    	            post.add(linkTo(methodOn(PostController.class).findById(post.getKey())).withRel("post-details"));
-    	            return post;
-    	        } catch (Exception e) {
-    	            logger.severe("Error adding HATEOAS link: " + e.getMessage());
-    	            return post;
-    	        }
-    	    })
-    	    .collect(Collectors.toList()); 
+        var postsPage = repository.findPostsByUserIdPage(userId, pageable);
+
+        var postsVosPage = postsPage.map(p -> DozerMapper.parseObject(p, PostBasicVO.class));
+
+        postsVosPage.map(post -> {
+            try {
+                return post.add(linkTo(methodOn(PostController.class)
+                        .findById(post.getKey())).withRel("post-details"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return post;
+        });
+
+        Link link = null;
+		try {
+			link = linkTo(methodOn(PostController.class)
+			        .findPostsByUserId(userId, pageable.getPageNumber(), pageable.getPageSize(), "asc"))
+			        .withSelfRel();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+        return assembler.toModel(postsVosPage, link);
     }
     
-    public List<PostBasicVO> findByCategoryId(Long categoryId) {
-        //var comments = repository.findPostsByUserId(commentId);
-        var categories = repository.findByCategoryId(categoryId);
-    	var categoriesResponseVO = DozerMapper.parseListObjects(categories, PostBasicVO.class);
+    public PagedModel<EntityModel<PostBasicVO>> findByCategoryId(Long userId, Pageable pageable) {     
+    	
+        logger.info("Finding posts for category id!");  
 
-    	return categoriesResponseVO.stream()
-    	    .map(category -> {
-    	        try {
-    	        	category.add(linkTo(methodOn(PostController.class).findById(category.getKey())).withRel("post-details"));
-    	            return category;
-    	        } catch (Exception e) {
-    	            logger.severe("Error adding HATEOAS link: " + e.getMessage());
-    	            return category;
-    	        }
-    	    })
-    	    .collect(Collectors.toList()); 
+        var postsPage = repository.findByCategoryIdPage(userId, pageable);
+
+        var postsVosPage = postsPage.map(p -> DozerMapper.parseObject(p, PostBasicVO.class));
+
+        postsVosPage.map(post -> {
+            try {
+                return post.add(linkTo(methodOn(PostController.class)
+                        .findById(post.getKey())).withRel("post-details"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return post;
+        });
+
+        Link link = null;
+		try {
+			link = linkTo(methodOn(PostController.class)
+			        .findPostsByUserId(userId, pageable.getPageNumber(), pageable.getPageSize(), "asc"))
+			        .withSelfRel();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+        return assembler.toModel(postsVosPage, link);    	
     }    
     
 	public PostVO create(PostVO post) throws Exception {		
@@ -253,5 +295,4 @@ public class PostServices {
 		
 		repository.delete(entity);
 	}
-
 }

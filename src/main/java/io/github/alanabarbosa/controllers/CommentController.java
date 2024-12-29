@@ -3,6 +3,12 @@ package io.github.alanabarbosa.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
@@ -52,9 +59,17 @@ public class CommentController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)	
-	public List<CommentBasicVO> findAll() {
-		return service.findAll();
-	}
+    public ResponseEntity<PagedModel<EntityModel<CommentBasicVO>>> findAll(
+    		@RequestParam(value = "page", defaultValue = "0") Integer page,
+    		@RequestParam(value = "size", defaultValue = "12") Integer size,
+    		@RequestParam(value = "direction", defaultValue = "asc") String direction
+    		) {
+    	
+    	var sortDirection = "desc".equalsIgnoreCase(direction) ? Direction.DESC : Direction.ASC;
+    	
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "content"));
+		return ResponseEntity.ok(service.findAll(pageable));
+    }
 	
 	@GetMapping(value="/{id}",
 			produces = { MediaType.APPLICATION_JSON, 
@@ -100,8 +115,19 @@ public class CommentController {
 	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 	    }
 	)
-	public List<CommentBasicVO> findCommentsByUserId(@PathVariable Long userId) throws Exception {
-	    return service.findCommentsByUserId(userId);
+	public ResponseEntity<PagedModel<EntityModel<CommentBasicVO>>> findCommentsByUserId(
+			@PathVariable Long userId,
+	        @RequestParam(value = "page", defaultValue = "0") Integer page,
+	        @RequestParam(value = "size", defaultValue = "12") Integer size,
+	        @RequestParam(value = "direction", defaultValue = "asc") String direction) throws Exception {
+	
+	    var sortDirection = "desc".equalsIgnoreCase(direction) ? Direction.DESC : Direction.ASC;
+	
+	    Pageable pageable = PageRequest.of(page, size);
+	
+	    var postPage = service.findCommentsByUserId(userId, pageable);
+	
+	    return ResponseEntity.ok(postPage);
 	}
 	
 	@GetMapping(value="/post/{postId}",
@@ -124,9 +150,20 @@ public class CommentController {
 		        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		    }
 		)
-	public List<CommentBasicVO> findCommentsByPostId(@PathVariable(value = "postId") Long postId) throws Exception {
-		    return service.findCommentsByPostId(postId);
-		}	
+	public ResponseEntity<PagedModel<EntityModel<CommentBasicVO>>> findCommentsByPostId(
+			@PathVariable Long postId,
+	        @RequestParam(value = "page", defaultValue = "0") Integer page,
+	        @RequestParam(value = "size", defaultValue = "12") Integer size,
+	        @RequestParam(value = "direction", defaultValue = "asc") String direction) throws Exception {
+	
+	    var sortDirection = "desc".equalsIgnoreCase(direction) ? Direction.DESC : Direction.ASC;
+	
+	    Pageable pageable = PageRequest.of(page, size);
+	
+	    var postPage = service.findCommentsByPostId(postId, pageable);
+	
+	    return ResponseEntity.ok(postPage);
+	}	
 	
 	@PostMapping(			
 			consumes = { MediaType.APPLICATION_JSON, 

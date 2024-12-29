@@ -4,10 +4,16 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CommentController;
@@ -16,6 +22,7 @@ import io.github.alanabarbosa.controllers.UserController;
 import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
+import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
@@ -33,23 +40,33 @@ public class CommentServices {
 	@Autowired
 	CommentRepository repository;	
 	
+	@Autowired
+	PagedResourcesAssembler<CommentBasicVO> assembler;  
+	
 	@Transactional
-	public List<CommentBasicVO> findAll() {		
+	public PagedModel<EntityModel<CommentBasicVO>> findAll(Pageable pageable) {		
 		logger.info("Finding all comments!");		
 		
-		var commentsResponseVO = DozerMapper.parseListObjects(repository.findAllWithUser(), CommentBasicVO.class);
-		
-		return commentsResponseVO.stream()
-        .map(comment -> {
-            try {
-            	comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withRel("comment-details"));            	
-            	return comment;
-            } catch (Exception e) {
-            	logger.severe("Error adding HATEOAS link: " + e.getMessage());
-                return comment;
-            }
-        })
-        .collect(Collectors.toList());
+        var commentPage = repository.findAll(pageable);
+        
+        var commentVosPage = commentPage.map(c -> DozerMapper.parseObject(c, CommentBasicVO.class));
+        
+        commentVosPage.map(comment -> {
+        	try {
+        		comment.add(linkTo(methodOn(CommentController.class)
+						.findById(comment.getKey())).withRel("comment-details"));
+			} catch (Exception e) {
+				logger.log(Level.SEVERE, "Error while processing posts " + comment.getKey(), e);
+			}
+        	return comment;
+        });
+        
+        Link link = linkTo(methodOn(CommentController.class).findAll(
+        		pageable.getPageNumber(),
+        		pageable.getPageSize(), 
+        		"asc")).withSelfRel();
+        
+        return assembler.toModel(commentVosPage, link);
 	    
 	}
 	
@@ -69,38 +86,64 @@ public class CommentServices {
 	     }	    
 	    return vo;
 	}
+	
 	@Transactional
-    public List<CommentBasicVO> findCommentsByUserId(Long userId) {
-    	var comments = repository.findCommentsByUserId(userId);
-    	var commentsResponseVO = DozerMapper.parseListObjects(comments, CommentBasicVO.class);
+    public PagedModel<EntityModel<CommentBasicVO>> findCommentsByUserId(Long userId, Pageable pageable) {
+		logger.info("Finding comments for user id!");  
+		
+		var commentsPage = repository.findCommentsByUserIdPage(userId, pageable);
+		
+		var commentsVosPage = commentsPage.map(c -> DozerMapper.parseObject(c, CommentBasicVO.class));
 
-    	return commentsResponseVO.stream()
-    	    .map(comment -> {
-    	        try {
-    	            comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withRel("comment-details"));
-    	            return comment;
-    	        } catch (Exception e) {
-    	            logger.severe("Error adding HATEOAS link: " + e.getMessage());
-    	            return comment;
-    	        }
-    	    })
-    	    .collect(Collectors.toList());
+		commentsVosPage.map(comment -> {
+            try {
+                return comment.add(linkTo(methodOn(CommentController.class)
+                        .findById(comment.getKey())).withRel("comment-details"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return comment;
+        });
+		
+        Link link = null;
+		try {
+			link = linkTo(methodOn(CommentController.class)
+			        .findCommentsByUserId(userId, pageable.getPageNumber(), pageable.getPageSize(), "asc"))
+			        .withSelfRel();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+        return assembler.toModel(commentsVosPage, link);		
     }
     
-    public List<CommentBasicVO> findCommentsByPostId(Long postId) {
-        var comments = repository.findCommentsByPostId(postId);
-    	var commentsResponseVO = DozerMapper.parseListObjects(comments, CommentBasicVO.class);
-    	return commentsResponseVO.stream()
-        	    .map(comment -> {
-        	        try {
-        	            comment.add(linkTo(methodOn(CommentController.class).findById(comment.getKey())).withRel("comment-details"));
-        	            return comment;
-        	        } catch (Exception e) {
-        	            logger.severe("Error adding HATEOAS link: " + e.getMessage());
-        	            return comment;
-        	        }
-        	    })
-        	    .collect(Collectors.toList());    	
+    public PagedModel<EntityModel<CommentBasicVO>> findCommentsByPostId(Long postId, Pageable pageable) {
+		logger.info("Finding comments for post id!");  
+		
+		var commentsPage = repository.findCommentsByPostIdPage(postId, pageable);
+		
+		var commentsVosPage = commentsPage.map(c -> DozerMapper.parseObject(c, CommentBasicVO.class));
+
+		commentsVosPage.map(comment -> {
+            try {
+                return comment.add(linkTo(methodOn(CommentController.class)
+                        .findById(comment.getKey())).withRel("comment-details"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return comment;
+        });
+		
+        Link link = null;
+		try {
+			link = linkTo(methodOn(CommentController.class)
+			        .findCommentsByUserId(postId, pageable.getPageNumber(), pageable.getPageSize(), "asc"))
+			        .withSelfRel();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+        return assembler.toModel(commentsVosPage, link);   	
     }    
 	
 	public CommentVO create(CommentVO comment) throws Exception {
