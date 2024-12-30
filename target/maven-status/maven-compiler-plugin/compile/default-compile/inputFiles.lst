@@ -28,6 +28,7 @@
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/exceptions/ResourceNotFoundException.java
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/model/File.java
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/config/DozerConfig.java
+/home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/data/vo/v1/CommentResponseBasicVO.java
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/repositories/CommentRepository.java
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/util/NormalizeSlug.java
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/serialization/converter/YamlJackson2HttpMessageConverter.java
@@ -51,6 +52,7 @@
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/util/HateoasUtils.java
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/model/Role.java
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/model/Post.java
+/home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/data/vo/v1/PostResponseBasicVO.java
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/data/vo/v1/CommentBasicVO.java
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/model/User.java
 /home/alanabarbosa/Documents/Estudos/Java/blog-with-spring-boot-1/src/main/java/io/github/alanabarbosa/data/vo/v1/CommentBasicVO2.java

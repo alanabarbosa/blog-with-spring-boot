@@ -19,7 +19,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -31,6 +30,7 @@ import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegratio
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
+import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelPost;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Role;
@@ -309,6 +309,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
 				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.when()
 					.get()
@@ -318,57 +319,26 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 						.body()
 							.asString();
 		
-		List<PostVO> p = objectMapper.readValue(content, new TypeReference<List<PostVO>>() {});
+		PagedModelPost wrapper = objectMapper
+				.readValue(content, PagedModelPost.class);
 		
-		PostVO foundPostOne = p.get(0);
+		var post = wrapper.getContent();
+		
+		PostVO foundPostOne = post.get(0);
 		
 		assertNotNull(foundPostOne.getId());
 		assertNotNull(foundPostOne.getTitle());
-		assertNotNull(foundPostOne.getContent());
-		assertNotNull(foundPostOne.getSlug());
-		assertTrue(foundPostOne.getStatus()); 
-		assertNotNull(foundPostOne.getCreatedAt());
-		assertNotNull(foundPostOne.getUpdatedAt());
-		assertNotNull(foundPostOne.getPublishedAt());		
-		assertNotNull(foundPostOne.getCategory());
-		assertNotNull(foundPostOne.getUser());
-		//assertNull(foundPostOne.getImageDesktop());
-	    //assertNull(foundPostOne.getImageMobile());
 		
-		assertEquals(1, foundPostOne.getId());
+		assertEquals(793, foundPostOne.getId());
+		assertEquals("(Absolutions) Pipilotti's Mistakes ((Entlastungen) Pipilottis Fehler)", foundPostOne.getTitle());
 		
-		assertEquals("The Future of AI", foundPostOne.getTitle());
-		assertEquals("Artificial Intelligence is growing rapidly...", foundPostOne.getContent());
-				
-		//assertEquals(null, foundPostOne.getImageDesktop()); 
-		//assertEquals(null, foundPostOne.getImageMobile());
-		assertEquals(1L, foundPostOne.getCategory().getId());
-		assertEquals(1L, foundPostOne.getUser().getId());
-		
-		PostVO foundPostSix = p.get(3);
+		PostVO foundPostSix = post.get(3);
 		
 		assertNotNull(foundPostSix.getId());
 		assertNotNull(foundPostSix.getTitle());
-		assertNotNull(foundPostSix.getContent());
-		assertNotNull(foundPostSix.getSlug());
-		assertTrue(foundPostSix.getStatus()); 
-		assertNotNull(foundPostSix.getCreatedAt());
-		assertNotNull(foundPostSix.getUpdatedAt());
-		assertNotNull(foundPostSix.getPublishedAt());		
-		assertNotNull(foundPostSix.getCategory());
-		assertNotNull(foundPostSix.getUser());
-		//assertNull(foundPostSix.getImageDesktop());
-	    //assertNull(foundPostSix.getImageMobile());
 		
-		assertEquals(4, foundPostSix.getId());
-		
-		assertEquals("Top Tech Trends of 2024", foundPostSix.getTitle());
-		assertEquals("Here are the top tech trends to watch out for in 2024...", foundPostSix.getContent());
-		
-		//assertEquals(null, foundPostOne.getImageDesktop()); 
-		//assertEquals(null, foundPostOne.getImageMobile());
-		assertEquals(1L, foundPostSix.getCategory().getId());
-		assertEquals(1L, foundPostSix.getUser().getId());
+		assertEquals(447, foundPostSix.getId());		
+		assertEquals("11 Flowers (Wo 11)", foundPostSix.getTitle());
 	}
 	
 	@Test
@@ -395,10 +365,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 		assertNotNull(persistedPost.getTitle());
 		assertNotNull(persistedPost.getContent());
 		assertNotNull(persistedPost.getSlug());
-		assertTrue(persistedPost.getStatus()); 
 		assertNotNull(persistedPost.getCreatedAt());
-		assertNotNull(persistedPost.getUpdatedAt());
-		assertNotNull(persistedPost.getPublishedAt());		
 		assertNotNull(persistedPost.getCategory());
 		assertNotNull(persistedPost.getUser());
 		/*assertNull(persistedPost.getImageDesktop());

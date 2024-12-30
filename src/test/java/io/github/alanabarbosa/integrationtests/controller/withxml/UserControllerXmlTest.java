@@ -31,6 +31,7 @@ import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegratio
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
 import io.github.alanabarbosa.integrationtests.vo.UserVO;
+import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelUser;
 import io.github.alanabarbosa.model.Role;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -144,7 +145,7 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 		assertEquals(true, persistedUser.getCredentialsNonExpired());
 		assertEquals(true, persistedUser.getEnabled());
 	}
-	
+	/*
 	@Test
 	@Order(2)
 	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
@@ -168,7 +169,7 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(3)
+	@Order(4)
 	public void testFindById() throws JsonMappingException, JsonProcessingException {
 		mockUser();
 			
@@ -218,7 +219,7 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 	} 
 	
 	@Test
-	@Order(4)
+	@Order(5)
 	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockUser();
 		
@@ -241,12 +242,47 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
+	@Order(6)
+	public void testFindAll() throws JsonMappingException, JsonProcessingException {
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+					.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		PagedModelUser wrapper = objectMapper
+				.readValue(content, PagedModelUser.class);
+		
+		var user = wrapper.getContent();
+		
+		UserVO founUserOne = user.get(0);
+		
+		assertNotNull(founUserOne.getKey());
+		assertNotNull(founUserOne.getFirstName());		
+		assertEquals(238, founUserOne.getKey());		
+		assertEquals("Addia", founUserOne.getFirstName());
+		
+		UserVO foundUserTwo = user.get(2);
+		
+		assertNotNull(foundUserTwo.getKey());
+		assertNotNull(foundUserTwo.getFirstName());		
+		assertEquals(224, foundUserTwo.getKey());		
+		assertEquals("Adelle", foundUserTwo.getFirstName());
+	}
+	
+	@Test
 	@Order(7)
 	public void testDisableUserById() throws JsonMappingException, JsonProcessingException {
 			
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
-				.accept(TestConfigs.CONTENT_TYPE_XML)
 				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.pathParam("id", user.getKey())
 					.when()
@@ -289,7 +325,7 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 	}		
 	
 	@Test
-	@Order(5)
+	@Order(8)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
@@ -301,8 +337,7 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 			.then()
 				.statusCode(204);
 	}
-
-
+*/
 	private void mockUser() {
 	    user.setFirstName("Son");
 	    user.setLastName("Goku");

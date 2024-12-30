@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -24,9 +23,9 @@ import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.controllers.UserController;
 import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
 import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
+import io.github.alanabarbosa.data.vo.v1.PostResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.PostResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
-import io.github.alanabarbosa.data.vo.v1.UserResponseBasicVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
@@ -53,14 +52,17 @@ public class PostServices {
     CommentRepository commentRepository;
     
 	@Autowired
-	PagedResourcesAssembler<PostBasicVO> assembler;    
+	PagedResourcesAssembler<PostResponseBasicVO> assembler;
+	
+	@Autowired
+	PagedResourcesAssembler<PostBasicVO> assemblerBasic;
     
-    public PagedModel<EntityModel<PostBasicVO>> findAll(Pageable pageable) {
+    public PagedModel<EntityModel<PostResponseBasicVO>> findAll(Pageable pageable) {
         logger.info("Finding all posts!");
         
         var postPage = repository.findAll(pageable);
         
-        var postVosPage = postPage.map(p -> DozerMapper.parseObject(p, PostBasicVO.class));
+        var postVosPage = postPage.map(p -> DozerMapper.parseObject(p, PostResponseBasicVO.class));
         
         postVosPage.map(post -> {
         	try {
@@ -81,10 +83,10 @@ public class PostServices {
     }
 
     public PostResponseVO findById(Long id) throws Exception {
-        logger.info("Finding one post by ID!");
+        logger.info("Finding one post by Id!");
         
         var entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
+                .orElseThrow(() -> new ResourceNotFoundException("No records found for this Id"));
         
         var vo = DozerMapper.parseObject(entity, PostResponseVO.class);
                 
@@ -94,11 +96,14 @@ public class PostServices {
         vo.setComments(commentVOs);
         
         vo.add(linkTo(methodOn(PostController.class).findById(id)).withRel("post-details"));
-        vo.getUser().add(linkTo(methodOn(UserController.class).findById(vo.getUser().getKey())).withRel("user-details"));
-        vo.getCategory().add(linkTo(methodOn(CategoryController.class).findById(vo.getUser().getKey())).withRel("category-details"));
         
-        HateoasUtils.addCommentLinks(vo.getComments());        
+        vo.getUser().add(linkTo(methodOn(UserController.class)
+        		.findById(vo.getUser().getKey())).withRel("user-details"));
         
+        vo.getCategory().add(linkTo(methodOn(CategoryController.class)
+        		.findById(vo.getUser().getKey())).withRel("category-details"));
+        
+        HateoasUtils.addCommentLinks(vo.getComments());
         return vo;
     }
 	
@@ -122,12 +127,12 @@ public class PostServices {
     	    .collect(Collectors.toList());    
     }*/
     
-    public PagedModel<EntityModel<PostBasicVO>> findPostsByUserId(Long userId, Pageable pageable) {
+   public PagedModel<EntityModel<PostResponseBasicVO>> findPostsByUserId(Long userId, Pageable pageable) {
         logger.info("Finding posts for user id!");  
 
         var postsPage = repository.findPostsByUserIdPage(userId, pageable);
 
-        var postsVosPage = postsPage.map(p -> DozerMapper.parseObject(p, PostBasicVO.class));
+        var postsVosPage = postsPage.map(p -> DozerMapper.parseObject(p, PostResponseBasicVO.class));
 
         postsVosPage.map(post -> {
             try {
@@ -151,13 +156,13 @@ public class PostServices {
         return assembler.toModel(postsVosPage, link);
     }
     
-    public PagedModel<EntityModel<PostBasicVO>> findByCategoryId(Long userId, Pageable pageable) {     
+    public PagedModel<EntityModel<PostResponseBasicVO>> findByCategoryId(Long userId, Pageable pageable) {     
     	
         logger.info("Finding posts for category id!");  
 
         var postsPage = repository.findByCategoryIdPage(userId, pageable);
 
-        var postsVosPage = postsPage.map(p -> DozerMapper.parseObject(p, PostBasicVO.class));
+        var postsVosPage = postsPage.map(p -> DozerMapper.parseObject(p, PostResponseBasicVO.class));
 
         postsVosPage.map(post -> {
             try {
@@ -178,8 +183,8 @@ public class PostServices {
 			e.printStackTrace();
 		}
 
-        return assembler.toModel(postsVosPage, link);    	
-    }    
+        return assembler.toModel(postsVosPage, link);
+    }  
     
 	public PostVO create(PostVO post) throws Exception {		
 		logger.info("Creating one post!");
@@ -210,7 +215,8 @@ public class PostServices {
 	    var savedPost = repository.save(entity);		
 		var vo =  DozerMapper.parseObject(savedPost, PostVO.class);
 	    vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withSelfRel());
-	    vo.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(vo.getKey())).withRel("comments"));
+	    vo.add(linkTo(methodOn(CommentController.class)
+	    		.findCommentsByPostId(vo.getKey(), 0, 12, "asc")).withRel("comments-details"));
 	    
 	    return vo;
 	}
@@ -257,7 +263,8 @@ public class PostServices {
 	    var vo = DozerMapper.parseObject(repository.save(updatedPost), PostVO.class);
 	    
 	    vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withSelfRel());
-	    vo.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(vo.getKey())).withRel("comments"));
+	    vo.add(linkTo(methodOn(CommentController.class)
+	    		.findCommentsByPostId(vo.getKey(), 0, 12, "asc")).withRel("comments-details"));
 	    
 	    return vo;
 	}
@@ -275,13 +282,6 @@ public class PostServices {
         
         var vo = DozerMapper.parseObject(entity, PostVO.class);
        
-        /* try {
-            List<Comment> comments = commentRepository.findByPostId(id);
-            List<CommentResponseVO> commentVOs = DozerMapper.parseListObjects(comments, CommentResponseVO.class);
-            vo.setComments(commentVOs);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error while processing comments for post " + id, e);
-        }*/
         
         vo.add(linkTo(methodOn(PostController.class).findById(id)).withSelfRel());        
         return vo;

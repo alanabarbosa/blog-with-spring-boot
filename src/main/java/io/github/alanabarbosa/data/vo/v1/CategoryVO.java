@@ -15,7 +15,7 @@ import com.github.dozermapper.core.Mapping;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({"id", "name", "description","created_at"})
+@JsonPropertyOrder({"id", "name", "description","created_at", "posts"})
 public class CategoryVO extends RepresentationModel<CategoryVO> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -28,15 +28,19 @@ public class CategoryVO extends RepresentationModel<CategoryVO> implements Seria
     private String description;
     
     @JsonProperty("created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt;	
+    
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    private List<PostBasicVO> posts;  
+    
     public CategoryVO() {}
 
 	public Long getKey() {
 		return key;
 	}
 
-	public void setKey(Long id) {
-		this.key = id;
+	public void setKey(Long key) {
+		this.key = key;
 	}
 
 	public String getName() {
@@ -63,21 +67,33 @@ public class CategoryVO extends RepresentationModel<CategoryVO> implements Seria
 		this.createdAt = createdAt;
 	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null || getClass() != obj.getClass())
-            return false;
-        CategoryVO categoryVO = (CategoryVO) obj;
-        return Objects.equals(key, categoryVO.key) &&
-               Objects.equals(name, categoryVO.name) &&
-               Objects.equals(description, categoryVO.description) &&
-               Objects.equals(createdAt, categoryVO.createdAt);
+	public List<PostBasicVO> getPosts() {
+        return posts;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(key, name, description, createdAt);
+    public void setPosts(List<PostBasicVO> posts) {
+        this.posts = posts;
     }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(createdAt, description, key, name, posts);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CategoryVO other = (CategoryVO) obj;
+		return Objects.equals(createdAt, other.createdAt) && Objects.equals(description, other.description)
+				&& Objects.equals(key, other.key) && Objects.equals(name, other.name)
+				&& Objects.equals(posts, other.posts);
+	}
 }

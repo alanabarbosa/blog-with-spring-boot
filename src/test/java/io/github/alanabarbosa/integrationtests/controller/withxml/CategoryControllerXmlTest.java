@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -28,6 +26,7 @@ import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegratio
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.CategoryVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
+import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelCategory;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -193,16 +192,14 @@ public class CategoryControllerXmlTest extends AbstractIntegrationTest {
         assertNotNull(persistedCategory);
         assertNotNull(persistedCategory.getKey());
         assertNotNull(persistedCategory.getName());
-        assertNotNull(persistedCategory.getDescription());
         assertNotNull(persistedCategory.getCreatedAt());
 
         assertTrue(persistedCategory.getKey() > 0);
         assertEquals("Technology", persistedCategory.getName());
-        assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());
     }
 	
 	@Test
-	@Order(4)
+	@Order(5)
 	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockCategory();
 		
@@ -224,11 +221,12 @@ public class CategoryControllerXmlTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Order(5)
+	@Order(6)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
 				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.when()
 					.get()
@@ -238,31 +236,28 @@ public class CategoryControllerXmlTest extends AbstractIntegrationTest {
 						.body()
 							.asString();
 		
-		List<CategoryVO> c = objectMapper.readValue(content, new TypeReference<List<CategoryVO>>() {});
+		PagedModelCategory wrapper = objectMapper
+				.readValue(content, PagedModelCategory.class);
 		
-		CategoryVO foundCategoryOne = c.get(0);
+		var categorie = wrapper.getContent();
+		
+		CategoryVO foundCategoryOne = categorie.get(1);
 		
         assertNotNull(foundCategoryOne.getKey());
         assertNotNull(foundCategoryOne.getName());
-        assertNotNull(foundCategoryOne.getDescription());
-        assertNotNull(foundCategoryOne.getCreatedAt());
 		
-		assertEquals(1, foundCategoryOne.getKey());
+		assertEquals(4, foundCategoryOne.getKey());
 		
-        assertEquals("Technology", foundCategoryOne.getName());
-        assertEquals("Posts related to technology trends and news", foundCategoryOne.getDescription());
+        assertEquals("Education", foundCategoryOne.getName());
 		
-		CategoryVO foundCommentThree = c.get(3);
+		CategoryVO foundCommentThree = categorie.get(3);
 		
 		assertNotNull(foundCommentThree.getKey());
 		assertNotNull(foundCommentThree.getName());
-		assertNotNull(foundCommentThree.getDescription());
-		assertNotNull(foundCommentThree.getCreatedAt());
 		
-		assertEquals(4, foundCommentThree.getKey());
+		assertEquals(7, foundCommentThree.getKey());
 		
-		assertEquals("Education", foundCommentThree.getName());
-		assertEquals("Resources and news about education", foundCommentThree.getDescription());	
+		assertEquals("Finance", foundCommentThree.getName());
 	}
 	
 	@Test

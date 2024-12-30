@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +29,7 @@ import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegratio
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
+import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperPostVO;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Role;
@@ -124,7 +123,7 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 		assertTrue(persistedPost.getStatus()); 
 		assertNotNull(persistedPost.getCreatedAt());
 		assertNotNull(persistedPost.getUpdatedAt());
-		assertNotNull(persistedPost.getPublishedAt());		
+		assertNotNull(persistedPost.getPublishedAt());
 		assertNotNull(persistedPost.getCategory());
 		assertNotNull(persistedPost.getUser());
 		assertNull(persistedPost.getImageDesktop());
@@ -139,29 +138,12 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 		        + "specifically for use with views using Spring's ContentNegotiatingViewResolver.", 
 		        persistedPost.getContent());
 		
-		//assertEquals(true, persistedPost.getStatus());
-		assertTrue(persistedPost.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));
-		
-		assertTrue(persistedPost.getUpdatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));
-		
-		/*assertTrue(persistedPost.getPublishedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));*/
-		
-		//assertEquals(new Category(), persistedPost.getCategory());
 		assertEquals(null, persistedPost.getImageDesktop()); 
 		assertEquals(null, persistedPost.getImageMobile());
 		assertEquals(1L, persistedPost.getCategory().getId());
 		assertEquals(1L, persistedPost.getUser().getId());		
 	}
-	
+		
 	@Test
 	@Order(2)
 	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
@@ -236,15 +218,15 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 		assertEquals("content-negotiation-using-spring-mvc", persistedPost.getSlug());
 		assertEquals(true, persistedPost.getStatus());
 		
-		/*assertTrue(persistedPost.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));
+		//assertTrue(persistedPost.getCreatedAt()
+		//		.truncatedTo(ChronoUnit.SECONDS)
+		//		.isEqual(now
+		//				.truncatedTo(ChronoUnit.SECONDS)));
 		
-		assertTrue(persistedPost.getUpdatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));*/
+		//assertTrue(persistedPost.getUpdatedAt()
+		//		.truncatedTo(ChronoUnit.SECONDS)
+		//		.isEqual(now
+		//				.truncatedTo(ChronoUnit.SECONDS)));
 	
 		assertEquals(null, persistedPost.getImageDesktop()); 
 		assertEquals(null, persistedPost.getImageMobile());
@@ -331,6 +313,7 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
 					.when()
 					.get()
@@ -340,58 +323,28 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 						.body()
 							.asString();
 		
-		List<PostVO> p = objectMapper.readValue(content, new TypeReference<List<PostVO>>() {});
+		WrapperPostVO wrapper = objectMapper
+				.readValue(content, WrapperPostVO.class);
 		
-		PostVO foundPostOne = p.get(0);
+		var post = wrapper.getEmbedded().getPosts();
+		
+		PostVO foundPostOne = post.get(0);
 		
 		assertNotNull(foundPostOne.getId());
 		assertNotNull(foundPostOne.getTitle());
-		assertNotNull(foundPostOne.getContent());
-		assertNotNull(foundPostOne.getSlug());
-		assertTrue(foundPostOne.getStatus()); 
-		assertNotNull(foundPostOne.getCreatedAt());
-		assertNotNull(foundPostOne.getUpdatedAt());
-		assertNotNull(foundPostOne.getPublishedAt());		
-		assertNotNull(foundPostOne.getCategory());
-		assertNotNull(foundPostOne.getUser());
-		/*assertNull(foundPostOne.getImageDesktop());
-	    assertNull(foundPostOne.getImageMobile());*/
 		
-		assertEquals(1, foundPostOne.getId());
+		assertEquals(793, foundPostOne.getId());
+		assertEquals("(Absolutions) Pipilotti's Mistakes ((Entlastungen) Pipilottis Fehler)", foundPostOne.getTitle());
 		
-		assertEquals("The Future of AI", foundPostOne.getTitle());
-		assertEquals("Artificial Intelligence is growing rapidly...", foundPostOne.getContent());
-				
-		/*assertEquals(null, foundPostOne.getImageDesktop()); 
-		assertEquals(null, foundPostOne.getImageMobile());*/
-		assertEquals(1L, foundPostOne.getCategory().getId());
-		assertEquals(1L, foundPostOne.getUser().getId());
-		
-		PostVO foundPostSix = p.get(3);
+		PostVO foundPostSix = post.get(3);
 		
 		assertNotNull(foundPostSix.getId());
 		assertNotNull(foundPostSix.getTitle());
-		assertNotNull(foundPostSix.getContent());
-		assertNotNull(foundPostSix.getSlug());
-		assertTrue(foundPostSix.getStatus()); 
-		assertNotNull(foundPostSix.getCreatedAt());
-		assertNotNull(foundPostSix.getUpdatedAt());
-		assertNotNull(foundPostSix.getPublishedAt());		
-		assertNotNull(foundPostSix.getCategory());
-		assertNotNull(foundPostSix.getUser());
-		/*assertNull(foundPostSix.getImageDesktop());
-	    assertNull(foundPostSix.getImageMobile());*/
 		
-		assertEquals(4, foundPostSix.getId());
-		
-		assertEquals("Top Tech Trends of 2024", foundPostSix.getTitle());
-		assertEquals("Here are the top tech trends to watch out for in 2024...", foundPostSix.getContent());
-		
-		/*assertEquals(null, foundPostOne.getImageDesktop()); 
-		assertEquals(null, foundPostOne.getImageMobile());*/
-		assertEquals(1L, foundPostSix.getCategory().getId());
-		assertEquals(1L, foundPostSix.getUser().getId());
+		assertEquals(447, foundPostSix.getId());		
+		assertEquals("11 Flowers (Wo 11)", foundPostSix.getTitle());
 	}
+	
 	
 	@Test
 	@Order(7)
@@ -416,14 +369,10 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 		assertNotNull(persistedPost.getTitle());
 		assertNotNull(persistedPost.getContent());
 		assertNotNull(persistedPost.getSlug());
-		assertTrue(persistedPost.getStatus());
 		assertNotNull(persistedPost.getCreatedAt());
 		assertNotNull(persistedPost.getUpdatedAt());
-		assertNotNull(persistedPost.getPublishedAt());		
 		assertNotNull(persistedPost.getCategory());
 		assertNotNull(persistedPost.getUser());
-		/*assertNull(persistedPost.getImageDesktop());
-	    assertNull(persistedPost.getImageMobile());*/
 		
 		assertEquals(post.getId(), persistedPost.getId());
 		

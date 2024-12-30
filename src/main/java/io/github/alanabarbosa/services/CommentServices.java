@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import io.github.alanabarbosa.controllers.CommentController;
 import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.controllers.UserController;
-import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
+import io.github.alanabarbosa.data.vo.v1.CommentResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
@@ -41,15 +41,15 @@ public class CommentServices {
 	CommentRepository repository;	
 	
 	@Autowired
-	PagedResourcesAssembler<CommentBasicVO> assembler;  
+	PagedResourcesAssembler<CommentResponseBasicVO> assembler;  
 	
 	@Transactional
-	public PagedModel<EntityModel<CommentBasicVO>> findAll(Pageable pageable) {		
-		logger.info("Finding all comments!");		
+	public PagedModel<EntityModel<CommentResponseBasicVO>> findAll(Pageable pageable) {		
+		logger.info("Finding all comments!");
 		
         var commentPage = repository.findAll(pageable);
         
-        var commentVosPage = commentPage.map(c -> DozerMapper.parseObject(c, CommentBasicVO.class));
+        var commentVosPage = commentPage.map(c -> DozerMapper.parseObject(c, CommentResponseBasicVO.class));
         
         commentVosPage.map(comment -> {
         	try {
@@ -88,12 +88,12 @@ public class CommentServices {
 	}
 	
 	@Transactional
-    public PagedModel<EntityModel<CommentBasicVO>> findCommentsByUserId(Long userId, Pageable pageable) {
+    public PagedModel<EntityModel<CommentResponseBasicVO>> findCommentsByUserId(Long userId, Pageable pageable) {
 		logger.info("Finding comments for user id!");  
 		
 		var commentsPage = repository.findCommentsByUserIdPage(userId, pageable);
 		
-		var commentsVosPage = commentsPage.map(c -> DozerMapper.parseObject(c, CommentBasicVO.class));
+		var commentsVosPage = commentsPage.map(c -> DozerMapper.parseObject(c, CommentResponseBasicVO.class));
 
 		commentsVosPage.map(comment -> {
             try {
@@ -117,12 +117,12 @@ public class CommentServices {
         return assembler.toModel(commentsVosPage, link);		
     }
     
-    public PagedModel<EntityModel<CommentBasicVO>> findCommentsByPostId(Long postId, Pageable pageable) {
+    public PagedModel<EntityModel<CommentResponseBasicVO>> findCommentsByPostId(Long postId, Pageable pageable) {
 		logger.info("Finding comments for post id!");  
 		
 		var commentsPage = repository.findCommentsByPostIdPage(postId, pageable);
 		
-		var commentsVosPage = commentsPage.map(c -> DozerMapper.parseObject(c, CommentBasicVO.class));
+		var commentsVosPage = commentsPage.map(c -> DozerMapper.parseObject(c, CommentResponseBasicVO.class));
 
 		commentsVosPage.map(comment -> {
             try {

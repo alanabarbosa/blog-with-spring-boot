@@ -1,7 +1,5 @@
 package io.github.alanabarbosa.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
+import io.github.alanabarbosa.data.vo.v1.CommentResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.services.CommentServices;
@@ -50,7 +49,7 @@ public class CommentController {
 					content = {
 							@Content(
 									mediaType = "application/json",
-									array = @ArraySchema(schema = @Schema(implementation = CommentBasicVO.class))
+									array = @ArraySchema(schema = @Schema(implementation = CommentResponseBasicVO.class))
 							)
 					}),
 			@ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -59,7 +58,7 @@ public class CommentController {
 			@ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		}
 	)	
-    public ResponseEntity<PagedModel<EntityModel<CommentBasicVO>>> findAll(
+    public ResponseEntity<PagedModel<EntityModel<CommentResponseBasicVO>>> findAll(
     		@RequestParam(value = "page", defaultValue = "0") Integer page,
     		@RequestParam(value = "size", defaultValue = "12") Integer size,
     		@RequestParam(value = "direction", defaultValue = "asc") String direction
@@ -106,7 +105,7 @@ public class CommentController {
 	            content = {
 	                @Content(
 	                    mediaType = "application/json",
-	                    array = @ArraySchema(schema = @Schema(implementation = CommentBasicVO.class))
+	                    array = @ArraySchema(schema = @Schema(implementation = CommentResponseBasicVO.class))
 	                )
 	            }),
 	        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -115,7 +114,7 @@ public class CommentController {
 	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 	    }
 	)
-	public ResponseEntity<PagedModel<EntityModel<CommentBasicVO>>> findCommentsByUserId(
+	public ResponseEntity<PagedModel<EntityModel<CommentResponseBasicVO>>> findCommentsByUserId(
 			@PathVariable Long userId,
 	        @RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "12") Integer size,
@@ -141,7 +140,7 @@ public class CommentController {
 		            content = {
 		                @Content(
 		                    mediaType = "application/json",
-		                    array = @ArraySchema(schema = @Schema(implementation = CommentBasicVO.class))
+		                    array = @ArraySchema(schema = @Schema(implementation = CommentResponseBasicVO.class))
 		                )
 		            }),
 		        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -150,7 +149,7 @@ public class CommentController {
 		        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 		    }
 		)
-	public ResponseEntity<PagedModel<EntityModel<CommentBasicVO>>> findCommentsByPostId(
+	public ResponseEntity<PagedModel<EntityModel<CommentResponseBasicVO>>> findCommentsByPostId(
 			@PathVariable Long postId,
 	        @RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "12") Integer size,

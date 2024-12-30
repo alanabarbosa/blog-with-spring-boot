@@ -10,6 +10,7 @@ import java.util.Objects;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -30,6 +31,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "first_name", "last_name","user_name", "password", "bio", "created_at", "account_non_expired", "account_non_locked", "credentials_non_expired",  "enabled", "roles"})
 public class User implements UserDetails, Serializable {
 

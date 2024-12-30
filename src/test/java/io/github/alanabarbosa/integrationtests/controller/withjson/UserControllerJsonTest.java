@@ -30,6 +30,7 @@ import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
 import io.github.alanabarbosa.integrationtests.vo.UserVO;
+import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperUserVO;
 import io.github.alanabarbosa.model.Role;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -299,6 +300,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
 					.when()
 					.get()
 				.then()
@@ -307,47 +309,24 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 						.body()
 							.asString();
 		
-		List<UserVO> u = objectMapper.readValue(content, new TypeReference<List<UserVO>>() {});
+		WrapperUserVO wrapper = objectMapper
+				.readValue(content, WrapperUserVO.class);
 		
-		UserVO founUserOne = u.get(0);
+		var user = wrapper.getEmbedded().getUsers();
+		
+		UserVO founUserOne = user.get(0);
 		
 		assertNotNull(founUserOne.getKey());
-		assertNotNull(founUserOne.getFirstName());
-		assertNotNull(founUserOne.getLastName());
-		assertNotNull(founUserOne.getUserName());
-		assertNotNull(founUserOne.getBio());
-		assertNotNull(founUserOne.getEnabled());
-		assertNotNull(founUserOne.getCreatedAt());
-		//assertNotNull(founUserOne.getRoles());
+		assertNotNull(founUserOne.getFirstName());		
+		assertEquals(238, founUserOne.getKey());		
+		assertEquals("Addia", founUserOne.getFirstName());
 		
-		assertEquals(1, founUserOne.getKey());
-		
-		assertEquals("Alana", founUserOne.getFirstName());
-		assertEquals("Barbosa", founUserOne.getLastName());
-		assertEquals("alana", founUserOne.getUserName());
-		assertEquals("Software developer and tech enthusiast.", founUserOne.getBio());		
-		//assertEquals(new Role(), founUserOne.getRoles());
-		assertEquals(true, founUserOne.getEnabled());
-		
-		UserVO foundUserTwo = u.get(2);
+		UserVO foundUserTwo = user.get(2);
 		
 		assertNotNull(foundUserTwo.getKey());
-		assertNotNull(foundUserTwo.getFirstName());
-		assertNotNull(foundUserTwo.getLastName());
-		assertNotNull(foundUserTwo.getUserName());
-		assertNotNull(foundUserTwo.getBio());
-		assertNotNull(foundUserTwo.getEnabled());
-		assertNotNull(foundUserTwo.getCreatedAt());
-		//assertNotNull(foundUserTwo.getRoles());;
-		
-		assertEquals(3, foundUserTwo.getKey());
-		
-		assertEquals("Alice", foundUserTwo.getFirstName());
-		assertEquals("Johnson", foundUserTwo.getLastName());
-		assertEquals("alicej", foundUserTwo.getUserName());
-		assertEquals("Freelance writer and blogger.", foundUserTwo.getBio());
-		//assertEquals(new Role(), foundUserTwo.getRoles());
-		assertEquals(true, foundUserTwo.getEnabled());	
+		assertNotNull(foundUserTwo.getFirstName());		
+		assertEquals(224, foundUserTwo.getKey());		
+		assertEquals("Adelle", foundUserTwo.getFirstName());
 	}
 	
 	@Test

@@ -1,4 +1,4 @@
-DELIMITER //
+/*DELIMITER //
 
 CREATE TRIGGER generate_slug_before_insert
 BEFORE INSERT ON post
@@ -15,3 +15,4 @@ END;
 
 //
 DELIMITER ;
+*/

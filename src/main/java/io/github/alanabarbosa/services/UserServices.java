@@ -22,8 +22,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CommentController;
-import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.controllers.UserController;
+import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
 import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
 import io.github.alanabarbosa.data.vo.v1.UserResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.UserResponseVO;
@@ -31,6 +31,7 @@ import io.github.alanabarbosa.data.vo.v1.UserVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
+import io.github.alanabarbosa.model.Comment;
 import io.github.alanabarbosa.model.Post;
 import io.github.alanabarbosa.model.Role;
 import io.github.alanabarbosa.model.User;
@@ -139,10 +140,16 @@ public class UserServices implements UserDetailsService {
 	    		.processEntities(id, posts, PostBasicVO.class, "Error while processing posts for user");
 	    vo.setPosts(postVOs);
 	    
-	    HateoasUtils.addCommentLinks(vo.getComments());
+        List<Comment> comments = commentRepository.findByPostId(id);
+        List<CommentBasicVO> commentVOs = ConvertToVO
+        		.processEntities(id, comments, CommentBasicVO.class, "Error while processing comments for user");
+        vo.setComments(commentVOs);
+	    
+	    //HateoasUtils.addCommentLinks(vo.getComments());
 	    HateoasUtils.addPostLinks(vo.getPosts());
 	    
-	    vo.add(linkTo(methodOn(UserController.class).findById(vo.getKey())).withRel("user-details"));
+	    vo.add(linkTo(methodOn(UserController.class)
+	    		.findById(vo.getKey())).withRel("user-details"));
 	    
 	    return vo;
 	}
@@ -231,7 +238,7 @@ public class UserServices implements UserDetailsService {
 	    
 	    var vo = DozerMapper.parseObject(repository.save(entity), UserVO.class);		
 	    vo.add(linkTo(methodOn(UserController.class).findById(vo.getKey())).withSelfRel());
-	    vo.add(linkTo(methodOn(CommentController.class).findCommentsByUserId(vo.getKey())).withRel("comments"));
+	    vo.add(linkTo(methodOn(CommentController.class).findCommentsByUserId(vo.getKey(), 0, 12, "asc")).withRel("comments-details"));
 	    return vo;
 	}
 	

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import io.github.alanabarbosa.controllers.CategoryController;
 import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.data.vo.v1.CategoryBasicVO;
+import io.github.alanabarbosa.data.vo.v1.CategoryResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
 import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
@@ -43,25 +44,30 @@ public class CategoryServices {
 	PostRepository postRepository;
 	
 	@Autowired
-	PagedResourcesAssembler<CategoryBasicVO> assembler; 
+	PagedResourcesAssembler<CategoryResponseBasicVO> assembler; 
 	
-	public PagedModel<EntityModel<CategoryBasicVO>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<CategoryResponseBasicVO>> findAll(Pageable pageable) {
 		
 		logger.info("Finding all categories!");
 		
 		var categoryPage = repository.findAll(pageable);
         
-        var categoryVosPage = categoryPage.map(c -> DozerMapper.parseObject(c, CategoryBasicVO.class));
-        
-        categoryVosPage.map(category -> {
-        	try {
-        		category.add(linkTo(methodOn(CategoryController.class)
-						.findById(category.getKey())).withRel("post-details"));
-			} catch (Exception e) {
-				logger.log(Level.SEVERE, "Error while processing posts " + category.getKey(), e);
-			}
-        	return category;
-        });
+        var categoryVosPage = categoryPage.map(c -> DozerMapper.parseObject(c, CategoryResponseBasicVO.class));
+
+        if (categoryVosPage != null) {
+        	categoryVosPage.map(category -> {
+            	logger.info("cateogyr:" + category);
+            	try {
+            		category.add(linkTo(methodOn(CategoryController.class)
+    						.findById(category.getKey())).withRel("category-details"));
+    			} catch (Exception e) {
+    				logger.log(Level.SEVERE, "Error while processing categories " + category.getKey(), e);
+    			}
+            	return category;
+            });
+        } else {
+        	logger.info("é igual a null");
+        }
         
         Link link = linkTo(methodOn(CategoryController.class).findAll(
         		pageable.getPageNumber(),

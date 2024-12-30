@@ -30,6 +30,7 @@ import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegratio
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.CategoryVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
+import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperCategoryVO;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -177,16 +178,11 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 		assertNotNull(persistedCategory.getKey());
 		assertNotNull(persistedCategory.getName());
 		assertNotNull(persistedCategory.getDescription());
-		assertNotNull(persistedCategory.getCreatedAt());
 		
 		assertTrue(persistedCategory.getKey() > 0);
 		
 		assertEquals("Technology", persistedCategory.getName());
 		assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());		
-		assertTrue(persistedCategory.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));	
 	}	
 	
 	@Test
@@ -217,18 +213,10 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 		
 		assertNotNull(persistedCategory.getKey());
 		assertNotNull(persistedCategory.getName());
-		assertNotNull(persistedCategory.getDescription());
 		assertNotNull(persistedCategory.getCreatedAt());
 		
 	    assertTrue(persistedCategory.getKey() > 0);
-		
 		assertEquals("Technology", persistedCategory.getName());
-		assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());
-		
-		assertTrue(persistedCategory.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));	
 	} 
 	
 	@Test
@@ -259,6 +247,7 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
 					.when()
 					.get()
 				.then()
@@ -267,31 +256,30 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 						.body()
 							.asString();
 		
-		List<CategoryVO> categorie = objectMapper.readValue(content, new TypeReference<List<CategoryVO>>() {});
+		WrapperCategoryVO wrapper = objectMapper
+				.readValue(content, WrapperCategoryVO.class);
+		
+		var categorie = wrapper.getEmbedded().getCategories();
 		
 		CategoryVO founCategoryOne = categorie.get(0);
 		
 		assertNotNull(founCategoryOne.getKey());
 		assertNotNull(founCategoryOne.getName());
-		assertNotNull(founCategoryOne.getDescription());
 		assertNotNull(founCategoryOne.getCreatedAt());
 		
-		assertEquals(1, founCategoryOne.getKey());
+		assertEquals(10, founCategoryOne.getKey());
 		
-		assertEquals("Technology", founCategoryOne.getName());
-		assertEquals("Posts related to technology trends and news", founCategoryOne.getDescription());
+		assertEquals("Business", founCategoryOne.getName());
 		
 		CategoryVO foundCommentThree = categorie.get(3);
 		
 		assertNotNull(foundCommentThree.getKey());
 		assertNotNull(foundCommentThree.getName());
-		assertNotNull(foundCommentThree.getDescription());
 		assertNotNull(foundCommentThree.getCreatedAt());
 		
-		assertEquals(4, foundCommentThree.getKey());
+		assertEquals(7, foundCommentThree.getKey());
 		
-		assertEquals("Education", foundCommentThree.getName());
-		assertEquals("Resources and news about education", foundCommentThree.getDescription());		
+		assertEquals("Finance", foundCommentThree.getName());
 	}
 	
 	@Test

@@ -1,4 +1,4 @@
-DELIMITER //
+/*DELIMITER //
 CREATE TRIGGER set_created_at_before_insert
 BEFORE INSERT ON users
 FOR EACH ROW

@@ -1,10 +1,6 @@
 package io.github.alanabarbosa.controllers;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
+import io.github.alanabarbosa.data.vo.v1.PostResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.PostResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.services.PostServices;
@@ -53,7 +50,7 @@ public class PostController {
             @ApiResponse(description = "Success", responseCode = "200,", 
                 content = {
                     @Content(mediaType = "application/json",
-                        array = @ArraySchema(schema = @Schema(implementation = PostResponseVO.class))
+                        array = @ArraySchema(schema = @Schema(implementation = PostResponseBasicVO.class))
                     )
                 }),
             @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -62,7 +59,7 @@ public class PostController {
             @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
         }
     )
-    public ResponseEntity<PagedModel<EntityModel<PostBasicVO>>> findAll(
+    public ResponseEntity<PagedModel<EntityModel<PostResponseBasicVO>>> findAll(
     		@RequestParam(value = "page", defaultValue = "0") Integer page,
     		@RequestParam(value = "size", defaultValue = "12") Integer size,
     		@RequestParam(value = "direction", defaultValue = "asc") String direction
@@ -99,7 +96,7 @@ public class PostController {
         return service.findById(id);
     }
     
-    @GetMapping(value = "/user/{userId}",
+   @GetMapping(value = "/user/{userId}",
             produces = { MediaType.APPLICATION_JSON, 
                          MediaType.APPLICATION_XML, 
                          MediaType.APPLICATION_YML })
@@ -110,7 +107,7 @@ public class PostController {
 	                             content = {
 	                                 @Content(
 	                                     mediaType = "application/json",
-	                                     array = @ArraySchema(schema = @Schema(implementation = PostBasicVO.class))
+	                                     array = @ArraySchema(schema = @Schema(implementation = PostResponseBasicVO.class))
 	                                 )
 	                             }),
 	                @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -119,7 +116,7 @@ public class PostController {
 	                @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
 	            }
 	)
-	public ResponseEntity<PagedModel<EntityModel<PostBasicVO>>> findPostsByUserId(
+	public ResponseEntity<PagedModel<EntityModel<PostResponseBasicVO>>> findPostsByUserId(
 	        @PathVariable Long userId,
 	        @RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "12") Integer size,
@@ -145,7 +142,7 @@ public class PostController {
     	            content = {
     	                @Content(
     	                    mediaType = "application/json",
-    	                    array = @ArraySchema(schema = @Schema(implementation = PostBasicVO.class))
+    	                    array = @ArraySchema(schema = @Schema(implementation = PostResponseBasicVO.class))
     	                )
     	            }),
     	        @ApiResponse(description = "Bad Request", responseCode = "400,", content = @Content),
@@ -154,7 +151,7 @@ public class PostController {
     	        @ApiResponse(description = "Internal Error", responseCode = "500,", content = @Content)
     	    }
     	)
-	public ResponseEntity<PagedModel<EntityModel<PostBasicVO>>> findByCategoryId(
+	public ResponseEntity<PagedModel<EntityModel<PostResponseBasicVO>>> findByCategoryId(
 	        @PathVariable Long categoryId,
 	        @RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "12") Integer size,
@@ -167,7 +164,7 @@ public class PostController {
 	    var postPage = service.findByCategoryId(categoryId, pageable);
 	
 	    return ResponseEntity.ok(postPage);
-	}    
+	}  
     
     @CrossOrigin(origins = { "http://localhost:8080", "https://alanabarbosa.com.br"})
     @PostMapping(

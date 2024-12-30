@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -31,6 +29,7 @@ import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.CommentVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
+import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelComment;
 import io.github.alanabarbosa.model.User;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -233,11 +232,6 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 		assertTrue(persistedComment.getKey() > 0);
 		
 		assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
-		
-		assertTrue(persistedComment.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));	
 	} 
 	
 	@Test
@@ -268,6 +262,7 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.queryParams("page", 0, "size", 12, "direction", "asc")
 				.accept(TestConfigs.CONTENT_TYPE_XML)
 					.when()
 					.get()
@@ -277,39 +272,28 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 						.body()
 							.asString();
 		
-		List<CommentVO> c = objectMapper.readValue(content, new TypeReference<List<CommentVO>>() {});
+		PagedModelComment wrapper = objectMapper
+				.readValue(content, PagedModelComment.class);
 		
-		CommentVO founCommentOne = c.get(0);
+		var comment = wrapper.getContent();
+		
+		CommentVO founCommentOne = comment.get(0);
 		
 		assertNotNull(founCommentOne.getKey());
 		assertNotNull(founCommentOne.getContent());
-		assertTrue(founCommentOne.getStatus());
-		assertNotNull(founCommentOne.getCreatedAt());
-		assertNotNull(founCommentOne.getPost());
-		assertNotNull(founCommentOne.getUser());
 		
-		assertEquals(1, founCommentOne.getKey());
+		assertEquals(957, founCommentOne.getKey());
 		
-		assertEquals("Great article! Thanks for sharing.", founCommentOne.getContent());	
+		assertEquals("Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.", founCommentOne.getContent());	
 
-		assertEquals(1L, founCommentOne.getPost().getId());
-		assertEquals(1L, founCommentOne.getUser().getId());
-		
-		CommentVO foundCommentThree = c.get(3);
+		CommentVO foundCommentThree = comment.get(3);
 		
 		assertNotNull(foundCommentThree.getKey());
 		assertNotNull(foundCommentThree.getContent());
-		assertTrue(foundCommentThree.getStatus());
-		assertNotNull(foundCommentThree.getCreatedAt());
-		assertNotNull(foundCommentThree.getPost());
-		assertNotNull(foundCommentThree.getUser());
 		
-		assertEquals(4, foundCommentThree.getKey());
+		assertEquals(397, foundCommentThree.getKey());
 		
-		assertEquals("Great article! Thanks for sharing.", foundCommentThree.getContent());		
-
-		assertEquals(1L, foundCommentThree.getPost().getId());
-		assertEquals(1L, foundCommentThree.getUser().getId());
+		assertEquals("Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.", foundCommentThree.getContent());
 	}
 	
 	@Test

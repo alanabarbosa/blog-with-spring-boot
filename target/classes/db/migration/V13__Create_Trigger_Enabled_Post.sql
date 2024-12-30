@@ -1,4 +1,4 @@
-DELIMITER //
+/*DELIMITER //
 CREATE TRIGGER set_published_at_before_insert
 BEFORE INSERT ON post
 FOR EACH ROW
@@ -8,4 +8,4 @@ BEGIN
     END IF;
 END;
 //
-DELIMITER ;
+DELIMITER ;*/

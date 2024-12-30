@@ -32,6 +32,7 @@ import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.CommentVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
+import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperCommentVO;
 import io.github.alanabarbosa.model.Role;
 import io.github.alanabarbosa.model.User;
 import io.restassured.builder.RequestSpecBuilder;
@@ -270,6 +271,7 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.queryParams("page", 0, "size", 12, "direction", "asc")
 					.when()
 					.get()
 				.then()
@@ -278,39 +280,28 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 						.body()
 							.asString();
 		
-		List<CommentVO> c = objectMapper.readValue(content, new TypeReference<List<CommentVO>>() {});
+		WrapperCommentVO wrapper = objectMapper
+				.readValue(content, WrapperCommentVO.class);
 		
-		CommentVO founCommentOne = c.get(0);
+		var comment = wrapper.getEmbedded().getComments();
+		
+		CommentVO founCommentOne = comment.get(0);
 		
 		assertNotNull(founCommentOne.getKey());
 		assertNotNull(founCommentOne.getContent());
-		assertTrue(founCommentOne.getStatus());
-		assertNotNull(founCommentOne.getCreatedAt());
-		assertNotNull(founCommentOne.getPost());
-		assertNotNull(founCommentOne.getUser());
 		
-		assertEquals(1, founCommentOne.getKey());
+		assertEquals(957, founCommentOne.getKey());
 		
-		assertEquals("Great article! Thanks for sharing.", founCommentOne.getContent());	
+		assertEquals("Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.", founCommentOne.getContent());	
 
-		assertEquals(1L, founCommentOne.getPost().getId());
-		//assertEquals(1L, founCommentOne.getUser().getKey());
-		
-		CommentVO foundCommentThree = c.get(3);
+		CommentVO foundCommentThree = comment.get(3);
 		
 		assertNotNull(foundCommentThree.getKey());
 		assertNotNull(foundCommentThree.getContent());
-		assertTrue(foundCommentThree.getStatus());
-		assertNotNull(foundCommentThree.getCreatedAt());
-		assertNotNull(foundCommentThree.getPost());
-		assertNotNull(foundCommentThree.getUser());
 		
-		assertEquals(4, foundCommentThree.getKey());
+		assertEquals(397, foundCommentThree.getKey());
 		
-		assertEquals("Great article! Thanks for sharing.", foundCommentThree.getContent());		
-
-		assertEquals(1L, foundCommentThree.getPost().getId());
-		//assertEquals(1L, foundCommentThree.getUser().getKey());
+		assertEquals("Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.", foundCommentThree.getContent());		
 	}
 	
 	@Test

@@ -26,6 +26,7 @@ import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegratio
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.CategoryVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
+import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperCategoryVO;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -266,7 +267,7 @@ public class CategoryControllerYamlTest extends AbstractIntegrationTest {
 	@Order(7)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
-		var content = given().spec(specification)
+		var wrapper = given().spec(specification)
 				.config(
 						RestAssuredConfig
 							.config()
@@ -282,11 +283,11 @@ public class CategoryControllerYamlTest extends AbstractIntegrationTest {
 					.statusCode(200)
 						.extract()
 						.body()
-						.as(CategoryVO[].class, objectMapper);
+						.as(WrapperCategoryVO.class, objectMapper);
 		
-		List<CategoryVO> c = Arrays.asList(content);
+		var categorie = wrapper.getEmbedded().getCategories();
 		
-		CategoryVO foundCategoryOne = c.get(0);
+		CategoryVO foundCategoryOne = categorie.get(0);
 		
         assertNotNull(foundCategoryOne.getKey());
         assertNotNull(foundCategoryOne.getName());
@@ -298,7 +299,7 @@ public class CategoryControllerYamlTest extends AbstractIntegrationTest {
         assertEquals("Technology", foundCategoryOne.getName());
         assertEquals("Posts related to technology trends and news", foundCategoryOne.getDescription());
 		
-		CategoryVO foundCommentThree = c.get(3);
+		CategoryVO foundCommentThree = categorie.get(3);
 		
 		assertNotNull(foundCommentThree.getKey());
 		assertNotNull(foundCommentThree.getName());

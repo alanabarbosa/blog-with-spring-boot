@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -50,10 +51,10 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
     @JoinColumn(name = "file_id")
     private File file;
     
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY) 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<CommentBasicVO> comments;
     
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY) 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<PostBasicVO> posts;
 
     public UserResponseVO() {}

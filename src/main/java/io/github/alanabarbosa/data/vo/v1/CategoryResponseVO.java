@@ -59,7 +59,7 @@ public class CategoryResponseVO extends RepresentationModel<CategoryResponseVO> 
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(key, name, posts);
+		result = prime * result + Objects.hash(key, name);
 		return result;
 	}
 
@@ -72,6 +72,6 @@ public class CategoryResponseVO extends RepresentationModel<CategoryResponseVO> 
 		if (getClass() != obj.getClass())
 			return false;
 		CategoryResponseVO other = (CategoryResponseVO) obj;
-		return Objects.equals(key, other.key) && Objects.equals(name, other.name) && Objects.equals(posts, other.posts);
+		return Objects.equals(key, other.key) && Objects.equals(name, other.name);
 	}
 }
