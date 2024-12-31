@@ -31,13 +31,13 @@ public class PostResponseBasicVO extends RepresentationModel<PostResponseBasicVO
     @JoinColumn(name = "user_id", nullable = false)
     @Mapping("user")
     @JsonIgnore
-    private UserBasicVO user;
+    private UserResponseBasicVO user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     @Mapping("category")
     @JsonIgnore
-    private CategoryBasicVO category;
+    private CategoryResponseBasicVO category;
     
     @OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
     @JsonIgnore
@@ -62,19 +62,19 @@ public class PostResponseBasicVO extends RepresentationModel<PostResponseBasicVO
 	}
 	
 
-	public UserBasicVO getUser() {
+	public UserResponseBasicVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserBasicVO user) {
+	public void setUser(UserResponseBasicVO user) {
 		this.user = user;
 	}
 
-	public CategoryBasicVO getCategory() {
+	public CategoryResponseBasicVO getCategory() {
 		return category;
 	}
 
-	public void setCategory(CategoryBasicVO category) {
+	public void setCategory(CategoryResponseBasicVO category) {
 		this.category = category;
 	}
 	

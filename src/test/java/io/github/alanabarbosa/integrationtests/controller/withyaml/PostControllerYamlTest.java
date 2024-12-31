@@ -2,6 +2,7 @@ package io.github.alanabarbosa.integrationtests.controller.withyaml;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,6 +29,7 @@ import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
+import io.github.alanabarbosa.model.Post;
 import io.github.alanabarbosa.model.Role;
 import io.github.alanabarbosa.model.User;
 import io.restassured.builder.RequestSpecBuilder;
@@ -96,50 +98,42 @@ public class PostControllerYamlTest extends AbstractIntegrationTest{
 	public void testCreate() throws JsonMappingException, JsonProcessingException {
 		mockPost();
 		
-		System.out.println("Category antes do envio: " + post.getCategory().getName());
+		post = given()
+		        .config(
+		                RestAssuredConfig
+		                    .config()
+		                    .encoderConfig(EncoderConfig.encoderConfig()
+		                            .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+		            .spec(specification)
+		        .contentType(TestConfigs.CONTENT_TYPE_YML)
+				.accept(TestConfigs.CONTENT_TYPE_YML)
+		            .body(post, objectMapper)
+		            .when()
+		            .post()
+		        .then()
+		            .statusCode(200)
+		                .extract()
+		                .body()
+		                    .as(PostVO.class, objectMapper);
 		
-		var persistedPost = given().spec(specification)
-        	    .config(
-        	        RestAssuredConfig
-        	            .config()
-        	            .encoderConfig(EncoderConfig.encoderConfig()
-        	                .encodeContentTypeAs(
-        	                    TestConfigs.CONTENT_TYPE_YML,
-        	                    ContentType.TEXT)))
-        	    .contentType(TestConfigs.CONTENT_TYPE_YML)
-        	    .accept(TestConfigs.CONTENT_TYPE_YML)
-        	    	.body(post, objectMapper)
-        	    	.when()
-        	    	.post()
-        	    .then()
-        	    	.log().all()
-        	        .statusCode(200)
-        	        	.extract()
-        	        	.body()
-        	        		.as(PostVO.class, objectMapper);
-
-		System.out.println("Request Body: " + persistedPost);
-		post = persistedPost;
-		
-		assertNotNull(persistedPost);
-		assertNotNull(persistedPost.getId());
-		assertNotNull(persistedPost.getTitle());
-		assertNotNull(persistedPost.getContent());
-		assertNotNull(persistedPost.getSlug());
-		assertTrue(persistedPost.getStatus());
-		assertNotNull(persistedPost.getCreatedAt());
-		assertNotNull(persistedPost.getUpdatedAt());
-		assertNotNull(persistedPost.getPublishedAt());		
-		assertNotNull(persistedPost.getCategory());
-		assertNotNull(persistedPost.getUser());
+		assertNotNull(post.getId());
+		assertNotNull(post.getTitle());
+		assertNotNull(post.getContent());
+		assertNotNull(post.getSlug());
+		assertTrue(post.getStatus());
+		assertNotNull(post.getCreatedAt());
+		assertNotNull(post.getUpdatedAt());
+		assertNotNull(post.getPublishedAt());		
+		assertNotNull(post.getCategory());
+		assertNotNull(post.getUser());
 		//assertNull(persistedPost.getImageDesktop());
 		//assertNull(persistedPost.getImageMobile());
 		
-		assertTrue(persistedPost.getId() > 0);
-		assertEquals("Content Negotiation using Spring MVC", persistedPost.getTitle());
-		assertEquals("In this post I want to discuss how to configure and use content", persistedPost.getContent());
-		assertEquals("content-negotiation-using-spring-mvc", persistedPost.getSlug());
-		assertEquals(true, persistedPost.getStatus());
+		assertTrue(post.getId() > 0);
+		assertEquals("Content Negotiation using Spring MVC", post.getTitle());
+		assertEquals("In this post I want to discuss how to configure and use content", post.getContent());
+		assertEquals("content-negotiation-using-spring-mvc", post.getSlug());
+		assertEquals(true, post.getStatus());
 		//assertTrue(persistedPost.getCreatedAt()
 		//		.truncatedTo(ChronoUnit.SECONDS)
 		//		.isEqual(now
@@ -149,10 +143,10 @@ public class PostControllerYamlTest extends AbstractIntegrationTest{
 		//		.truncatedTo(ChronoUnit.SECONDS)
 		//		.isEqual(now
 		//				.truncatedTo(ChronoUnit.SECONDS)));
-		assertEquals(null, persistedPost.getImageDesktop().getId()); 
-		assertEquals(null, persistedPost.getImageMobile().getId());
-		assertEquals(1L, persistedPost.getCategory().getId());
-		assertEquals(1L, persistedPost.getUser().getId());		
+		assertNull(post.getImageDesktop().getId()); 
+		assertNull(post.getImageMobile().getId());
+		assertEquals(1L, post.getCategory().getId());
+		assertEquals(1L, post.getUser().getId());		
 	}
 	/*
 	@Test
@@ -189,64 +183,57 @@ public class PostControllerYamlTest extends AbstractIntegrationTest{
 	public void testUpdate() throws JsonMappingException, JsonProcessingException {
 		post.setTitle("Content Negotiation using Spring MVC");
 		
-		var persistedPost = given().spec(specification)
-				.config(
-						RestAssuredConfig
-							.config()
-							.encoderConfig(EncoderConfig.encoderConfig()
-								.encodeContentTypeAs(
-									TestConfigs.CONTENT_TYPE_YML,
-									ContentType.TEXT)))
-				.contentType(TestConfigs.CONTENT_TYPE_YML)
-				.accept(TestConfigs.CONTENT_TYPE_YML)
-					.body(post, objectMapper)
-					.when()
-					.post()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-						.as(PostVO.class, objectMapper);
+		PostVO postUpdated = given()
+                .config(
+                    RestAssuredConfig
+                        .config()
+                        .encoderConfig(EncoderConfig.encoderConfig()
+                                .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+                .spec(specification)
+            .contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+                .body(post, objectMapper)
+                .when()
+                .put()
+            .then()
+                .statusCode(200)
+                    .extract()
+                    .body()
+                    .as(PostVO.class, objectMapper);
 		
-		//PostVO persistedPost = objectMapper.readValue(content, PostVO.class);
+		assertNotNull(postUpdated.getId());
+		assertNotNull(postUpdated.getTitle());
+		assertNotNull(postUpdated.getContent());
+		assertNotNull(postUpdated.getSlug());
+		assertTrue(postUpdated.getStatus()); 
+		assertNotNull(postUpdated.getCreatedAt());
+		assertNotNull(postUpdated.getUpdatedAt());
+		assertNotNull(postUpdated.getPublishedAt());		
+		assertNotNull(postUpdated.getCategory());
+		assertNotNull(postUpdated.getUser());
+		//assertNull(postUpdated.getImageDesktop());
+		//assertNull(postUpdated.getImageMobile());			
 		
-		post = persistedPost;
+	    assertEquals(postUpdated.getId(), post.getId());
 		
-		assertNotNull(persistedPost);
+		assertEquals("Content Negotiation using Spring MVC", postUpdated.getTitle());
+		assertEquals("In this post I want to discuss how to configure and use content", postUpdated.getContent());
 		
-		assertNotNull(persistedPost.getId());
-		assertNotNull(persistedPost.getTitle());
-		assertNotNull(persistedPost.getContent());
-		assertNotNull(persistedPost.getSlug());
-		assertTrue(persistedPost.getStatus()); 
-		assertNotNull(persistedPost.getCreatedAt());
-		assertNotNull(persistedPost.getUpdatedAt());
-		assertNotNull(persistedPost.getPublishedAt());		
-		assertNotNull(persistedPost.getCategory());
-		assertNotNull(persistedPost.getUser());
-		//assertNull(persistedPost.getImageDesktop());
-		//assertNull(persistedPost.getImageMobile());			
-		
-	    assertEquals(post.getId(), persistedPost.getId());
-		
-		assertEquals("Content Negotiation using Spring MVC", persistedPost.getTitle());
-		assertEquals("In this post I want to discuss how to configure and use content", persistedPost.getContent());
-		
-		assertEquals("content-negotiation-using-spring-mvc", persistedPost.getSlug());
+		assertEquals("content-negotiation-using-spring-mvc", postUpdated.getSlug());
 		assertEquals(true, persistedPost.getStatus());
 		
-		assertTrue(persistedPost.getCreatedAt()
+		assertTrue(postUpdated.getCreatedAt()
 				.truncatedTo(ChronoUnit.SECONDS)
 				.isEqual(now
 						.truncatedTo(ChronoUnit.SECONDS)));
 		
-		assertTrue(persistedPost.getUpdatedAt()
+		assertTrue(postUpdated.getUpdatedAt()
 				.truncatedTo(ChronoUnit.SECONDS)
 				.isEqual(now
 						.truncatedTo(ChronoUnit.SECONDS)));
 		
-		assertEquals(1L, persistedPost.getCategory().getId());
-		assertEquals(1L, persistedPost.getUser().getId());				
+		assertEquals(1L, postUpdated.getCategory().getId());
+		assertEquals(1L, postUpdated.getUser().getId());				
 	}
 	
 	@Test
@@ -474,7 +461,7 @@ public class PostControllerYamlTest extends AbstractIntegrationTest{
 	}*/
 	
 	private void mockPost() {
-		post.setId(10L);
+		//post.setId(10L);
 		post.setTitle("Content Negotiation using Spring MVC");
 	    post.setContent("In this post I want to discuss how to configure and use content");
 	    post.setSlug("content-negotiation-using-spring-mvc");
@@ -485,9 +472,9 @@ public class PostControllerYamlTest extends AbstractIntegrationTest{
 	    
 	    Category category = new Category();
 	    category.setId(1L);
-	    category.setName("This is a category");	 
+	    /*category.setName("This is a category");	 
 	    category.setDescription("This is a description a category");
-	    category.setCreatedAt(now);
+	    category.setCreatedAt(now);	  */
 	    
 	    User user = new User();
 	    user.setId(1L);

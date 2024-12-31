@@ -32,7 +32,7 @@ public class YMLMapper implements ObjectMapper{
 	    objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);		
 		
 	    JavaTimeModule javaTimeModule = new JavaTimeModule();
-	    DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	    javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(formatter));
 	    
 	    objectMapper.registerModule(javaTimeModule);

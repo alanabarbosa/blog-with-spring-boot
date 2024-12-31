@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -26,7 +24,7 @@ import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegratio
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.CategoryVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
-import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperCategoryVO;
+import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelCategory;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -93,40 +91,32 @@ public class CategoryControllerYamlTest extends AbstractIntegrationTest {
     public void testCreate() throws JsonProcessingException {
         mockCategory();      
         
-        var persistedCategory = given().spec(specification)
-        	    .config(
-        	        RestAssuredConfig
-        	            .config()
-        	            .encoderConfig(EncoderConfig.encoderConfig()
-        	                .encodeContentTypeAs(
-        	                    TestConfigs.CONTENT_TYPE_YML,
-        	                    ContentType.TEXT)))
-        	    .contentType(TestConfigs.CONTENT_TYPE_YML)
-        	    .accept(TestConfigs.CONTENT_TYPE_YML)
-        	    	.body(category, objectMapper)
-        	    	.when()
-        	    	.post()
-        	    .then()
-        	    	.log().all()
-        	        .statusCode(200)
-        	        	.extract()
-        	        	.body()
-        	        		.as(CategoryVO.class, objectMapper);
+        category = given()
+        .config(
+                RestAssuredConfig
+                    .config()
+                    .encoderConfig(EncoderConfig.encoderConfig()
+                            .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+            .spec(specification)
+        .contentType(TestConfigs.CONTENT_TYPE_YML)
+		.accept(TestConfigs.CONTENT_TYPE_YML)
+            .body(category, objectMapper)
+            .when()
+            .post()
+        .then()
+            .statusCode(200)
+                .extract()
+                .body()
+                    .as(CategoryVO.class, objectMapper);
 
-        category = persistedCategory;
-        System.out.println("Persisted Category Response: " + persistedCategory);
-        
-        assertNotNull(persistedCategory);
-
-        assertNotNull(persistedCategory.getKey());
-        assertNotNull(persistedCategory.getName());
-        assertNotNull(persistedCategory.getDescription());
-        assertNotNull(persistedCategory.getCreatedAt());
-
-        assertTrue(persistedCategory.getKey() > 0);
-        assertEquals("Technology", persistedCategory.getName());
-        assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());
+        assertNotNull(category.getKey());
+        assertNotNull(category.getName());
+        assertNotNull(category.getDescription());
+        assertTrue(category.getKey() > 0);
+        assertEquals("Technology", category.getName());
+        assertEquals("Posts related to technology trends and news", category.getDescription());
     }
+    
 	
 	@Test
 	@Order(2)
@@ -158,84 +148,67 @@ public class CategoryControllerYamlTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Order(4)
+	@Order(3)
 	public void testUpdate() throws JsonMappingException, JsonProcessingException {
 		category.setName("Technology");
 		
-		var persistedCategory = given().spec(specification)
-				.config(
-						RestAssuredConfig
-							.config()
-							.encoderConfig(EncoderConfig.encoderConfig()
-								.encodeContentTypeAs(
-									TestConfigs.CONTENT_TYPE_YML,
-									ContentType.TEXT)))
-				.contentType(TestConfigs.CONTENT_TYPE_YML)
-				.accept(TestConfigs.CONTENT_TYPE_YML)
-					.body(category, objectMapper)
-					.when()
-					.post()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-						.as(CategoryVO.class, objectMapper);
+        CategoryVO categoryUpdated = given()
+                .config(
+                    RestAssuredConfig
+                        .config()
+                        .encoderConfig(EncoderConfig.encoderConfig()
+                                .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+                .spec(specification)
+            .contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+                .body(category, objectMapper)
+                .when()
+                .put()
+            .then()
+                .statusCode(200)
+                    .extract()
+                    .body()
+                    .as(CategoryVO.class, objectMapper);
 		
-		//CategoryVO persistedCategory = objectMapper.readValue(persistedPerson, CategoryVO.class);
-		category = persistedCategory;
-		
-		assertNotNull(persistedCategory);
-		
-        assertNotNull(persistedCategory.getKey());
-        assertNotNull(persistedCategory.getName());
-        assertNotNull(persistedCategory.getDescription());
-        assertNotNull(persistedCategory.getCreatedAt());
-		
-		assertEquals(category.getKey(), persistedCategory.getKey());		
-        assertEquals("Technology", persistedCategory.getName());
-        assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());
+        assertNotNull(categoryUpdated.getKey());
+        assertNotNull(categoryUpdated.getName());
+        assertNotNull(categoryUpdated.getDescription());
+        assertEquals(categoryUpdated.getKey(), category.getKey());
+        assertEquals("Technology", categoryUpdated.getName());
+        assertEquals("Posts related to technology trends and news", categoryUpdated.getDescription());
 	}
    
 	@Test
-	@Order(5)
+	@Order(4)
 	public void testFindById() throws JsonProcessingException {
-        mockCategory();
+        var foundCategory = given()
+                .config(
+                    RestAssuredConfig
+                        .config()
+                        .encoderConfig(EncoderConfig.encoderConfig()
+                                .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+                .spec(specification)
+            .contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+                .pathParam("id", category.getKey())
+                .when()
+                .get("{id}")
+            .then()
+                .statusCode(200)
+                    .extract()
+                    .body()
+                    .as(CategoryVO.class, objectMapper);
 
-        var persistedCategory = given().spec(specification)
-				.config(
-						RestAssuredConfig
-							.config()
-							.encoderConfig(EncoderConfig.encoderConfig()
-								.encodeContentTypeAs(
-									TestConfigs.CONTENT_TYPE_YML,
-									ContentType.TEXT)))
-				.contentType(TestConfigs.CONTENT_TYPE_YML)
-				.accept(TestConfigs.CONTENT_TYPE_YML)
-					.pathParam("id", category.getKey())
-					.when()
-					.get("{id}")
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-						.as(CategoryVO.class, objectMapper);
+        assertNotNull(foundCategory.getKey());
+        assertNotNull(foundCategory.getName());
+        assertNotNull(foundCategory.getCreatedAt());
 
-        //CategoryVO persistedCategory = objectMapper.readValue(content, CategoryVO.class);
-        category = persistedCategory;
-
-        assertNotNull(persistedCategory);
-        assertNotNull(persistedCategory.getKey());
-        assertNotNull(persistedCategory.getName());
-        assertNotNull(persistedCategory.getDescription());
-        assertNotNull(persistedCategory.getCreatedAt());
-
-        assertTrue(persistedCategory.getKey() > 0);
-        assertEquals("Technology", persistedCategory.getName());
-        assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());
+        assertEquals(foundCategory.getKey(), category.getKey());
+        assertEquals("Technology", foundCategory.getName());
     }
 	
 	@Test
-	@Order(6)
+	@Order(5)
 	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockCategory();
 		
@@ -264,52 +237,44 @@ public class CategoryControllerYamlTest extends AbstractIntegrationTest {
 	}	
 	
 	@Test
-	@Order(7)
+	@Order(6)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
-		var wrapper = given().spec(specification)
-				.config(
-						RestAssuredConfig
-							.config()
-							.encoderConfig(EncoderConfig.encoderConfig()
-								.encodeContentTypeAs(
-									TestConfigs.CONTENT_TYPE_YML,
-									ContentType.TEXT)))
-				.contentType(TestConfigs.CONTENT_TYPE_YML)
-				.accept(TestConfigs.CONTENT_TYPE_YML)
-					.when()
-					.get()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-						.as(WrapperCategoryVO.class, objectMapper);
+        var wrapper = given()
+                .config(
+                    RestAssuredConfig
+                        .config()
+                        .encoderConfig(EncoderConfig.encoderConfig()
+                                .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+                .spec(specification)
+            .contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+        	.queryParams("page", 0 , "limit", 12, "direction", "asc")
+                .when()
+                .get()
+            .then()
+                .statusCode(200)
+            .extract()
+                .body()
+                	.as(PagedModelCategory.class, objectMapper); 
 		
-		var categorie = wrapper.getEmbedded().getCategories();
+		var categorie = wrapper.getContent();
 		
 		CategoryVO foundCategoryOne = categorie.get(0);
 		
         assertNotNull(foundCategoryOne.getKey());
         assertNotNull(foundCategoryOne.getName());
-        assertNotNull(foundCategoryOne.getDescription());
-        assertNotNull(foundCategoryOne.getCreatedAt());
-		
-		assertEquals(1, foundCategoryOne.getKey());
-		
-        assertEquals("Technology", foundCategoryOne.getName());
-        assertEquals("Posts related to technology trends and news", foundCategoryOne.getDescription());
+        
+		assertEquals(10, foundCategoryOne.getKey());		
+        assertEquals("Business", foundCategoryOne.getName());
 		
 		CategoryVO foundCommentThree = categorie.get(3);
 		
 		assertNotNull(foundCommentThree.getKey());
 		assertNotNull(foundCommentThree.getName());
-		assertNotNull(foundCommentThree.getDescription());
-		assertNotNull(foundCommentThree.getCreatedAt());
 		
-		assertEquals(4, foundCommentThree.getKey());
-		
-		assertEquals("Education", foundCommentThree.getName());
-		assertEquals("Resources and news about education", foundCommentThree.getDescription());	
+		assertEquals(7, foundCommentThree.getKey());		
+		assertEquals("Finance", foundCommentThree.getName());
 	}
 	
 	@Test

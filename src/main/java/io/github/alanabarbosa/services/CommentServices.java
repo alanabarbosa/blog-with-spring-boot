@@ -147,6 +147,7 @@ public class CommentServices {
     }    
 	
 	public CommentVO create(CommentVO comment) throws Exception {
+		logger.info("Creating one comment!");
 	    if (comment == null) throw new RequiredObjectIsNullException();
 	    
 	    var entity = DozerMapper.parseObject(comment, Comment.class);

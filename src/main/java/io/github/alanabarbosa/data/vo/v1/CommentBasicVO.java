@@ -25,13 +25,13 @@ public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implemen
 	@JsonProperty("id")
     private Long key;
     private String content;
+    private UserResponseVO user;
 
     public CommentBasicVO() {}
 
     public CommentBasicVO(Long key, String content, LocalDateTime createdAt) {
         this.key = key;
         this.content = content;
-       // this.createdAt = createdAt;
     }
     
 	public Long getKey() {
@@ -66,11 +66,19 @@ public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implemen
 		this.status = status;
 	}*/
 
+	public UserResponseVO getUser() {
+		return user;
+	}
+
+	public void setUser(UserResponseVO user) {
+		this.user = user;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(content, key);
+		result = prime * result + Objects.hash(content, key, user);
 		return result;
 	}
 
@@ -83,6 +91,7 @@ public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implemen
 		if (getClass() != obj.getClass())
 			return false;
 		CommentBasicVO other = (CommentBasicVO) obj;
-		return Objects.equals(content, other.content) && Objects.equals(key, other.key);
+		return Objects.equals(content, other.content) && Objects.equals(key, other.key)
+				&& Objects.equals(user, other.user);
 	}
 }

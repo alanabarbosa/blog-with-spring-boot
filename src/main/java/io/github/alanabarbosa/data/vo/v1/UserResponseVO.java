@@ -7,7 +7,6 @@ import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -18,6 +17,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "first_name", "last_name","user_name", "bio", "created_at", "enabled", "roles"})
@@ -47,18 +47,19 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
     @JsonProperty("enabled")
     private Boolean enabled;
 
-    @OneToOne
-    @JoinColumn(name = "file_id")
     private File file;
-    
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<CommentBasicVO> comments;
-    
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<PostBasicVO> posts;
 
     public UserResponseVO() {}
     
+    @PrePersist
+    protected void onCreate() {
+        if (enabled == null) {
+            enabled = true; 
+        }
+    }
+
 	public Long getKey() {
 		return key;
 	}
@@ -162,5 +163,5 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
 				&& Objects.equals(file, other.file) && Objects.equals(firstName, other.firstName)
 				&& Objects.equals(key, other.key) && Objects.equals(lastName, other.lastName)
 				&& Objects.equals(posts, other.posts) && Objects.equals(userName, other.userName);
-	} 
+	}
 }

@@ -20,7 +20,5 @@ public class DozerMapper {
 			destinationObjects.add(mapper.map(o, destination));			
 		}
 		return destinationObjects;
-	}
-	
-	
+	}	
 }

@@ -96,8 +96,8 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 	public void testCreate() throws JsonMappingException, JsonProcessingException {
 		mockUser();
 		
-		objectMapper.registerModule(new JavaTimeModule());
-	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		//objectMapper.registerModule(new JavaTimeModule());
+	    //objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_XML)
@@ -113,37 +113,37 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 						.body()
 							.asString();
 		
-		UserVO persistedUser = objectMapper.readValue(content, UserVO.class);
+		user = objectMapper.readValue(content, UserVO.class);
 		
-		user = persistedUser;
+		//user = persistedUser;
 		
-		assertNotNull(persistedUser);
+		//assertNotNull(persistedUser);
 		
-		assertNotNull(persistedUser.getKey());
-		assertNotNull(persistedUser.getFirstName());
-		assertNotNull(persistedUser.getLastName());
-		assertNotNull(persistedUser.getUserName());
-		assertNotNull(persistedUser.getBio());
-		assertNotNull(persistedUser.getPassword());
-		assertNotNull(persistedUser.getAccountNonExpired());
-		assertNotNull(persistedUser.getAccountNonLocked());
-		assertNotNull(persistedUser.getCredentialsNonExpired());
-		assertNotNull(persistedUser.getEnabled());
+		assertNotNull(user.getKey());
+		assertNotNull(user.getFirstName());
+		assertNotNull(user.getLastName());
+		assertNotNull(user.getUserName());
+		assertNotNull(user.getBio());
+		assertNotNull(user.getPassword());
+		assertNotNull(user.getAccountNonExpired());
+		assertNotNull(user.getAccountNonLocked());
+		assertNotNull(user.getCredentialsNonExpired());
+		assertNotNull(user.getEnabled());
 		//assertNotNull(persistedUser.getCreatedAt());
-		assertNotNull(persistedUser.getRoles());
+		assertNotNull(user.getRoles());
 		
-		assertTrue(persistedUser.getKey() > 0);
-		assertEquals(true, persistedUser.getLinks().stream().anyMatch(link -> link.getRel().equals("self")));
-		assertEquals("Son", persistedUser.getFirstName());
-		assertEquals("Goku", persistedUser.getLastName());
-		assertEquals("songoku", persistedUser.getUserName());
-		assertEquals("This is a biograph", persistedUser.getBio());
+		assertTrue(user.getKey() > 0);
+		assertEquals(true, user.getLinks().stream().anyMatch(link -> link.getRel().equals("self")));
+		assertEquals("Son", user.getFirstName());
+		assertEquals("Goku", user.getLastName());
+		assertEquals("songoku", user.getUserName());
+		assertEquals("This is a biograph", user.getBio());
 		
-		assertNull(persistedUser.getFile());
-		assertEquals(true, persistedUser.getAccountNonExpired());
-		assertEquals(true, persistedUser.getAccountNonLocked());
-		assertEquals(true, persistedUser.getCredentialsNonExpired());
-		assertEquals(true, persistedUser.getEnabled());
+		assertNull(user.getFile());
+		assertEquals(true, user.getAccountNonExpired());
+		assertEquals(true, user.getAccountNonLocked());
+		assertEquals(true, user.getCredentialsNonExpired());
+		assertEquals(true, user.getEnabled());
 	}
 	/*
 	@Test

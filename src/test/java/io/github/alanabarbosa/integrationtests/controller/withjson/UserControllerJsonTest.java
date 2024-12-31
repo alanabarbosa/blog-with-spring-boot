@@ -331,6 +331,36 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(7)
+	public void testFindByName() throws JsonMappingException, JsonProcessingException {
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
+				.pathParam("firstName", "alana")
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("findUserByName/{firstName}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		WrapperUserVO wrapper = objectMapper
+				.readValue(content, WrapperUserVO.class);
+		
+		var user = wrapper.getEmbedded().getUsers();
+		
+		UserVO founUserOne = user.get(0);
+		
+		assertNotNull(founUserOne.getKey());
+		assertNotNull(founUserOne.getFirstName());		
+		assertEquals(1, founUserOne.getKey());		
+		assertEquals("Alana", founUserOne.getFirstName());
+	}
+	
+	@Test
+	@Order(8)
 	public void testDisableUserById() throws JsonMappingException, JsonProcessingException {
 			
 		var content = given().spec(specification)

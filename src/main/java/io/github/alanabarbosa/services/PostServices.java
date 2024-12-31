@@ -33,11 +33,14 @@ import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.Comment;
 import io.github.alanabarbosa.model.Post;
 import io.github.alanabarbosa.model.User;
+import io.github.alanabarbosa.repositories.CategoryRepository;
 import io.github.alanabarbosa.repositories.CommentRepository;
 import io.github.alanabarbosa.repositories.PostRepository;
+import io.github.alanabarbosa.repositories.UserRepository;
 import io.github.alanabarbosa.util.ConvertToVO;
 import io.github.alanabarbosa.util.HateoasUtils;
 import io.github.alanabarbosa.util.NormalizeSlug;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -50,6 +53,12 @@ public class PostServices {
 	
     @Autowired
     CommentRepository commentRepository;
+	
+    @Autowired
+    UserRepository userRepository;
+	
+    @Autowired
+    CategoryRepository categoryRepository;
     
 	@Autowired
 	PagedResourcesAssembler<PostResponseBasicVO> assembler;
@@ -89,10 +98,13 @@ public class PostServices {
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this Id"));
         
         var vo = DozerMapper.parseObject(entity, PostResponseVO.class);
+        
+        if (vo == null) {
+            throw new Exception("Mapping failed: Could not map Post entity to PostResponseVO");
+        }
                 
         List<Comment> comments = commentRepository.findByPostId(id);
-        List<CommentBasicVO> commentVOs = ConvertToVO
-        		.processEntities(id, comments, CommentBasicVO.class, "Error while processing comments for post");
+        List<CommentBasicVO> commentVOs = DozerMapper.parseListObjects(comments, CommentBasicVO.class);
         vo.setComments(commentVOs);
         
         vo.add(linkTo(methodOn(PostController.class).findById(id)).withRel("post-details"));
@@ -127,7 +139,7 @@ public class PostServices {
     	    .collect(Collectors.toList());    
     }*/
     
-   public PagedModel<EntityModel<PostResponseBasicVO>> findPostsByUserId(Long userId, Pageable pageable) {
+    public PagedModel<EntityModel<PostResponseBasicVO>> findPostsByUserId(Long userId, Pageable pageable) {
         logger.info("Finding posts for user id!");  
 
         var postsPage = repository.findPostsByUserIdPage(userId, pageable);
@@ -186,41 +198,56 @@ public class PostServices {
         return assembler.toModel(postsVosPage, link);
     }  
     
-	public PostVO create(PostVO post) throws Exception {		
-		logger.info("Creating one post!");
-		
-		if (post == null) throw new RequiredObjectIsNullException();
-		if (post != null) post.setCreatedAt(LocalDateTime.now());
-		
-	    if (post.getImageDesktop() != null && post.getImageDesktop().getId() == null) {
-	        post.setImageDesktop(null);
-	    }
-	    
-	    if (post.getImageMobile() != null && post.getImageMobile().getId() == null) {
-	        post.setImageMobile(null);
-	    }
-	    
-	    if (post.getCategory() != null && post.getCategory().getKey() == null) {
-	        throw new IllegalArgumentException("Category ID cannot be null");
-	    }
-		
-		var entity = DozerMapper.parseObject(post, Post.class);		
-		
-		if (entity.getStatus()) entity.setPublishedAt(LocalDateTime.now());
-		else entity.setPublishedAt(null);
-		
-	    var slugFormatted = NormalizeSlug.normalizeString(entity.getTitle());	    
-	    if (!slugFormatted.isEmpty()) entity.setSlug(slugFormatted);
-		
-	    var savedPost = repository.save(entity);		
-		var vo =  DozerMapper.parseObject(savedPost, PostVO.class);
-	    vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withSelfRel());
-	    vo.add(linkTo(methodOn(CommentController.class)
-	    		.findCommentsByPostId(vo.getKey(), 0, 12, "asc")).withRel("comments-details"));
-	    
-	    return vo;
-	}
-	
+    public PostVO create(PostVO post) throws Exception {
+        logger.info("Creating one post!");
+
+        if (post == null) throw new RequiredObjectIsNullException();
+        
+        if (post != null) post.setCreatedAt(LocalDateTime.now());
+
+        if (post.getImageDesktop() != null && post.getImageDesktop().getId() == null) {
+            post.setImageDesktop(null);
+        }
+
+        if (post.getImageMobile() != null && post.getImageMobile().getId() == null) {
+            post.setImageMobile(null);
+        }
+
+        User user = userRepository.findById(post.getUser().getKey())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        Category category = categoryRepository.findById(post.getCategory().getKey())
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+        Post entity = DozerMapper.parseObject(post, Post.class);
+
+        entity.setUser(user);
+        entity.setCategory(category);
+
+        if (entity.getStatus()) entity.setPublishedAt(LocalDateTime.now());
+        else entity.setPublishedAt(null);
+
+        String slugFormatted = NormalizeSlug.normalizeString(entity.getTitle());
+        if (!slugFormatted.isEmpty()) entity.setSlug(slugFormatted);
+
+        Post savedPost = repository.save(entity);
+
+        if (savedPost == null) {
+            throw new Exception("Failed to save post entity.");
+        }
+
+        PostVO vo = DozerMapper.parseObject(savedPost, PostVO.class);
+
+        if (vo != null && vo.getKey() != null) {
+            vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withRel("posts-details"));
+        } else {
+            logger.info("PostVO or PostVO key is null after saving post.");
+            throw new Exception("Failed to create PostVO from saved entity.");
+        }
+
+        return vo;
+    }
+
 	public PostVO update(PostVO post) throws Exception {
 		logger.info("Updating one post!");
 		
@@ -260,7 +287,20 @@ public class PostServices {
 	    entity.setImageMobile(post.getImageMobile());
 	    
 	    var updatedPost = repository.save(entity);
-	    var vo = DozerMapper.parseObject(repository.save(updatedPost), PostVO.class);
+	    
+        if (updatedPost == null) {
+            throw new Exception("Failed to updated post entity.");
+        }
+
+        PostVO vo = DozerMapper.parseObject(updatedPost, PostVO.class);
+
+        if (vo != null && vo.getKey() != null) {
+            vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withRel("posts-details"));
+        } else {
+            logger.info("PostVO or PostVO key is null after saving post.");
+            throw new Exception("Failed to create PostVO from saved entity.");
+        }
+	   // var vo = DozerMapper.parseObject(repository.save(updatedPost), PostVO.class);
 	    
 	    vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withSelfRel());
 	    vo.add(linkTo(methodOn(CommentController.class)

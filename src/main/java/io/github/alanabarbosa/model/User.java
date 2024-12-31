@@ -25,6 +25,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -97,7 +98,7 @@ public class User implements UserDetails, Serializable {
     
     public User() {}
     
-   /*@PrePersist
+    @PrePersist
     protected void onCreate() {
         if (accountNonExpired == null) {
             accountNonExpired = true;
@@ -111,7 +112,7 @@ public class User implements UserDetails, Serializable {
         if (enabled == null) {
             enabled = true; 
         }
-    } */
+    }
     
     public List<String> getPermissions() {
     	List<String> permissions = new ArrayList<>();
@@ -148,12 +149,12 @@ public class User implements UserDetails, Serializable {
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return this.credentialsNonExpired;
+		return this.enabled != null ? this.enabled : Boolean.FALSE;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return this.enabled;
+		return true;
 	}
 
 	public Long getId() {
@@ -189,7 +190,7 @@ public class User implements UserDetails, Serializable {
 	}
 
 	public Boolean getAccountNonExpired() {
-		return accountNonExpired = true; 
+		return accountNonExpired; 
 	}
 
 	public void setAccountNonExpired(Boolean accountNonExpired) {
@@ -197,7 +198,7 @@ public class User implements UserDetails, Serializable {
 	}
 
 	public Boolean getAccountNonLocked() {
-		return accountNonLocked = true;
+		return accountNonLocked;
 	}
 
 	public void setAccountNonLocked(Boolean accountNonLocked) {
@@ -205,7 +206,7 @@ public class User implements UserDetails, Serializable {
 	}
 
 	public Boolean getCredentialsNonExpired() {
-		return credentialsNonExpired = true;
+		return credentialsNonExpired;
 	}
 
 	public void setCredentialsNonExpired(Boolean credentialsNonExpired) {

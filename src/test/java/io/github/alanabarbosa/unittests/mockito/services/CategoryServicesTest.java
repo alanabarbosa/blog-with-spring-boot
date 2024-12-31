@@ -68,7 +68,7 @@ class CategoryServicesTest {
 		assertEquals("Este é um name.0", result.getName());
 	}
 
-	/*@Test
+	@Test
 	void testFindAll() {
 		List<Category> list = input.mockEntityList();
 		
@@ -100,7 +100,7 @@ class CategoryServicesTest {
 		assertTrue(categorySeven.toString().contains("[</api/category/v1/7>;rel=\"category-details\"]"));
 		assertEquals("Este é um name.7", categorySeven.getName());
 	}
-*/
+
 	@Test
 	void testCreate() throws Exception {
 	    Category entity = input.mockEntity(1); 

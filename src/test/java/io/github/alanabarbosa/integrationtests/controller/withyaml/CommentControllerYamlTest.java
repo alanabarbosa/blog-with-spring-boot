@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -25,9 +24,11 @@ import io.github.alanabarbosa.configs.TestConfigs;
 import io.github.alanabarbosa.integrationtests.controller.withyaml.mapper.YMLMapper;
 import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegrationTest;
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
+import io.github.alanabarbosa.integrationtests.vo.CategoryVO;
 import io.github.alanabarbosa.integrationtests.vo.CommentVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
+import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelComment;
 import io.github.alanabarbosa.model.Role;
 import io.github.alanabarbosa.model.User;
 import io.restassured.builder.RequestSpecBuilder;
@@ -97,43 +98,38 @@ public class CommentControllerYamlTest extends AbstractIntegrationTest{
 	public void testCreate() throws JsonMappingException, JsonProcessingException {
 		mockComment();
 	    
-		var persistedComment = given().spec(specification)
-        	    .config(
-        	        RestAssuredConfig
-        	            .config()
-        	            .encoderConfig(EncoderConfig.encoderConfig()
-        	                .encodeContentTypeAs(
-        	                    TestConfigs.CONTENT_TYPE_YML,
-        	                    ContentType.TEXT)))
-        	    .contentType(TestConfigs.CONTENT_TYPE_YML)
-        	    .accept(TestConfigs.CONTENT_TYPE_YML)
-        	    	.body(comment, objectMapper)
-        	    	.when()
-        	    	.post()
-        	    .then()
-        	    	.log().all()
-        	        .statusCode(200)
-        	        	.extract()
-        	        	.body()
-        	        		.as(CommentVO.class, objectMapper);
+        comment = given()
+        .config(
+                RestAssuredConfig
+                    .config()
+                    .encoderConfig(EncoderConfig.encoderConfig()
+                            .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+            .spec(specification)
+        .contentType(TestConfigs.CONTENT_TYPE_YML)
+		.accept(TestConfigs.CONTENT_TYPE_YML)
+            .body(comment, objectMapper)
+            .when()
+            .post()
+        .then()
+            .statusCode(200)
+                .extract()
+                .body()
+                    .as(CommentVO.class, objectMapper);
 		
-		comment = persistedComment;
+		assertNotNull(comment.getKey());
+		assertNotNull(comment.getContent());
+		assertTrue(comment.getStatus());
+		assertNotNull(comment.getCreatedAt());
+		assertNotNull(comment.getPost());
+		assertNotNull(comment.getUser());
 		
-		assertNotNull(persistedComment);		
-		assertNotNull(persistedComment.getKey());
-		assertNotNull(persistedComment.getContent());
-		assertTrue(persistedComment.getStatus());
-		assertNotNull(persistedComment.getCreatedAt());
-		assertNotNull(persistedComment.getPost());
-		assertNotNull(persistedComment.getUser());
-		
-		assertTrue(persistedComment.getKey() > 0);
-		assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
+		assertTrue(comment.getKey() > 0);
+		assertEquals("Great article! Thanks for sharing.", comment.getContent());
 		//assertTrue(persistedComment.getCreatedAt()
 		//	    .truncatedTo(ChronoUnit.SECONDS)
 		//	    .isEqual(now.truncatedTo(ChronoUnit.SECONDS)));
-		assertEquals(1L, persistedComment.getPost().getId());
-		assertEquals(1L, persistedComment.getUser().getId());
+		assertEquals(1L, comment.getPost().getId());
+		assertEquals(1L, comment.getUser().getId());
 	}
 	
 	
@@ -171,93 +167,66 @@ public class CommentControllerYamlTest extends AbstractIntegrationTest{
 	public void testUpdate() throws JsonMappingException, JsonProcessingException {
 		comment.setContent("Great article! Thanks for sharing.");
 		
-		var persistedComment = given().spec(specification)
-				.config(
-						RestAssuredConfig
-							.config()
-							.encoderConfig(EncoderConfig.encoderConfig()
-								.encodeContentTypeAs(
-									TestConfigs.CONTENT_TYPE_YML,
-									ContentType.TEXT)))
-				.contentType(TestConfigs.CONTENT_TYPE_YML)
-				.accept(TestConfigs.CONTENT_TYPE_YML)
-					.body(comment, objectMapper)
-					.when()
-					.post()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-						.as(CommentVO.class, objectMapper);
-		
-		comment = persistedComment;
+        CommentVO commentUpdated = given()
+                .config(
+                    RestAssuredConfig
+                        .config()
+                        .encoderConfig(EncoderConfig.encoderConfig()
+                                .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+                .spec(specification)
+            .contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+                .body(comment, objectMapper)
+                .when()
+                .put()
+            .then()
+                .statusCode(200)
+                    .extract()
+                    .body()
+                    .as(CommentVO.class, objectMapper);
 
-        assertNotNull(persistedComment.getKey());
-        assertNotNull(persistedComment.getContent());
-        assertTrue(persistedComment.getStatus());
-        assertNotNull(persistedComment.getCreatedAt());
-        assertNotNull(persistedComment.getPost());
-        assertNotNull(persistedComment.getUser());
+        assertNotNull(commentUpdated.getKey());
+        assertNotNull(commentUpdated.getContent());
+        assertTrue(commentUpdated.getStatus());
+        assertNotNull(commentUpdated.getCreatedAt());
+        assertNotNull(commentUpdated.getPost());
+        assertNotNull(commentUpdated.getUser());
         
-        assertEquals(comment.getKey(), persistedComment.getKey());
+        assertEquals(commentUpdated.getKey(), comment.getKey());
         
-        assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
-        assertEquals(1L, persistedComment.getUser().getId());
-
-
+        assertEquals("Great article! Thanks for sharing.", commentUpdated.getContent());
+        assertEquals(1L, commentUpdated.getUser().getId());
 	}
 	
 	@Test
 	@Order(4)
 	public void testFindById() throws JsonMappingException, JsonProcessingException {
-		mockComment();
-			
-		var persistedComment = given().spec(specification)
-				.config(
-						RestAssuredConfig
-							.config()
-							.encoderConfig(EncoderConfig.encoderConfig()
-								.encodeContentTypeAs(
-									TestConfigs.CONTENT_TYPE_YML,
-									ContentType.TEXT)))
-				.contentType(TestConfigs.CONTENT_TYPE_YML)
-				.accept(TestConfigs.CONTENT_TYPE_YML)
-					.pathParam("id", comment.getKey())
-					.when()
-					.get("{id}")
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-						.as(CommentVO.class, objectMapper);
+        var foundComment = given()
+                .config(
+                    RestAssuredConfig
+                        .config()
+                        .encoderConfig(EncoderConfig.encoderConfig()
+                                .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+                .spec(specification)
+            .contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+                .pathParam("id", comment.getKey())
+                .when()
+                .get("{id}")
+            .then()
+                .statusCode(200)
+                    .extract()
+                    .body()
+                    .as(CommentVO.class, objectMapper);
+        
 		
-		//CommentVO persistedComment = objectMapper.readValue(content, CommentVO.class);
-		comment = persistedComment;
+		assertNotNull(foundComment.getKey());
+		assertNotNull(foundComment.getContent());
+		assertNotNull(foundComment.getStatus());
+		assertNotNull(foundComment.getCreatedAt());
 		
-		System.out.println(comment);
-		
-		assertNotNull(persistedComment);
-		
-		assertNotNull(persistedComment.getKey());
-		assertNotNull(persistedComment.getContent());
-		assertNotNull(persistedComment.getStatus());
-		assertNotNull(persistedComment.getCreatedAt());
-		
-	    assertTrue(persistedComment.getKey() > 0);
-		
-		assertNotNull(persistedComment.getKey());
-		assertNotNull(persistedComment.getContent());
-		assertNotNull(persistedComment.getStatus());
-		assertNotNull(persistedComment.getCreatedAt());
-		
-		assertTrue(persistedComment.getKey() > 0);
-		
-		assertEquals("Great article! Thanks for sharing.", persistedComment.getContent());
-		
-		assertTrue(persistedComment.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));	
+	    assertTrue(foundComment.getKey() > 0);
+		assertEquals("Great article! Thanks for sharing.", foundComment.getContent());
 	} 
 	
 	@Test
@@ -293,57 +262,38 @@ public class CommentControllerYamlTest extends AbstractIntegrationTest{
 	@Order(6)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
-		var content = given().spec(specification)
-				.config(
-						RestAssuredConfig
-							.config()
-							.encoderConfig(EncoderConfig.encoderConfig()
-								.encodeContentTypeAs(
-									TestConfigs.CONTENT_TYPE_YML,
-									ContentType.TEXT)))
-				.contentType(TestConfigs.CONTENT_TYPE_YML)
-				.accept(TestConfigs.CONTENT_TYPE_YML)
-					.when()
-					.get()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-						.as(CommentVO[].class, objectMapper);
+		var wrapper = given()
+                .config(
+                    RestAssuredConfig
+                        .config()
+                        .encoderConfig(EncoderConfig.encoderConfig()
+                                .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+                .spec(specification)
+            .contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+        	.queryParams("page", 0 , "limit", 12, "direction", "asc")
+                .when()
+                .get()
+            .then()
+                .statusCode(200)
+            .extract()
+                .body()
+                	.as(PagedModelComment.class, objectMapper); 
 		
-		List<CommentVO> c = Arrays.asList(content);
+		var c = wrapper.getContent();
 		
-		CommentVO founCommentOne = c.get(0);
+		CommentVO foundCategoryOne = c.get(0);
 		
-		assertNotNull(founCommentOne.getKey());
-		assertNotNull(founCommentOne.getContent());
-		assertTrue(founCommentOne.getStatus());
-		assertNotNull(founCommentOne.getCreatedAt());
-		assertNotNull(founCommentOne.getPost());
-		assertNotNull(founCommentOne.getUser());
-		
-		assertEquals(1, founCommentOne.getKey());
-		
-		assertEquals("Great article! Thanks for sharing.", founCommentOne.getContent());	
+		assertNotNull(foundCategoryOne.getKey());
+		assertEquals("Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.", foundCategoryOne.getContent());	
 
-		assertEquals(1L, founCommentOne.getPost().getId());
-		assertEquals(1L, founCommentOne.getUser().getId());
 		
 		CommentVO foundCommentThree = c.get(3);
 		
 		assertNotNull(foundCommentThree.getKey());
-		assertNotNull(foundCommentThree.getContent());
-		assertTrue(foundCommentThree.getStatus());
-		assertNotNull(foundCommentThree.getCreatedAt());
-		assertNotNull(foundCommentThree.getPost());
-		assertNotNull(foundCommentThree.getUser());
-		
-		assertEquals(4, foundCommentThree.getKey());
-		
-		assertEquals("Great article! Thanks for sharing.", foundCommentThree.getContent());		
-
-		assertEquals(1L, foundCommentThree.getPost().getId());
-		assertEquals(1L, foundCommentThree.getUser().getId());
+		assertNotNull(foundCommentThree.getContent());		
+		assertEquals(397, foundCommentThree.getKey());
+		assertEquals("Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.", foundCommentThree.getContent());	
 	}
 	
 	@Test

@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CategoryController;
 import io.github.alanabarbosa.controllers.PostController;
-import io.github.alanabarbosa.data.vo.v1.CategoryBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
@@ -161,5 +160,4 @@ public class CategoryServices {
 		
 		repository.delete(entity);
 	}
-
 }

@@ -48,25 +48,14 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
     @JsonProperty("status")
     private Boolean status;
     
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    @Mapping("user")
     private UserBasicVO user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id")
-    @Mapping("category")
     private CategoryBasicVO category;
     
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "image_desktop_id", nullable = true)
     private File imageDesktop;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "image_mobile_id", nullable = true)
     private File imageMobile;
     
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY) 
     private List<CommentBasicVO> comments;
 
     public PostResponseVO() {}

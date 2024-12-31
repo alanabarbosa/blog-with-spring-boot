@@ -10,6 +10,7 @@ import io.github.alanabarbosa.controllers.CommentController;
 import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CommentBasicVO2;
+import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
 import jakarta.transaction.Transactional;
@@ -43,6 +44,15 @@ public class HateoasUtils {
                   .severe("Error adding HATEOAS link for " + rel + ": " + e.getMessage());
         }
     }
+    
+    public static void addLink(CommentResponseVO entity, Long id, String rel) {
+        try {
+            entity.add(linkTo(methodOn(CommentController.class).findById(id)).withRel(rel));
+        } catch (Exception e) {
+            Logger.getLogger(HateoasUtils.class.getName())
+                  .severe("Error adding HATEOAS link for " + rel + ": " + e.getMessage());
+        }
+    }
 
     public static void addLink(PostBasicVO entity, Long id, String rel) {
         try {
@@ -69,6 +79,11 @@ public class HateoasUtils {
     }
     
     public static void addCommentLinksSimple(List<CommentVO> comments) {
+        comments.forEach(comment -> 
+            addLink(comment, comment.getKey(), "comments-details"));
+    }
+    
+    public static void addCommentLinksResponse(List<CommentResponseVO> comments) {
         comments.forEach(comment -> 
             addLink(comment, comment.getKey(), "comments-details"));
     }

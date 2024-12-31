@@ -39,7 +39,6 @@ import io.github.alanabarbosa.repositories.CommentRepository;
 import io.github.alanabarbosa.repositories.PostRepository;
 import io.github.alanabarbosa.repositories.RoleRepository;
 import io.github.alanabarbosa.repositories.UserRepository;
-import io.github.alanabarbosa.util.ConvertToVO;
 import io.github.alanabarbosa.util.HateoasUtils;
 import io.github.alanabarbosa.util.PasswordUtil;
 import jakarta.transaction.Transactional;
@@ -131,20 +130,21 @@ public class UserServices implements UserDetailsService {
 		logger.info("Finding one user!");	
 		
 	    var entity = repository.findById(id)
-	    		.orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
+	    		.orElseThrow(() -> new ResourceNotFoundException("No records found for this Id"));
 	    
 	    var vo = DozerMapper.parseObject(entity, UserResponseVO.class);	
 	    
 	    List<Post> posts = postRepository.findPostsByUserId(id);
-	    List<PostBasicVO> postVOs = ConvertToVO
-	    		.processEntities(id, posts, PostBasicVO.class, "Error while processing posts for user");
-	    vo.setPosts(postVOs);
-	    
-        List<Comment> comments = commentRepository.findByPostId(id);
-        List<CommentBasicVO> commentVOs = ConvertToVO
-        		.processEntities(id, comments, CommentBasicVO.class, "Error while processing comments for user");
+        List<PostBasicVO> postVOs = DozerMapper.parseListObjects(posts, PostBasicVO.class);
+        vo.setPosts(postVOs);
+        
+        List<Comment> comments = commentRepository.findCommentsByUserId(id);
+        List<CommentBasicVO> commentVOs = DozerMapper.parseListObjects(comments, CommentBasicVO.class);
         vo.setComments(commentVOs);
+        
+        System.out.println("commentVOs:" + commentVOs);
 	    
+	    //HateoasUtils.addCommentLinks2(vo.getComments());
 	    //HateoasUtils.addCommentLinks(vo.getComments());
 	    HateoasUtils.addPostLinks(vo.getPosts());
 	    

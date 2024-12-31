@@ -2,7 +2,6 @@ package io.github.alanabarbosa.data.vo.v1;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
@@ -17,7 +16,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -47,14 +45,8 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
     @JsonProperty("status")
     private Boolean status;
     
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    @Mapping("user")
     private UserResponseVO user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id")
-    @Mapping("category")
     private CategoryVO category;
     
     @ManyToOne(fetch = FetchType.EAGER)

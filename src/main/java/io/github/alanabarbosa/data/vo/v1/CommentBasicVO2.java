@@ -25,6 +25,8 @@ public class CommentBasicVO2 extends RepresentationModel<CommentBasicVO2> implem
 	@JsonProperty("id")
     private Long key;
     private String content;
+    
+    private UserResponseVO user;    
 
     public CommentBasicVO2() {}
 
@@ -66,11 +68,19 @@ public class CommentBasicVO2 extends RepresentationModel<CommentBasicVO2> implem
 		this.status = status;
 	}*/
 
+	public UserResponseVO getUser() {
+		return user;
+	}
+
+	public void setUser(UserResponseVO user) {
+		this.user = user;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(content, key);
+		result = prime * result + Objects.hash(content, key, user);
 		return result;
 	}
 
@@ -83,6 +93,7 @@ public class CommentBasicVO2 extends RepresentationModel<CommentBasicVO2> implem
 		if (getClass() != obj.getClass())
 			return false;
 		CommentBasicVO2 other = (CommentBasicVO2) obj;
-		return Objects.equals(content, other.content) && Objects.equals(key, other.key);
+		return Objects.equals(content, other.content) && Objects.equals(key, other.key)
+				&& Objects.equals(user, other.user);
 	}
 }
