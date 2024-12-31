@@ -16,9 +16,10 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "title"})
-public class PostBasicVO extends RepresentationModel<PostBasicVO> implements Serializable {
+public class PostResponseBasicVO2 extends RepresentationModel<PostResponseBasicVO2> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -31,19 +32,19 @@ public class PostBasicVO extends RepresentationModel<PostBasicVO> implements Ser
     @JoinColumn(name = "user_id", nullable = false)
     @Mapping("user")
     @JsonIgnore
-    private UserBasicVO user;
+    private UserResponseBasicVO user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     @Mapping("category")
     @JsonIgnore
-    private CategoryBasicVO category;
+    private CategoryResponseBasicVO category;
     
     @OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
     @JsonIgnore
     private List<CommentBasicVO> comments;
 
-    public PostBasicVO() {}
+    public PostResponseBasicVO2() {}
     
 	public Long getKey() {
 		return key;
@@ -62,19 +63,19 @@ public class PostBasicVO extends RepresentationModel<PostBasicVO> implements Ser
 	}
 	
 
-	public UserBasicVO getUser() {
+	public UserResponseBasicVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserBasicVO user) {
+	public void setUser(UserResponseBasicVO user) {
 		this.user = user;
 	}
 
-	public CategoryBasicVO getCategory() {
+	public CategoryResponseBasicVO getCategory() {
 		return category;
 	}
 
-	public void setCategory(CategoryBasicVO category) {
+	public void setCategory(CategoryResponseBasicVO category) {
 		this.category = category;
 	}
 	
@@ -103,7 +104,7 @@ public class PostBasicVO extends RepresentationModel<PostBasicVO> implements Ser
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PostBasicVO other = (PostBasicVO) obj;
+		PostResponseBasicVO2 other = (PostResponseBasicVO2) obj;
 		return Objects.equals(category, other.category) && Objects.equals(comments, other.comments)
 				&& Objects.equals(key, other.key) && Objects.equals(title, other.title)
 				&& Objects.equals(user, other.user);

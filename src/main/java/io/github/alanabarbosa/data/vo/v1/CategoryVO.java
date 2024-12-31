@@ -28,10 +28,7 @@ public class CategoryVO extends RepresentationModel<CategoryVO> implements Seria
     private String description;
     
     @JsonProperty("created_at")
-    private LocalDateTime createdAt;	
-    
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
-    private List<PostBasicVO> posts;  
+    private LocalDateTime createdAt; 
     
     public CategoryVO() {}
 
@@ -67,19 +64,11 @@ public class CategoryVO extends RepresentationModel<CategoryVO> implements Seria
 		this.createdAt = createdAt;
 	}
 
-	public List<PostBasicVO> getPosts() {
-        return posts;
-    }
-
-    public void setPosts(List<PostBasicVO> posts) {
-        this.posts = posts;
-    }
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(createdAt, description, key, name, posts);
+		result = prime * result + Objects.hash(createdAt, description, key, name);
 		return result;
 	}
 
@@ -93,7 +82,6 @@ public class CategoryVO extends RepresentationModel<CategoryVO> implements Seria
 			return false;
 		CategoryVO other = (CategoryVO) obj;
 		return Objects.equals(createdAt, other.createdAt) && Objects.equals(description, other.description)
-				&& Objects.equals(key, other.key) && Objects.equals(name, other.name)
-				&& Objects.equals(posts, other.posts);
+				&& Objects.equals(key, other.key) && Objects.equals(name, other.name);
 	}
 }

@@ -13,11 +13,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
 
 import io.github.alanabarbosa.model.File;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "first_name", "last_name","user_name", "bio", "created_at", "enabled", "roles"})
@@ -48,18 +43,13 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
     private Boolean enabled;
 
     private File file;
-    private List<CommentBasicVO> comments;
-    private List<PostBasicVO> posts;
+    
+    private List<CommentResponseBasicVO> comments;
+    
+    private List<PostResponseBasicVO> posts;
 
     public UserResponseVO() {}
     
-    @PrePersist
-    protected void onCreate() {
-        if (enabled == null) {
-            enabled = true; 
-        }
-    }
-
 	public Long getKey() {
 		return key;
 	}
@@ -124,19 +114,18 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
 		this.file = file;
 	}
 
-	public List<CommentBasicVO> getComments() {
+	public List<CommentResponseBasicVO> getComments() {
 		return comments;
 	}
 
-	public void setComments(List<CommentBasicVO> comments) {
+	public void setComments(List<CommentResponseBasicVO> comments) {
 		this.comments = comments;
 	}
-
-	public List<PostBasicVO> getPosts() {
+	public List<PostResponseBasicVO> getPosts() {
 		return posts;
 	}
 
-	public void setPosts(List<PostBasicVO> posts) {
+	public void setPosts(List<PostResponseBasicVO> posts) {
 		this.posts = posts;
 	}
 
@@ -163,5 +152,5 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
 				&& Objects.equals(file, other.file) && Objects.equals(firstName, other.firstName)
 				&& Objects.equals(key, other.key) && Objects.equals(lastName, other.lastName)
 				&& Objects.equals(posts, other.posts) && Objects.equals(userName, other.userName);
-	}
+	} 
 }

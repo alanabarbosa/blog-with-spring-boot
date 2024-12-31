@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -18,11 +19,9 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CategoryController;
-import io.github.alanabarbosa.controllers.CommentController;
 import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.controllers.UserController;
-import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
-import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
+import io.github.alanabarbosa.data.vo.v1.CommentResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.PostResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.PostResponseVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
@@ -37,9 +36,9 @@ import io.github.alanabarbosa.repositories.CategoryRepository;
 import io.github.alanabarbosa.repositories.CommentRepository;
 import io.github.alanabarbosa.repositories.PostRepository;
 import io.github.alanabarbosa.repositories.UserRepository;
+import io.github.alanabarbosa.util.ConvertToVO;
 import io.github.alanabarbosa.util.HateoasUtils;
 import io.github.alanabarbosa.util.NormalizeSlug;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -62,8 +61,6 @@ public class PostServices {
 	@Autowired
 	PagedResourcesAssembler<PostResponseBasicVO> assembler;
 	
-	@Autowired
-	PagedResourcesAssembler<PostBasicVO> assemblerBasic;
     
     public PagedModel<EntityModel<PostResponseBasicVO>> findAll(Pageable pageable) {
         logger.info("Finding all posts!");
@@ -96,6 +93,8 @@ public class PostServices {
         var entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this Id"));
         
+        Hibernate.initialize(entity.getUser());
+
         var vo = DozerMapper.parseObject(entity, PostResponseVO.class);
         
         if (vo == null) {
@@ -103,7 +102,8 @@ public class PostServices {
         }
                 
         List<Comment> comments = commentRepository.findByPostId(id);
-        List<CommentBasicVO> commentVOs = DozerMapper.parseListObjects(comments, CommentBasicVO.class);
+        List<CommentResponseBasicVO> commentVOs = ConvertToVO
+        		.processEntities(id, comments, CommentResponseBasicVO.class, "Error while processing comments for post");
         vo.setComments(commentVOs);
         
         vo.add(linkTo(methodOn(PostController.class).findById(id)).withRel("post-details"));
@@ -114,30 +114,10 @@ public class PostServices {
         vo.getCategory().add(linkTo(methodOn(CategoryController.class)
         		.findById(vo.getUser().getKey())).withRel("category-details"));
         
-        HateoasUtils.addCommentLinks(vo.getComments());
+        HateoasUtils.addCommentLinksResponse(vo.getComments());
         return vo;
     }
 	
-    /*public List<PostBasicVO> findPostsByCommentId(Long commentId) {
-        //var comments = repository.findPostsByCommentId(commentId);
-        //return DozerMapper.parseListObjects(comments, PostResponseVO.class);
-
-    	var posts = repository.findPostsByCommentId(commentId);
-    	var postsResponseVO = DozerMapper.parseListObjects(posts, PostBasicVO.class);
-
-    	return postsResponseVO.stream()
-    	    .map(post -> {
-    	        try {
-    	            post.add(linkTo(methodOn(CommentController.class).findById(post.getKey())).withRel("post-details"));
-    	            return post;
-    	        } catch (Exception e) {
-    	            logger.severe("Error adding HATEOAS link: " + e.getMessage());
-    	            return post;
-    	        }
-    	    })
-    	    .collect(Collectors.toList());    
-    }*/
-    
     public PagedModel<EntityModel<PostResponseBasicVO>> findPostsByUserId(Long userId, Pageable pageable) {
         logger.info("Finding posts for user id!");  
 
@@ -202,7 +182,6 @@ public class PostServices {
         logger.info("Creating one post!");
 
         if (post == null) throw new RequiredObjectIsNullException();
-        
         if (post != null) post.setCreatedAt(LocalDateTime.now());
 
         if (post.getImageDesktop() != null && post.getImageDesktop().getId() == null) {
@@ -213,42 +192,32 @@ public class PostServices {
             post.setImageMobile(null);
         }
 
+        if (post.getCategory() != null && post.getCategory().getKey() == null) {
+            throw new IllegalArgumentException("Category ID cannot be null");
+        }
+
         User user = userRepository.findById(post.getUser().getKey())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Category category = categoryRepository.findById(post.getCategory().getKey())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
-        Post entity = DozerMapper.parseObject(post, Post.class);
-
+        var entity = DozerMapper.parseObject(post, Post.class);
         entity.setUser(user);
         entity.setCategory(category);
 
         if (entity.getStatus()) entity.setPublishedAt(LocalDateTime.now());
         else entity.setPublishedAt(null);
 
-        String slugFormatted = NormalizeSlug.normalizeString(entity.getTitle());
+        var slugFormatted = NormalizeSlug.normalizeString(entity.getTitle());
         if (!slugFormatted.isEmpty()) entity.setSlug(slugFormatted);
 
-        Post savedPost = repository.save(entity);
-
-        if (savedPost == null) {
-            throw new Exception("Failed to save post entity.");
-        }
-
-        PostVO vo = DozerMapper.parseObject(savedPost, PostVO.class);
-
-        if (vo != null && vo.getKey() != null) {
-            vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withRel("posts-details"));
-        } else {
-            logger.info("PostVO or PostVO key is null after saving post.");
-            throw new Exception("Failed to create PostVO from saved entity.");
-        }
-
+        var savedPost = repository.save(entity);
+        var vo = DozerMapper.parseObject(savedPost, PostVO.class);
+        vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withSelfRel());
         return vo;
     }
 
-	public PostVO update(PostVO post) throws Exception {
+    public PostVO update(PostVO post) throws Exception {
 		logger.info("Updating one post!");
 		
 	    if (post == null) throw new RequiredObjectIsNullException();
@@ -287,24 +256,10 @@ public class PostServices {
 	    entity.setImageMobile(post.getImageMobile());
 	    
 	    var updatedPost = repository.save(entity);
-	    
-        if (updatedPost == null) {
-            throw new Exception("Failed to updated post entity.");
-        }
-
-        PostVO vo = DozerMapper.parseObject(updatedPost, PostVO.class);
-
-        if (vo != null && vo.getKey() != null) {
-            vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withRel("posts-details"));
-        } else {
-            logger.info("PostVO or PostVO key is null after saving post.");
-            throw new Exception("Failed to create PostVO from saved entity.");
-        }
-	   // var vo = DozerMapper.parseObject(repository.save(updatedPost), PostVO.class);
+	    var vo = DozerMapper.parseObject(repository.save(updatedPost), PostVO.class);
 	    
 	    vo.add(linkTo(methodOn(PostController.class).findById(vo.getKey())).withSelfRel());
-	    vo.add(linkTo(methodOn(CommentController.class)
-	    		.findCommentsByPostId(vo.getKey(), 0, 12, "asc")).withRel("comments-details"));
+	   // vo.add(linkTo(methodOn(CommentController.class).findCommentsByPostId(vo.getKey())).withRel("comments"));
 	    
 	    return vo;
 	}

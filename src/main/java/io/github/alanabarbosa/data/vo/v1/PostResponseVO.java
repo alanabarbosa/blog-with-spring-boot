@@ -47,16 +47,25 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
     private String slug;
     @JsonProperty("status")
     private Boolean status;
-    @Mapping("user")
-    private UserBasicVO user;
-
-    private CategoryBasicVO category;
     
+    @Mapping("user")
+    private UserResponseBasicVO user;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    @Mapping("category")
+    private CategoryResponseBasicVO category;
+    
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "image_desktop_id", nullable = true)
     private File imageDesktop;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "image_mobile_id", nullable = true)
     private File imageMobile;
     
-    private List<CommentBasicVO> comments;
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY) 
+    private List<CommentResponseBasicVO> comments;
 
     public PostResponseVO() {}
     
@@ -138,19 +147,19 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
 
 	
 
-	public UserBasicVO getUser() {
+	public UserResponseBasicVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserBasicVO user) {
+	public void setUser(UserResponseBasicVO user) {
 		this.user = user;
 	}
 
-	public CategoryBasicVO getCategory() {
+	public CategoryResponseBasicVO getCategory() {
 		return category;
 	}
 
-	public void setCategory(CategoryBasicVO category) {
+	public void setCategory(CategoryResponseBasicVO category) {
 		this.category = category;
 	}
 
@@ -170,11 +179,11 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
 		this.imageMobile = imageMobile;
 	}
 
-	public List<CommentBasicVO> getComments() {
+	public List<CommentResponseBasicVO> getComments() {
 		return comments;
 	}
 
-	public void setComments(List<CommentBasicVO> comments) {
+	public void setComments(List<CommentResponseBasicVO> comments) {
 		this.comments = comments;
 	}
 
@@ -204,15 +213,6 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
 				&& Objects.equals(title, other.title) && Objects.equals(updatedAt, other.updatedAt)
 				&& Objects.equals(user, other.user);
 	}
-
-/*
-	@Override
-	public String toString() {
-		return "PostVO [key=" + key + ", title=" + title + ", content=" + content + ", createdAt=" + createdAt
-				+ ", updatedAt=" + updatedAt + ", publishedAt=" + publishedAt + ", slug=" + slug + ", status=" + status
-				+ ", user=" + user + ", category=" + category + ", imageDesktop=" + imageDesktop + ", imageMobile="
-				+ imageMobile + ", comments=" + comments + "]";
-	}*/
 	
 	
 }

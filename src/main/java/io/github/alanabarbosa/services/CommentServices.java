@@ -3,10 +3,8 @@ package io.github.alanabarbosa.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +20,6 @@ import io.github.alanabarbosa.controllers.UserController;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
-import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
@@ -70,7 +67,6 @@ public class CommentServices {
 	    
 	}
 	
-	@Transactional
 	public CommentResponseVO findById(Long id) throws Exception {		
 		logger.info("Finding one comment!");
 		
@@ -79,11 +75,17 @@ public class CommentServices {
 	    
 	    var vo = DozerMapper.parseObject(entity, CommentResponseVO.class);	  
 	    
-	    vo.add(linkTo(methodOn(CommentController.class).findById(id)).withRel("comment-details"));
-	    vo.getUser().add(linkTo(methodOn(UserController.class).findById(vo.getUser().getKey())).withRel("user-details"));	    
-	   	 if (vo.getPost() != null) {
-	   		vo.getPost().add(linkTo(methodOn(PostController.class).findById(vo.getPost().getKey())).withRel("post-details"));
-	     }	    
+	    vo.add(linkTo(methodOn(CommentController.class)
+	    		.findById(id)).withRel("comment-details"));
+	    
+	    vo.getUser().add(linkTo(methodOn(UserController.class)
+	    		.findById(vo.getUser().getKey())).withRel("user-details"));	    
+		 
+	    if (vo.getPost() != null) {
+	    	vo.getPost().add(linkTo(methodOn(PostController.class)
+	    			.findById(vo.getPost().getKey())).withRel("post-details"));
+		}
+		 
 	    return vo;
 	}
 	
@@ -193,5 +195,4 @@ public class CommentServices {
 		
 		repository.delete(entity);
 	}
-
 }

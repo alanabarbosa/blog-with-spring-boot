@@ -11,10 +11,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "content", "created_at","status"})
 public class CommentVO extends RepresentationModel<CommentVO> implements Serializable {

@@ -1,8 +1,6 @@
 package io.github.alanabarbosa.data.vo.v1;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
@@ -11,13 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
-
-import io.github.alanabarbosa.model.File;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "first_name", "enabled"})

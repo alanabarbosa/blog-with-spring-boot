@@ -4,10 +4,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -18,16 +16,13 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CategoryController;
-import io.github.alanabarbosa.controllers.PostController;
 import io.github.alanabarbosa.data.vo.v1.CategoryResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
-import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
 import io.github.alanabarbosa.model.Category;
-import io.github.alanabarbosa.model.Post;
 import io.github.alanabarbosa.repositories.CategoryRepository;
 import io.github.alanabarbosa.repositories.PostRepository;
 
@@ -84,7 +79,7 @@ public class CategoryServices {
 	    
 	    var vo = DozerMapper.parseObject(entity, CategoryResponseVO.class);
 
-	    try {
+	   /* try {
 	        List<Post> posts = postRepository.findByCategoryId(id);
 	        List<PostBasicVO> postsVOs = posts.stream()
                 .map(post -> {
@@ -104,7 +99,7 @@ public class CategoryServices {
 	    } catch (Exception e) {
 	        logger.log(Level.SEVERE, "Error while processing posts for category " + id, e);
 	    }
-
+*/
 	    vo.add(linkTo(methodOn(CategoryController.class).findById(id)).withRel("category-details"));
         /*if (!vo.getPosts().isEmpty()) {
         	vo.getPosts().forEach(post -> {

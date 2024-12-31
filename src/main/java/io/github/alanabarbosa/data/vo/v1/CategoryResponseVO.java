@@ -14,6 +14,7 @@ import com.github.dozermapper.core.Mapping;
 import io.github.alanabarbosa.model.Post;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "name", "description","created_at"})
 public class CategoryResponseVO extends RepresentationModel<CategoryResponseVO>  implements Serializable {
@@ -26,9 +27,9 @@ public class CategoryResponseVO extends RepresentationModel<CategoryResponseVO> 
     private Long key;
     private String name;
     
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    /*@OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
     private List<PostBasicVO> posts;
-
+*/
     public CategoryResponseVO() {}
 
 	public Long getKey() {
@@ -47,15 +48,7 @@ public class CategoryResponseVO extends RepresentationModel<CategoryResponseVO> 
 		this.name = name;
 	}
 
-    public List<PostBasicVO> getPosts() {
-        return posts;
-    }
-
-    public void setPosts(List<PostBasicVO> posts) {
-        this.posts = posts;
-    }
-    
-	@Override
+   @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();

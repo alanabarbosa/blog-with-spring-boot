@@ -23,15 +23,13 @@ import org.springframework.stereotype.Service;
 
 import io.github.alanabarbosa.controllers.CommentController;
 import io.github.alanabarbosa.controllers.UserController;
-import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
-import io.github.alanabarbosa.data.vo.v1.PostBasicVO;
+import io.github.alanabarbosa.data.vo.v1.PostResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.UserResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.UserResponseVO;
 import io.github.alanabarbosa.data.vo.v1.UserVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.exceptions.ResourceNotFoundException;
 import io.github.alanabarbosa.mapper.DozerMapper;
-import io.github.alanabarbosa.model.Comment;
 import io.github.alanabarbosa.model.Post;
 import io.github.alanabarbosa.model.Role;
 import io.github.alanabarbosa.model.User;
@@ -39,6 +37,7 @@ import io.github.alanabarbosa.repositories.CommentRepository;
 import io.github.alanabarbosa.repositories.PostRepository;
 import io.github.alanabarbosa.repositories.RoleRepository;
 import io.github.alanabarbosa.repositories.UserRepository;
+import io.github.alanabarbosa.util.ConvertToVO;
 import io.github.alanabarbosa.util.HateoasUtils;
 import io.github.alanabarbosa.util.PasswordUtil;
 import jakarta.transaction.Transactional;
@@ -135,19 +134,14 @@ public class UserServices implements UserDetailsService {
 	    var vo = DozerMapper.parseObject(entity, UserResponseVO.class);	
 	    
 	    List<Post> posts = postRepository.findPostsByUserId(id);
-        List<PostBasicVO> postVOs = DozerMapper.parseListObjects(posts, PostBasicVO.class);
-        vo.setPosts(postVOs);
-        
-        List<Comment> comments = commentRepository.findCommentsByUserId(id);
-        List<CommentBasicVO> commentVOs = DozerMapper.parseListObjects(comments, CommentBasicVO.class);
-        vo.setComments(commentVOs);
-        
-        System.out.println("commentVOs:" + commentVOs);
+	    List<PostResponseBasicVO> postVOs = ConvertToVO
+	    		.processEntities(id, posts, PostResponseBasicVO.class, "Error while processing posts for user");
+	    System.out.println("retorno de postVOs" + postVOs);
+	    vo.setPosts(postVOs);        
 	    
-	    //HateoasUtils.addCommentLinks2(vo.getComments());
-	    //HateoasUtils.addCommentLinks(vo.getComments());
 	    HateoasUtils.addPostLinks(vo.getPosts());
 	    
+	    HateoasUtils.addCommentLinksResponse(vo.getComments());
 	    vo.add(linkTo(methodOn(UserController.class)
 	    		.findById(vo.getKey())).withRel("user-details"));
 	    

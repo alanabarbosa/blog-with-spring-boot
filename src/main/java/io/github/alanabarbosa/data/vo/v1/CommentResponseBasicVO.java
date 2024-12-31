@@ -11,10 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
 
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "content", "created_at","status"})
 public class CommentResponseBasicVO extends RepresentationModel<CommentResponseBasicVO> implements Serializable {
@@ -33,12 +29,11 @@ public class CommentResponseBasicVO extends RepresentationModel<CommentResponseB
    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     @Mapping("post")
-    private PostBasicVO post;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @Mapping("user")
-    private UserBasicVO user;*/
+    private PostBasicVO post;*/    
+
+    /*@Mapping("user")
+    //@JsonIgnore
+    private UserResponseBasicVO user;*/
 
     public CommentResponseBasicVO() {}
 
@@ -86,13 +81,13 @@ public class CommentResponseBasicVO extends RepresentationModel<CommentResponseB
 
 	public void setPost(PostBasicVO post) {
 		this.post = post;
-	}
+	}*/
 
-	public UserBasicVO getUser() {
+	/*public UserResponseBasicVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserBasicVO user) {
+	public void setUser(UserResponseBasicVO user) {
 		this.user = user;
 	}*/
 

@@ -6,17 +6,14 @@ import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
 
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({"id", "content"})
+@JsonPropertyOrder({"id", "content", "created_at","status"})
 public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -25,13 +22,27 @@ public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implemen
 	@JsonProperty("id")
     private Long key;
     private String content;
-    private UserResponseVO user;
+    
+    @JsonProperty("created_at")
+    @JsonIgnore
+    private LocalDateTime createdAt;
+    @JsonIgnore
+    private Boolean status; 
+    
+    @Mapping("post")
+    @JsonIgnore
+    private PostResponseBasicVO post;
+    
+    @Mapping("user")
+    @JsonIgnore
+    private UserResponseBasicVO user;
 
     public CommentBasicVO() {}
 
     public CommentBasicVO(Long key, String content, LocalDateTime createdAt) {
         this.key = key;
         this.content = content;
+        this.createdAt = createdAt;
     }
     
 	public Long getKey() {
@@ -50,27 +61,35 @@ public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implemen
 		this.content = content;
 	}
 
-/*	public LocalDateTime getCreatedAt() {
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
-*/
-	/*public Boolean getStatus() {
+
+	public Boolean getStatus() {
 		return status;
 	}
 
 	public void setStatus(Boolean status) {
 		this.status = status;
-	}*/
+	}
 
-	public UserResponseVO getUser() {
+	public PostResponseBasicVO getPost() {
+		return post;
+	}
+
+	public void setPost(PostResponseBasicVO post) {
+		this.post = post;
+	}
+
+	public UserResponseBasicVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserResponseVO user) {
+	public void setUser(UserResponseBasicVO user) {
 		this.user = user;
 	}
 
@@ -78,7 +97,7 @@ public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implemen
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(content, key, user);
+		result = prime * result + Objects.hash(content, createdAt, key, status, user);
 		return result;
 	}
 
@@ -91,7 +110,9 @@ public class CommentBasicVO extends RepresentationModel<CommentBasicVO> implemen
 		if (getClass() != obj.getClass())
 			return false;
 		CommentBasicVO other = (CommentBasicVO) obj;
-		return Objects.equals(content, other.content) && Objects.equals(key, other.key)
-				&& Objects.equals(user, other.user);
+		return Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
+				&& Objects.equals(key, other.key)
+				&& Objects.equals(status, other.status) && Objects.equals(user, other.user);
 	}
+	
 }

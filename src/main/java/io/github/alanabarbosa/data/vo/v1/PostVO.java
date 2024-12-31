@@ -47,17 +47,14 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
     private Boolean status;
     
     @JsonProperty("user")
-    private UserVO user;
+    @Mapping("user")
+    private UserResponseVO user;
 
     @JsonProperty("category")
     private CategoryVO category;
     
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "image_desktop_id", nullable = true)
     private File imageDesktop;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "image_mobile_id", nullable = true)
     private File imageMobile;
     
     /*@OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
@@ -141,11 +138,11 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 		this.status = status;
 	}
 
-	public UserVO getUser() {
+	public UserResponseVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserVO user) {
+	public void setUser(UserResponseVO user) {
 		this.user = user;
 	}
 
