@@ -132,7 +132,6 @@ public class CommentControllerYamlTest extends AbstractIntegrationTest{
 		assertEquals(1L, comment.getUser().getId());
 	}
 	
-	
 	@Test
 	@Order(2)
 	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
@@ -260,6 +259,76 @@ public class CommentControllerYamlTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(6)
+	public void findCommentsByUserId() throws JsonMappingException, JsonProcessingException {
+		mockComment();
+		
+		var wrapper = given().spec(specification)
+				.config(
+						RestAssuredConfig
+							.config()
+							.encoderConfig(EncoderConfig.encoderConfig()
+								.encodeContentTypeAs(
+									TestConfigs.CONTENT_TYPE_YML,
+									ContentType.TEXT)))
+				.contentType(TestConfigs.CONTENT_TYPE_YML)
+				.accept(TestConfigs.CONTENT_TYPE_YML)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("user/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+	                		.as(PagedModelComment.class, objectMapper); 
+								
+		var c = wrapper.getContent();
+		
+		CommentVO foundCommentOne = c.get(0);
+		assertNotNull(foundCommentOne.getKey());
+		assertNotNull(foundCommentOne.getContent());
+		
+		assertEquals(1, foundCommentOne.getKey());
+		assertEquals("Great article! Thanks for sharing.", foundCommentOne.getContent());
+	}
+	
+	@Test
+	@Order(7)
+	public void findCommentsByPostId() throws JsonMappingException, JsonProcessingException {
+		mockComment();
+		
+		var wrapper = given().spec(specification)
+				.config(
+						RestAssuredConfig
+							.config()
+							.encoderConfig(EncoderConfig.encoderConfig()
+								.encodeContentTypeAs(
+									TestConfigs.CONTENT_TYPE_YML,
+									ContentType.TEXT)))
+				.contentType(TestConfigs.CONTENT_TYPE_YML)
+				.accept(TestConfigs.CONTENT_TYPE_YML)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("post/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+	                		.as(PagedModelComment.class, objectMapper); 
+						
+		var c = wrapper.getContent();
+		
+		CommentVO foundCommentOne = c.get(0);
+		
+		assertNotNull(foundCommentOne.getKey());
+		assertNotNull(foundCommentOne.getContent());		
+		assertEquals(1, foundCommentOne.getKey());		
+		assertEquals("Great article! Thanks for sharing.", foundCommentOne.getContent());
+	}	
+	
+	@Test
+	@Order(8)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var wrapper = given()
@@ -297,7 +366,7 @@ public class CommentControllerYamlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(7)
+	@Order(9)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		 given().spec(specification)

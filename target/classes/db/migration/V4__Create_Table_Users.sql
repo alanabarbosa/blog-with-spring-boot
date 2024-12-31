@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   	account_non_expired bit(1) DEFAULT NULL,
   	account_non_locked bit(1) DEFAULT NULL,
   	credentials_non_expired bit(1) DEFAULT NULL,
-    enabled bit(1) NOT NULL DEFAULT FALSE,
+    enabled bit(1) DEFAULT FALSE,
     file_id BIGINT DEFAULT NULL,
     CONSTRAINT fk_file FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE SET NULL
 );

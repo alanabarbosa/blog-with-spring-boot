@@ -30,6 +30,7 @@ import io.github.alanabarbosa.integrationtests.vo.CommentVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
 import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelComment;
+import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperCommentVO;
 import io.github.alanabarbosa.model.User;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -131,7 +132,6 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 		assertEquals(1L, persistedComment.getPost().getId());
 		assertEquals(1L, persistedComment.getUser().getId());
 	}
-	
 	
 	@Test
 	@Order(2)
@@ -258,6 +258,72 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(6)
+	public void findCommentsByUserId() throws JsonMappingException, JsonProcessingException {
+		mockComment();
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("user/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		PagedModelComment wrapper = objectMapper
+				.readValue(content, PagedModelComment.class);
+		
+		var comment = wrapper.getContent();
+		
+		CommentVO foundCommentOne = comment.get(0);
+		
+		assertNotNull(foundCommentOne.getKey());
+		assertNotNull(foundCommentOne.getContent());
+		
+		assertEquals(1, foundCommentOne.getKey());
+		
+		assertEquals("Great article! Thanks for sharing.", foundCommentOne.getContent());
+	}
+	
+	@Test
+	@Order(7)
+	public void findCommentsByPostId() throws JsonMappingException, JsonProcessingException {
+		mockComment();
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("post/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		PagedModelComment wrapper = objectMapper
+				.readValue(content, PagedModelComment.class);
+		
+		var comment = wrapper.getContent();
+		
+		CommentVO foundCommentOne = comment.get(0);
+		
+		assertNotNull(foundCommentOne.getKey());
+		assertNotNull(foundCommentOne.getContent());
+		
+		assertEquals(1, foundCommentOne.getKey());
+		
+		assertEquals("Great article! Thanks for sharing.", foundCommentOne.getContent());
+	}	
+	
+	@Test
+	@Order(8)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -297,7 +363,7 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(7)
+	@Order(9)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)

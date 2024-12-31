@@ -19,7 +19,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -267,6 +266,72 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(6)
+	public void findCommentsByUserId() throws JsonMappingException, JsonProcessingException {
+		mockComment();
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("user/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		WrapperCommentVO wrapper = objectMapper
+				.readValue(content, WrapperCommentVO.class);		
+
+		var c = wrapper.getEmbedded().getComments();
+		
+		CommentVO foundCommentOne = c.get(0);
+		
+		assertNotNull(foundCommentOne.getKey());
+		assertNotNull(foundCommentOne.getContent());
+		
+		assertEquals(1, foundCommentOne.getKey());
+		
+		assertEquals("Great article! Thanks for sharing.", foundCommentOne.getContent());
+	}
+	
+	@Test
+	@Order(7)
+	public void findCommentsByPostId() throws JsonMappingException, JsonProcessingException {
+		mockComment();
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("post/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		WrapperCommentVO wrapper = objectMapper
+				.readValue(content, WrapperCommentVO.class);		
+
+		var c = wrapper.getEmbedded().getComments();
+		
+		CommentVO foundCommentOne = c.get(0);
+		
+		assertNotNull(foundCommentOne.getKey());
+		assertNotNull(foundCommentOne.getContent());
+		
+		assertEquals(1, foundCommentOne.getKey());
+		
+		assertEquals("Great article! Thanks for sharing.", foundCommentOne.getContent());
+	}	
+	
+	@Test
+	@Order(8)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)

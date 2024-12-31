@@ -27,6 +27,8 @@ import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegratio
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
+import io.github.alanabarbosa.integrationtests.vo.UserVO;
+import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelPost;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Post;
@@ -134,15 +136,6 @@ public class PostControllerYamlTest extends AbstractIntegrationTest{
 		assertEquals("In this post I want to discuss how to configure and use content", post.getContent());
 		assertEquals("content-negotiation-using-spring-mvc", post.getSlug());
 		assertEquals(true, post.getStatus());
-		//assertTrue(persistedPost.getCreatedAt()
-		//		.truncatedTo(ChronoUnit.SECONDS)
-		//		.isEqual(now
-		//				.truncatedTo(ChronoUnit.SECONDS)));
-		
-		//assertTrue(persistedPost.getPublishedAt()
-		//		.truncatedTo(ChronoUnit.SECONDS)
-		//		.isEqual(now
-		//				.truncatedTo(ChronoUnit.SECONDS)));
 		assertNull(post.getImageDesktop().getId()); 
 		assertNull(post.getImageMobile().getId());
 		assertEquals(1L, post.getCategory().getId());
@@ -316,10 +309,80 @@ public class PostControllerYamlTest extends AbstractIntegrationTest{
 	
 		assertNotNull(persistedPost);
 		assertEquals("Invalid CORS request", persistedPost);
+	}
+	
+@Test
+	@Order(6)
+	public void findPostsByUserId() throws JsonMappingException, JsonProcessingException {
+		mockPost();
+		
+		var wrapper = given().spec(specification)
+				.config(
+						RestAssuredConfig
+							.config()
+							.encoderConfig(EncoderConfig.encoderConfig()
+								.encodeContentTypeAs(
+									TestConfigs.CONTENT_TYPE_YML,
+									ContentType.TEXT)))
+				.contentType(TestConfigs.CONTENT_TYPE_YML)
+				.accept(TestConfigs.CONTENT_TYPE_YML)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("category/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.as(PagedModelPost.class, objectMapper);
+		
+		var post = wrapper.getContent();
+		
+		PostVO foundPostOne = post.get(0);
+		
+		PostVO foundPostOne = post.get(0);
+		
+		assertNotNull(foundPostOne.getId());
+		assertEquals(91, foundPostOne.getId());		
+		assertEquals("Jane Austen Book Club, The", foundPostOne.getTitle());
+	}
+	
+	@Test
+	@Order(7)
+	public void findPostsByCategoryId() throws JsonMappingException, JsonProcessingException {
+		mockPost();
+		
+		var wrapper = given().spec(specification)
+				.config(
+						RestAssuredConfig
+							.config()
+							.encoderConfig(EncoderConfig.encoderConfig()
+								.encodeContentTypeAs(
+									TestConfigs.CONTENT_TYPE_YML,
+									ContentType.TEXT)))
+				.contentType(TestConfigs.CONTENT_TYPE_YML)
+				.accept(TestConfigs.CONTENT_TYPE_YML)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("category/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.as(PagedModelPost.class, objectMapper);
+		
+		var post = wrapper.getContent();
+		
+		PostVO foundPostOne = post.get(0);
+		
+		assertNotNull(foundPostOne.getId());
+		assertEquals(3, foundPostOne.getId());		
+		assertEquals("Sebastian", foundPostOne.getTitle());
 	}	
 	
 	@Test
-	@Order(6)
+	@Order(8)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -394,7 +457,7 @@ public class PostControllerYamlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(7)
+	@Order(9)
 	public void testDisablePostById() throws JsonMappingException, JsonProcessingException {
 			
 		var content = given().spec(specification)
@@ -440,7 +503,7 @@ public class PostControllerYamlTest extends AbstractIntegrationTest{
 	}	
 	
 	@Test
-	@Order(8)
+	@Order(10)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		 given().spec(specification)

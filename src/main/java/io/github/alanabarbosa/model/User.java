@@ -110,7 +110,7 @@ public class User implements UserDetails, Serializable {
             credentialsNonExpired = true;
         }
         if (enabled == null) {
-            enabled = true; 
+            enabled = false; 
         }
     }
     
@@ -154,7 +154,7 @@ public class User implements UserDetails, Serializable {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		return this.enabled;
 	}
 
 	public Long getId() {

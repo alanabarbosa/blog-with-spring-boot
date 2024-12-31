@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.integrationtests.controller.withxml;
+package io.github.alanabarbosa.integrationtests.controller.withyaml;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
@@ -27,38 +27,37 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.github.alanabarbosa.configs.TestConfigs;
+import io.github.alanabarbosa.integrationtests.controller.withyaml.mapper.YMLMapper;
 import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegrationTest;
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
+import io.github.alanabarbosa.integrationtests.vo.CommentVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
 import io.github.alanabarbosa.integrationtests.vo.UserVO;
+import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelComment;
 import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelUser;
 import io.github.alanabarbosa.model.Role;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.config.EncoderConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
-public class UserControllerXmlTest extends AbstractIntegrationTest{
+public class UserControllerYamlTest extends AbstractIntegrationTest{
 	
 	private static RequestSpecification specification;
-	private static XmlMapper objectMapper;
+	private static YMLMapper objectMapper;
 	private static UserVO user;
 
 	LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 	
 	@BeforeAll
     public static void setup() {
-        objectMapper = new XmlMapper();
-	    objectMapper.registerModule(new JavaTimeModule());
-	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-	    objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-	    objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-	    
-	    objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"));
-
+        objectMapper = new YMLMapper();
         user = new UserVO();
     }
 	
@@ -68,18 +67,25 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 		AccountCredentialsVO user = new AccountCredentialsVO("alana", "admin123");
 		
 		var accessToken = given()
+				.config(
+						RestAssuredConfig
+							.config()
+							.encoderConfig(EncoderConfig.encoderConfig()
+								.encodeContentTypeAs(
+									TestConfigs.CONTENT_TYPE_YML,
+									ContentType.TEXT)))
 				.basePath("/auth/signin")
 					.port(TestConfigs.SERVER_PORT)
-					.contentType(TestConfigs.CONTENT_TYPE_XML)
-					.accept(TestConfigs.CONTENT_TYPE_XML)
-				.body(user)
+					.contentType(TestConfigs.CONTENT_TYPE_YML)
+					.accept(TestConfigs.CONTENT_TYPE_YML)
+				.body(user, objectMapper)
 					.when()
 				.post()
 					.then()
 						.statusCode(200)
 							.extract()
 							.body()
-								.as(TokenVO.class)
+								.as(TokenVO.class, objectMapper)
 							.getAccessToken();
 		
 		specification = new RequestSpecBuilder()
@@ -96,135 +102,67 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 	public void testCreate() throws JsonMappingException, JsonProcessingException {
 		mockUser();
 		
-		System.out.println("User quando chega em create: " + user);
+		//objectMapper.registerModule(new JavaTimeModule());
+	    //objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_XML)
-				.accept(TestConfigs.CONTENT_TYPE_XML)
-					.body(user)
-					.log().all()
-					.when()
-					.post()
-				.then()
-				.log().all() 
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
+        user = given()
+	        .config(
+	                RestAssuredConfig
+	                    .config()
+	                    .encoderConfig(EncoderConfig.encoderConfig()
+	                            .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+	            .spec(specification)
+	        .contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+	            .body(user, objectMapper)
+	            .when()
+	            .post()
+	        .then()
+	            .statusCode(200)
+	                .extract()
+	                .body()
+	                    .as(UserVO.class, objectMapper);
 		
-		UserVO persistedUser = objectMapper.readValue(content, UserVO.class);
-		user = persistedUser;
 		
-		//user = persistedUser;
+		assertNotNull(user.getKey());
+		assertNotNull(user.getFirstName());
+		assertNotNull(user.getLastName());
+		assertNotNull(user.getUserName());
+		assertNotNull(user.getBio());
+		assertNotNull(user.getPassword());
+		assertNotNull(user.getAccountNonExpired());
+		assertNotNull(user.getAccountNonLocked());
+		assertNotNull(user.getCredentialsNonExpired());
+		assertNotNull(user.getEnabled());
+		assertNotNull(user.getRoles());
 		
-		assertNotNull(persistedUser);
+		assertTrue(user.getKey() > 0);
+		assertEquals("Son", user.getFirstName());
+		assertEquals("Goku", user.getLastName());
+		assertEquals("songoku", user.getUserName());
+		assertEquals("This is a biograph", user.getBio());
 		
-		assertNotNull(persistedUser.getKey());
-		assertNotNull(persistedUser.getFirstName());
-		assertNotNull(persistedUser.getLastName());
-		assertNotNull(persistedUser.getUserName());
-		assertNotNull(persistedUser.getBio());
-		assertNotNull(persistedUser.getPassword());
-		assertNotNull(persistedUser.getCreatedAt());
-		assertNotNull(persistedUser.getAccountNonExpired());
-		assertNotNull(persistedUser.getAccountNonLocked());
-		assertNotNull(persistedUser.getCredentialsNonExpired());
-		assertNotNull(persistedUser.getEnabled());
-		assertNotNull(persistedUser.getRoles());
-		
-		assertTrue(persistedUser.getKey() > 0);
-		assertEquals("Son", persistedUser.getFirstName());
-		assertEquals("Goku", persistedUser.getLastName());
-		assertEquals("songoku", persistedUser.getUserName());
-		assertEquals("This is a biograph", persistedUser.getBio());
-		
-		assertNull(persistedUser.getFile());
-		assertEquals(true, persistedUser.getAccountNonExpired());
-		assertEquals(true, persistedUser.getAccountNonLocked());
-		assertEquals(true, persistedUser.getCredentialsNonExpired());
-		assertEquals(true, persistedUser.getEnabled());
+		assertNull(user.getFile());
+		assertEquals(true, user.getAccountNonExpired());
+		assertEquals(true, user.getAccountNonLocked());
+		assertEquals(true, user.getCredentialsNonExpired());
+		assertEquals(true, user.getEnabled());
 	}
-	/*
+	
 	@Test
 	@Order(2)
 	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
 		mockUser();		
 		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_XML)
-				.accept(TestConfigs.CONTENT_TYPE_XML)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
-					.body(user)
-				.when()
-					.post()
-				.then()
-					.statusCode(403)
-						.extract()
-							.body()
-								.asString();
-		
-		assertNotNull(content);
-		assertEquals("Invalid CORS request", content);		
-	}
-	
-	@Test
-	@Order(3)
-	public void testFindById() throws JsonMappingException, JsonProcessingException {
-		mockUser();
-			
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_XML)
-				.accept(TestConfigs.CONTENT_TYPE_XML)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
-						.pathParam("id", user.getKey())
-						.when()
-						.get("{id}")
-					.then()
-						.statusCode(200)
-							.extract()
-							.body()
-								.asString();
-		
-		UserVO persistedUser = objectMapper.readValue(content, UserVO.class);
-		user = persistedUser;
-		
-		System.out.println(user);
-		
-		assertNotNull(persistedUser);
-		
-		assertNotNull(persistedUser.getKey());
-		assertNotNull(persistedUser.getFirstName());
-		assertNotNull(persistedUser.getLastName());
-		assertNotNull(persistedUser.getUserName());
-		assertNotNull(persistedUser.getBio());		
-		//assertNotNull(persistedUser.getPassword());
-		assertNotNull(persistedUser.getAccountNonExpired());
-		assertNotNull(persistedUser.getAccountNonLocked());
-		assertNotNull(persistedUser.getCredentialsNonExpired());
-		assertNotNull(persistedUser.getEnabled());
-		assertNotNull(persistedUser.getCreatedAt());
-		
-		assertTrue(persistedUser.getKey() > 0);
-		
-		assertEquals("Son", persistedUser.getFirstName());
-		assertEquals("Goku", persistedUser.getLastName());
-		assertEquals("songoku", persistedUser.getUserName());
-		assertEquals("This is a biograph", persistedUser.getBio());
-		
-		assertEquals(true, persistedUser.getAccountNonExpired());
-		assertEquals(true, persistedUser.getAccountNonLocked());
-		assertEquals(true, persistedUser.getCredentialsNonExpired());
-		assertEquals(true, persistedUser.getEnabled());
-	} 
-	
-	@Test
-	@Order(4)
-	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
-		mockUser();
-		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_XML)
-				.accept(TestConfigs.CONTENT_TYPE_XML)
+		var persistedUser = given().spec(specification)
+				.config(
+						RestAssuredConfig
+							.config()
+							.encoderConfig(EncoderConfig.encoderConfig()
+								.encodeContentTypeAs(
+									TestConfigs.CONTENT_TYPE_YML,
+									ContentType.TEXT)))
+                .contentType(TestConfigs.CONTENT_TYPE_YML)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.pathParam("id", user.getKey())
 					.when()
@@ -236,39 +174,111 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 							.asString();
 		
 	
-		assertNotNull(content);
-		assertEquals("Invalid CORS request", content);
+		assertNotNull(persistedUser);
+		assertEquals("Invalid CORS request", persistedUser);	
+	}
+	
+	@Test
+	@Order(3)
+	public void testFindById() throws JsonMappingException, JsonProcessingException {
+		 var foundUser = given()
+                .config(
+                    RestAssuredConfig
+                        .config()
+                        .encoderConfig(EncoderConfig.encoderConfig()
+                                .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+                .spec(specification)
+            .contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+                .pathParam("id", user.getKey())
+                .when()
+                .get("{id}")
+            .then()
+                .statusCode(200)
+                    .extract()
+                    .body()
+                    .as(UserVO.class, objectMapper);
+		
+		
+		assertNotNull(foundUser.getKey());
+		assertNotNull(foundUser.getFirstName());
+		assertNotNull(foundUser.getLastName());
+		assertNotNull(foundUser.getUserName());
+		assertNotNull(foundUser.getBio());		
+		assertNotNull(foundUser.getEnabled());
+		assertNotNull(foundUser.getCreatedAt());
+		
+		assertTrue(foundUser.getKey() > 0);
+		
+		assertEquals("Son", foundUser.getFirstName());
+		assertEquals("Goku", foundUser.getLastName());
+		assertEquals("songoku", foundUser.getUserName());
+		assertEquals("This is a biograph", foundUser.getBio());
+		
+		assertEquals(true, foundUser.getEnabled());
+	} 
+	
+	@Test
+	@Order(4)
+	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
+		mockUser();
+		
+		var persistedUser = given().spec(specification)
+				.config(
+						RestAssuredConfig
+							.config()
+							.encoderConfig(EncoderConfig.encoderConfig()
+								.encodeContentTypeAs(
+									TestConfigs.CONTENT_TYPE_YML,
+									ContentType.TEXT)))
+                .contentType(TestConfigs.CONTENT_TYPE_YML)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
+					.pathParam("id", user.getKey())
+					.when()
+					.get("{id}")
+				.then()
+					.statusCode(403)
+						.extract()
+						.body()
+							.asString();
+		
+	
+		assertNotNull(persistedUser);
+		assertEquals("Invalid CORS request", persistedUser);
 	}
 	
 	@Test
 	@Order(7)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_XML)
-				.queryParams("page", 0, "size", 10, "direction", "asc")
-				.accept(TestConfigs.CONTENT_TYPE_XML)
+		var wrapper = given()
+                .config(
+                    RestAssuredConfig
+                        .config()
+                        .encoderConfig(EncoderConfig.encoderConfig()
+                                .encodeContentTypeAs(TestConfigs.CONTENT_TYPE_YML, ContentType.TEXT)))
+                .spec(specification)
+            .contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+			.queryParams("page", 0 , "limit", 12, "direction", "asc")
 					.when()
 					.get()
 				.then()
 					.statusCode(200)
 						.extract()
 						.body()
-							.asString();
+							.as(PagedModelUser.class, objectMapper); 
 		
-		PagedModelUser wrapper = objectMapper
-				.readValue(content, PagedModelUser.class);
+		var u = wrapper.getContent();
 		
-		var user = wrapper.getContent();
+		UserVO foundUserOne = u.get(0);
 		
-		UserVO founUserOne = user.get(0);
+		assertNotNull(foundUserOne.getKey());
+		assertNotNull(foundUserOne.getFirstName());		
+		assertEquals(238, foundUserOne.getKey());		
+		assertEquals("Addia", foundUserOne.getFirstName());
 		
-		assertNotNull(founUserOne.getKey());
-		assertNotNull(founUserOne.getFirstName());		
-		assertEquals(238, founUserOne.getKey());		
-		assertEquals("Addia", founUserOne.getFirstName());
-		
-		UserVO foundUserTwo = user.get(2);
+		UserVO foundUserTwo = u.get(2);
 		
 		assertNotNull(foundUserTwo.getKey());
 		assertNotNull(foundUserTwo.getFirstName());		
@@ -280,21 +290,26 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 	@Order(8)
 	public void testDisableUserById() throws JsonMappingException, JsonProcessingException {
 			
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_XML)
-				.accept(TestConfigs.CONTENT_TYPE_XML)
+		var persistedUser = given().spec(specification)
+				.config(
+					RestAssuredConfig
+						.config()
+						.encoderConfig(EncoderConfig.encoderConfig()
+							.encodeContentTypeAs(
+								TestConfigs.CONTENT_TYPE_YML,
+								ContentType.TEXT)))
+				.contentType(TestConfigs.CONTENT_TYPE_YML)
+				.accept(TestConfigs.CONTENT_TYPE_YML)
 					.pathParam("id", user.getKey())
 					.when()
 					.patch("{id}")
 				.then()
 					.statusCode(200)
 						.extract()
-						.body()
-							.asString();
+							.body()
+								.as(UserVO.class, objectMapper);
 		
-		UserVO persistedUser = objectMapper.readValue(content, UserVO.class);
-		
-		System.out.println(user);
+		user = persistedUser;
 		
 		assertNotNull(persistedUser);
 		
@@ -328,22 +343,28 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
-		.contentType(TestConfigs.CONTENT_TYPE_XML)
-		.accept(TestConfigs.CONTENT_TYPE_XML)
+			.config(
+				RestAssuredConfig
+					.config()
+					.encoderConfig(EncoderConfig.encoderConfig()
+						.encodeContentTypeAs(
+							TestConfigs.CONTENT_TYPE_YML,
+							ContentType.TEXT)))
+			.contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
 				.pathParam("id", user.getKey())
 				.when()
 				.delete("{id}")
 			.then()
 				.statusCode(204);
 	}
-*/
+
 	private void mockUser() {
 	    user.setFirstName("Son");
 	    user.setLastName("Goku");
 	    user.setUserName("songoku");
 	    user.setPassword("password123");
 	    user.setBio("This is a biograph");
-	    user.setCreatedAt(now);
 	    user.setAccountNonExpired(true);
 	    user.setAccountNonLocked(true);
 	    user.setCredentialsNonExpired(true);

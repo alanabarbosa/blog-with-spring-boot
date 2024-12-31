@@ -92,10 +92,6 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	public void testCreate() throws JsonMappingException, JsonProcessingException {
 		mockUser();
 		
-	    ObjectMapper objectMapper = new ObjectMapper();
-	    objectMapper.registerModule(new JavaTimeModule());
-	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
 					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
@@ -108,37 +104,32 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 						.body()
 							.asString();
 		
+		user = objectMapper.readValue(content, UserVO.class);
 		
-		UserVO persistedUser = objectMapper.readValue(content, UserVO.class);
+		assertNotNull(user.getKey());
+		assertNotNull(user.getFirstName());
+		assertNotNull(user.getLastName());
+		assertNotNull(user.getUserName());
+		assertNotNull(user.getBio());
+		assertNotNull(user.getPassword());
+		assertNotNull(user.getAccountNonExpired());
+		assertNotNull(user.getAccountNonLocked());
+		assertNotNull(user.getCredentialsNonExpired());
+		assertNotNull(user.getEnabled());
+		assertNotNull(user.getCreatedAt());
+		assertNotNull(user.getRoles());
 		
-		user = persistedUser;
+		assertTrue(user.getKey() > 0);
 		
-		assertNotNull(persistedUser);
+		assertEquals("Son", user.getFirstName());
+		assertEquals("Goku", user.getLastName());
+		assertEquals("songoku", user.getUserName());
+		assertEquals("This is a biograph", user.getBio());
 		
-		assertNotNull(persistedUser.getKey());
-		assertNotNull(persistedUser.getFirstName());
-		assertNotNull(persistedUser.getLastName());
-		assertNotNull(persistedUser.getUserName());
-		assertNotNull(persistedUser.getBio());
-		assertNotNull(persistedUser.getPassword());
-		assertNotNull(persistedUser.getAccountNonExpired());
-		assertNotNull(persistedUser.getAccountNonLocked());
-		assertNotNull(persistedUser.getCredentialsNonExpired());
-		assertNotNull(persistedUser.getEnabled());
-		assertNotNull(persistedUser.getCreatedAt());
-		assertNotNull(persistedUser.getRoles());
-		
-		assertTrue(persistedUser.getKey() > 0);
-		
-		assertEquals("Son", persistedUser.getFirstName());
-		assertEquals("Goku", persistedUser.getLastName());
-		assertEquals("songoku", persistedUser.getUserName());
-		assertEquals("This is a biograph", persistedUser.getBio());
-		
-		assertEquals(true, persistedUser.getAccountNonExpired());
-		assertEquals(true, persistedUser.getAccountNonLocked());
-		assertEquals(true, persistedUser.getCredentialsNonExpired());
-		assertEquals(true, persistedUser.getEnabled());
+		assertEquals(true, user.getAccountNonExpired());
+		assertEquals(true, user.getAccountNonLocked());
+		assertEquals(true, user.getCredentialsNonExpired());
+		assertEquals(true, user.getEnabled());
 
 		//assertEquals(4L, persistedUser.getRoles().get(0));
 		//assertEquals(1L, persistedUser.getUser().getKey());
@@ -253,9 +244,9 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		assertNotNull(persistedUser.getUserName());
 		assertNotNull(persistedUser.getBio());		
 		//assertNotNull(persistedUser.getPassword());
-		/*assertNotNull(persistedUser.getAccountNonExpired());
-		assertNotNull(persistedUser.getAccountNonLocked());
-		assertNotNull(persistedUser.getCredentialsNonExpired());*/
+		//assertNotNull(persistedUser.getAccountNonExpired());
+		//assertNotNull(persistedUser.getAccountNonLocked());
+		//assertNotNull(persistedUser.getCredentialsNonExpired());
 		assertNotNull(persistedUser.getEnabled());
 		assertNotNull(persistedUser.getCreatedAt());
 		
@@ -266,9 +257,9 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		assertEquals("songoku", persistedUser.getUserName());
 		assertEquals("This is a biograph", persistedUser.getBio());
 		
-		/*assertEquals(true, persistedUser.getAccountNonExpired());
-		assertEquals(true, persistedUser.getAccountNonLocked());
-		assertEquals(true, persistedUser.getCredentialsNonExpired());*/
+		//assertEquals(true, persistedUser.getAccountNonExpired());
+		//assertEquals(true, persistedUser.getAccountNonLocked());
+		//assertEquals(true, persistedUser.getCredentialsNonExpired());
 		assertEquals(true, persistedUser.getEnabled());
 	} 
 	
@@ -386,9 +377,9 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		assertNotNull(persistedUser.getUserName());
 		assertNotNull(persistedUser.getBio());		
 		//assertNotNull(persistedUser.getPassword());
-		/*assertNotNull(persistedUser.getAccountNonExpired());
-		assertNotNull(persistedUser.getAccountNonLocked());
-		assertNotNull(persistedUser.getCredentialsNonExpired());*/
+		//assertNotNull(persistedUser.getAccountNonExpired());
+		//assertNotNull(persistedUser.getAccountNonLocked());
+		//assertNotNull(persistedUser.getCredentialsNonExpired());
 		assertNotNull(persistedUser.getEnabled());
 		assertNotNull(persistedUser.getCreatedAt());
 		
@@ -399,14 +390,14 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		assertEquals("songoku", persistedUser.getUserName());
 		assertEquals("This is a biograph", persistedUser.getBio());
 		
-		/*assertEquals(true, persistedUser.getAccountNonExpired());
-		assertEquals(true, persistedUser.getAccountNonLocked());
-		assertEquals(true, persistedUser.getCredentialsNonExpired());*/
+		//assertEquals(true, persistedUser.getAccountNonExpired());
+		//assertEquals(true, persistedUser.getAccountNonLocked());
+		//assertEquals(true, persistedUser.getCredentialsNonExpired());
 		assertEquals(true, persistedUser.getEnabled());
 	}	
 	
 	@Test
-	@Order(8)
+	@Order(9)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
@@ -417,7 +408,6 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 			.then()
 				.statusCode(204);
 	}
-
 
 	private void mockUser() {
 	    user.setFirstName("Son");
@@ -453,6 +443,4 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	                       ", enabled=" + user.getEnabled() +
 	                       ", roles=" + user.getRoles() + "]");
 	}
-	
-
 }

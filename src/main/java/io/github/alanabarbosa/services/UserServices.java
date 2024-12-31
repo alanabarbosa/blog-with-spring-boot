@@ -141,7 +141,7 @@ public class UserServices implements UserDetailsService {
 	    
 	    HateoasUtils.addPostLinks(vo.getPosts());
 	    
-	    HateoasUtils.addCommentLinksResponse(vo.getComments());
+	    //HateoasUtils.addCommentLinksResponse(vo.getComments());
 	    vo.add(linkTo(methodOn(UserController.class)
 	    		.findById(vo.getKey())).withRel("user-details"));
 	    
@@ -154,6 +154,7 @@ public class UserServices implements UserDetailsService {
 		
 	    if (user == null) throw new RequiredObjectIsNullException();
 	    
+	    if (user.getEnabled() == null) user.setEnabled(false);	    
 	    if (user.getEnabled() == true) user.setCreatedAt(LocalDateTime.now()); 
 	    
 	    if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
@@ -192,8 +193,8 @@ public class UserServices implements UserDetailsService {
 	    if (!roles.contains(defaultRole)) {
 	        roles.add(defaultRole);
 	    }
-
-	    entity.setRoles(roles);  
+	    
+	    if (user.getEnabled() != false) entity.setRoles(roles);  
 
 	    var savedEntity = repository.save(entity);
 	    var vo = DozerMapper.parseObject(savedEntity, UserVO.class);
@@ -227,12 +228,11 @@ public class UserServices implements UserDetailsService {
 	            .map(roleVo -> roleRepository.findById(roleVo.getId())
 	                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + roleVo.getId())))
 	            .collect(Collectors.toList());
-	        entity.setRoles(roles);
-	    }	    
+	       entity.setRoles(roles);
+	    } 
 	    
 	    var vo = DozerMapper.parseObject(repository.save(entity), UserVO.class);		
 	    vo.add(linkTo(methodOn(UserController.class).findById(vo.getKey())).withSelfRel());
-	    vo.add(linkTo(methodOn(CommentController.class).findCommentsByUserId(vo.getKey(), 0, 12, "asc")).withRel("comments-details"));
 	    return vo;
 	}
 	

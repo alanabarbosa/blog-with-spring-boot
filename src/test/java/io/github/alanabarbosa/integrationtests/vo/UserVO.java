@@ -10,6 +10,7 @@ import org.springframework.hateoas.RepresentationModel;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.github.dozermapper.core.Mapping;
 
 import io.github.alanabarbosa.model.Comment;
@@ -25,6 +26,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
+@JacksonXmlRootElement(localName = "UserVO")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "first_name", "last_name", "user_name", "password", "bio", "created_at", "account_non_expired", "account_non_locked", "credentials_non_expired", "enabled", "roles"})
 public class UserVO extends RepresentationModel<UserVO> implements Serializable {

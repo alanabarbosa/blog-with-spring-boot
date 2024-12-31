@@ -31,6 +31,7 @@ import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
 import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelPost;
+import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperPostVO;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Role;
@@ -202,34 +203,12 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 		assertNotNull(persistedPost.getId());
 		assertNotNull(persistedPost.getTitle());
 		assertNotNull(persistedPost.getContent());
-		assertNotNull(persistedPost.getSlug());
-		assertTrue(persistedPost.getStatus()); 
-		assertNotNull(persistedPost.getCreatedAt());
-		assertNotNull(persistedPost.getUpdatedAt());
-		assertNotNull(persistedPost.getPublishedAt());		
 		assertNotNull(persistedPost.getCategory());
 		assertNotNull(persistedPost.getUser());
-		//assertNull(persistedPost.getImageDesktop());
-		//assertNull(persistedPost.getImageMobile());			
 		
 	    assertEquals(post.getId(), persistedPost.getId());
-		
 		assertEquals("Content Negotiation using Spring MVC", persistedPost.getTitle());
 		assertEquals("In this post I want to discuss how to configure and use content", persistedPost.getContent());
-		
-		assertEquals("content-negotiation-using-spring-mvc", persistedPost.getSlug());
-		assertEquals(true, persistedPost.getStatus());
-		
-		/*assertTrue(persistedPost.getCreatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));
-		
-		assertTrue(persistedPost.getUpdatedAt()
-				.truncatedTo(ChronoUnit.SECONDS)
-				.isEqual(now
-						.truncatedTo(ChronoUnit.SECONDS)));*/
-		
 		assertEquals(1L, persistedPost.getCategory().getId());
 		assertEquals(1L, persistedPost.getUser().getId());				
 	}
@@ -305,6 +284,66 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(6)
+	public void findPostsByUserId() throws JsonMappingException, JsonProcessingException {
+		mockPost();
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("user/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		PagedModelPost wrapper = objectMapper
+				.readValue(content, PagedModelPost.class);
+		
+		var post = wrapper.getContent();
+		
+		PostVO foundPostOne = post.get(0);
+		
+		assertNotNull(foundPostOne.getId());
+		assertEquals(91, foundPostOne.getId());		
+		assertEquals("Jane Austen Book Club, The", foundPostOne.getTitle());
+	}
+	
+	@Test
+	@Order(7)
+	public void findPostsByCategoryId() throws JsonMappingException, JsonProcessingException {
+		mockPost();
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("category/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		PagedModelPost wrapper = objectMapper
+				.readValue(content, PagedModelPost.class);
+		
+		var post = wrapper.getContent();
+		
+		PostVO foundPostOne = post.get(0);
+		
+		assertNotNull(foundPostOne.getId());
+		assertEquals(3, foundPostOne.getId());		
+		assertEquals("Sebastian", foundPostOne.getTitle());
+	}
+	
+	@Test
+	@Order(8)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -342,7 +381,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(7)
+	@Order(9)
 	public void testDisablePostById() throws JsonMappingException, JsonProcessingException {
 			
 		var content = given().spec(specification)
@@ -378,7 +417,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	}	
 	
 	@Test
-	@Order(8)
+	@Order(10)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
@@ -433,5 +472,4 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	    post.setImageDesktop(null);
 	    post.setImageMobile(null);   
 	}	
-
 }

@@ -329,10 +329,41 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 		assertNotNull(founPostOne.getId());
 		assertEquals(91, founPostOne.getId());		
 		assertEquals("Jane Austen Book Club, The", founPostOne.getTitle());
-	} 
+	}
 	
 	@Test
 	@Order(7)
+	public void findPostsByCategoryId() throws JsonMappingException, JsonProcessingException {
+		mockPost();
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
+				.pathParam("id", 1)
+				.queryParams("page", 0, "size", 10, "direction", "asc")
+					.when()
+					.get("category/{id}")
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		WrapperPostVO wrapper = objectMapper
+				.readValue(content, WrapperPostVO.class);
+		
+		var p = wrapper.getEmbedded().getPosts();
+		
+		
+		PostVO founPostOne = p.get(0);
+		
+		assertNotNull(founPostOne.getId());
+		assertEquals(3, founPostOne.getId());		
+		assertEquals("Sebastian", founPostOne.getTitle());
+	}	
+	
+	@Test
+	@Order(8)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -369,7 +400,7 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(8)
+	@Order(9)
 	public void testDisablePostById() throws JsonMappingException, JsonProcessingException {
 			
 		var content = given().spec(specification)
