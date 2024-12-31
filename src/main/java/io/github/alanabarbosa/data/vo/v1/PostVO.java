@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "title", "content", "createdAt", "updatedAt", "publishedAt", "slug", "status", "user_id"})
 public class PostVO extends RepresentationModel<PostVO> implements Serializable {
@@ -45,8 +46,10 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
     @JsonProperty("status")
     private Boolean status;
     
-    private UserResponseVO user;
+    @JsonProperty("user")
+    private UserVO user;
 
+    @JsonProperty("category")
     private CategoryVO category;
     
     @ManyToOne(fetch = FetchType.EAGER)
@@ -138,13 +141,11 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 		this.status = status;
 	}
 
-	
-
-	public UserResponseVO getUser() {
+	public UserVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserResponseVO user) {
+	public void setUser(UserVO user) {
 		this.user = user;
 	}
 

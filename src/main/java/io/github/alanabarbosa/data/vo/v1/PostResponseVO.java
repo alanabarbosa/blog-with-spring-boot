@@ -47,7 +47,7 @@ public class PostResponseVO extends RepresentationModel<PostResponseVO> implemen
     private String slug;
     @JsonProperty("status")
     private Boolean status;
-    
+    @Mapping("user")
     private UserBasicVO user;
 
     private CategoryBasicVO category;

@@ -37,7 +37,6 @@ import io.github.alanabarbosa.repositories.CategoryRepository;
 import io.github.alanabarbosa.repositories.CommentRepository;
 import io.github.alanabarbosa.repositories.PostRepository;
 import io.github.alanabarbosa.repositories.UserRepository;
-import io.github.alanabarbosa.util.ConvertToVO;
 import io.github.alanabarbosa.util.HateoasUtils;
 import io.github.alanabarbosa.util.NormalizeSlug;
 import jakarta.persistence.EntityNotFoundException;
@@ -198,6 +197,7 @@ public class PostServices {
         return assembler.toModel(postsVosPage, link);
     }  
     
+    @Transactional
     public PostVO create(PostVO post) throws Exception {
         logger.info("Creating one post!");
 
