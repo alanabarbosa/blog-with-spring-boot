@@ -284,6 +284,54 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(7)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/category/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.when()
+				.post()
+			.then()
+				.statusCode(403);
+	}
+	
+	@Test
+	@Order(8)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
+				.queryParams("page", 1, "size", 3, "direction", "asc")
+					.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		assertTrue(content.contains("\"_links\":{\"category-details\":{\"href\":\"http://localhost:8888/api/category/v1/7\"}}}"));
+		assertTrue(content.contains("\"_links\":{\"category-details\":{\"href\":\"http://localhost:8888/api/category/v1/6\"}}}"));
+		assertTrue(content.contains("\"_links\":{\"category-details\":{\"href\":\"http://localhost:8888/api/category/v1/3\"}}}"));		
+		
+		assertTrue(content.contains("{\"first\":{\"href\":\"http://localhost:8888/api/category/v1?direction=asc&page=0&size=3&sort=name,asc\"}"));
+		assertTrue(content.contains("\"prev\":{\"href\":\"http://localhost:8888/api/category/v1?direction=asc&page=0&size=3&sort=name,asc\"}"));
+		assertTrue(content.contains("\"self\":{\"href\":\"http://localhost:8888/api/category/v1?page=1&size=3&direction=asc\"}"));
+		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/category/v1?direction=asc&page=2&size=3&sort=name,asc\"}"));
+		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/category/v1?direction=asc&page=3&size=3&sort=name,asc\"}}"));
+		
+		assertTrue(content.contains("\"page\":{\"size\":3,\"totalElements\":11,\"totalPages\":4,\"number\":1}}"));
+	}
+	
+	@Test
+	@Order(9)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)

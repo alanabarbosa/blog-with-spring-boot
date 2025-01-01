@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +22,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
-import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.repositories.CategoryRepository;
@@ -66,39 +64,6 @@ class CategoryServicesTest {
 		
 		assertTrue(result.toString().contains("[</api/category/v1/1>;rel=\"category-details\"]"));
 		assertEquals("Este é um name.0", result.getName());
-	}
-
-	@Test
-	void testFindAll() {
-		List<Category> list = input.mockEntityList();
-		
-		LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-		
-		when(repository.findAll()).thenReturn(list);
-		
-		var category = service.findAll();
-		
-		assertNotNull(category);
-		assertEquals(14, category.size());
-		
-		var categoryOne = category.get(1);		
-	    assertNotNull(categoryOne);
-		assertNotNull(categoryOne.getKey());	
-		
-		assertTrue(categoryOne.toString().contains("[</api/category/v1/1>;rel=\"category-details\"]"));
-		assertEquals("Este é um name.1", categoryOne.getName());
-		
-		var categoryFour = category.get(4);		
-	    assertNotNull(categoryFour);
-		assertNotNull(categoryFour.getKey());			
-		assertTrue(categoryFour.toString().contains("[</api/category/v1/4>;rel=\"category-details\"]"));
-		assertEquals("Este é um name.4", categoryFour.getName());
-		
-		var categorySeven = category.get(7);		
-	    assertNotNull(categorySeven);
-		assertNotNull(categorySeven.getKey());			
-		assertTrue(categorySeven.toString().contains("[</api/category/v1/7>;rel=\"category-details\"]"));
-		assertEquals("Este é um name.7", categorySeven.getName());
 	}
 
 	@Test
@@ -168,7 +133,6 @@ class CategoryServicesTest {
 		assertEquals("Este é uma description.1", result.getDescription());
 		assertEquals(now.truncatedTo(ChronoUnit.SECONDS), result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
 	}
-
 	
 	@Test
 	void testUpdateWithNullCategory() throws Exception {

@@ -50,7 +50,6 @@ public class CategoryServices {
 
         if (categoryVosPage != null) {
         	categoryVosPage.map(category -> {
-            	logger.info("cateogyr:" + category);
             	try {
             		category.add(linkTo(methodOn(CategoryController.class)
     						.findById(category.getKey())).withRel("category-details"));
@@ -59,8 +58,6 @@ public class CategoryServices {
     			}
             	return category;
             });
-        } else {
-        	logger.info("é igual a null");
         }
         
         Link link = linkTo(methodOn(CategoryController.class).findAll(

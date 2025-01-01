@@ -11,6 +11,4 @@ import io.github.alanabarbosa.model.Category;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-	//@Query("SELECT c FROM Category c LEFT JOIN FETCH c.posts WHERE c.id = :id")
-	//Optional<Category> findByIdWithPosts(@Param("id") Long id);
 }

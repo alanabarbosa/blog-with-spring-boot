@@ -262,6 +262,54 @@ public class CategoryControllerXmlTest extends AbstractIntegrationTest {
 	
 	@Test
 	@Order(7)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/category/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.contentType(TestConfigs.CONTENT_TYPE_XML)
+			.accept(TestConfigs.CONTENT_TYPE_XML)
+				.when()
+				.post()
+			.then()
+				.statusCode(403);
+	}
+	
+	@Test
+	@Order(8)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+				.queryParams("page", 1, "size", 3, "direction", "asc")
+					.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		assertTrue(content.contains("<links><rel>category-details</rel><href>http://localhost:8888/api/category/v1/7</href></links>"));
+		assertTrue(content.contains("<links><rel>category-details</rel><href>http://localhost:8888/api/category/v1/6</href></links>"));
+		assertTrue(content.contains("<links><rel>category-details</rel><href>http://localhost:8888/api/category/v1/3</href></links>"));
+		
+		assertTrue(content.contains("<links><rel>first</rel><href>http://localhost:8888/api/category/v1?direction=asc&amp;page=0&amp;size=3&amp;sort=name,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>prev</rel><href>http://localhost:8888/api/category/v1?direction=asc&amp;page=0&amp;size=3&amp;sort=name,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>self</rel><href>http://localhost:8888/api/category/v1?page=1&amp;size=3&amp;direction=asc</href></links>"));
+		assertTrue(content.contains("<links><rel>next</rel><href>http://localhost:8888/api/category/v1?direction=asc&amp;page=2&amp;size=3&amp;sort=name,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>last</rel><href>http://localhost:8888/api/category/v1?direction=asc&amp;page=3&amp;size=3&amp;sort=name,asc</href></links>"));
+		assertTrue(content.contains("<page><size>3</size><totalElements>12</totalElements><totalPages>4</totalPages><number>1</number></page>"));
+	}
+	
+	@Test
+	@Order(9)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
