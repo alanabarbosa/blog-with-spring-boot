@@ -4,16 +4,15 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,10 +25,15 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({"id", "first_name", "last_name","user_name", "password", "bio", "created_at", "account_non_expired", "account_non_locked", "credentials_non_expired",  "enabled", "roles"})
 public class User implements UserDetails, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -47,34 +51,40 @@ public class User implements UserDetails, Serializable {
     private String lastName;
 
     @Column(name = "user_name", nullable = false, length = 25, unique = true)
+    @JsonProperty("user_name")
     private String userName;
     
 	@Column(nullable = false, name = "password")
-	@JsonIgnore
+	//@JsonIgnore
 	private String password;
 	
 	@Column(name = "account_non_expired")
+	@JsonProperty("account_non_expired")
 	private Boolean accountNonExpired;
 	
 	@Column(name = "account_non_locked")
+	@JsonProperty("account_non_locked")
 	private Boolean accountNonLocked;
 	
 	@Column(name = "credentials_non_expired")
+	@JsonProperty("credentials_non_expired")
 	private Boolean credentialsNonExpired;	
 
     @Column(nullable = false, length = 500)
+    @JsonProperty("bio")
     private String bio;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
-
+    
+    @JsonProperty("enabled")
     private Boolean enabled;
     
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER) 
     private List<Comment> comments;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id")
     private File file;
 
@@ -87,6 +97,22 @@ public class User implements UserDetails, Serializable {
     private List<Role> roles;
     
     public User() {}
+    
+    @PrePersist
+    protected void onCreate() {
+        if (accountNonExpired == null) {
+            accountNonExpired = true;
+        }
+        if (accountNonLocked == null) {
+            accountNonLocked = true;
+        }
+        if (credentialsNonExpired == null) {
+            credentialsNonExpired = true;
+        }
+        if (enabled == null) {
+            enabled = false; 
+        }
+    }
     
     public List<String> getPermissions() {
     	List<String> permissions = new ArrayList<>();
@@ -123,7 +149,7 @@ public class User implements UserDetails, Serializable {
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return this.credentialsNonExpired;
+		return this.enabled != null ? this.enabled : Boolean.FALSE;
 	}
 
 	@Override
@@ -164,7 +190,7 @@ public class User implements UserDetails, Serializable {
 	}
 
 	public Boolean getAccountNonExpired() {
-		return accountNonExpired;
+		return accountNonExpired; 
 	}
 
 	public void setAccountNonExpired(Boolean accountNonExpired) {

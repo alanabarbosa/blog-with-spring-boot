@@ -6,7 +6,7 @@ import java.util.List;
 
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
-import io.github.alanabarbosa.data.vo.v1.UserVO;
+import io.github.alanabarbosa.data.vo.v1.UserResponseVO;
 import io.github.alanabarbosa.model.Comment;
 import io.github.alanabarbosa.model.Post;
 import io.github.alanabarbosa.model.User;
@@ -52,6 +52,11 @@ public class MockComment {
         User user = new User();
         user.setId(Long.valueOf(number + 1));
         user.setEnabled((((number % 2)==0) ? true : false));
+        
+        user.setAccountNonExpired((((number % 2)==0) ? true : false));
+        user.setAccountNonLocked((((number % 2)==0) ? true : false));
+        user.setCredentialsNonExpired((((number % 2)==0) ? true : false)); 
+        
         comment.setUser(user);
         return comment;
     }
@@ -63,14 +68,15 @@ public class MockComment {
         comment.setCreatedAt(LocalDateTime.now());
         comment.setStatus(((number % 2)==0) ? true : false);
         
-       /* PostVO post = new PostVO();
+        PostVO post = new PostVO();
         post.setKey(Long.valueOf(number + 1));         
-       comment.setPost(post);
+        comment.setPost(post);
         
-        UserVO user = new UserVO();
-        user.setId(Long.valueOf(number + 1));
-        user.setEnabled((((number % 2)==0) ? true : false));
-        comment.setUser(user);  */      
+        UserResponseVO user = new UserResponseVO();
+        user.setKey(Long.valueOf(number + 1));
+        user.setEnabled((((number % 2)==0) ? true : false));     
+        
+        comment.setUser(user);
         return comment;
     }
 

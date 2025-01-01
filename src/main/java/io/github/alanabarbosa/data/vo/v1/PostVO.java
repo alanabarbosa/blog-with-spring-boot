@@ -2,7 +2,6 @@ package io.github.alanabarbosa.data.vo.v1;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
@@ -12,17 +11,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.dozermapper.core.Mapping;
 
-import io.github.alanabarbosa.model.Category;
-import io.github.alanabarbosa.model.Comment;
 import io.github.alanabarbosa.model.File;
-import io.github.alanabarbosa.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "title", "content", "createdAt", "updatedAt", "publishedAt", "slug", "status", "user_id"})
 public class PostVO extends RepresentationModel<PostVO> implements Serializable {
@@ -50,26 +46,19 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
     @JsonProperty("status")
     private Boolean status;
     
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JsonProperty("user")
     @Mapping("user")
-    private UserVO user;
+    private UserResponseVO user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id")
-    @Mapping("category")
+    @JsonProperty("category")
     private CategoryVO category;
     
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "image_desktop_id", nullable = true)
     private File imageDesktop;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "image_mobile_id", nullable = true)
     private File imageMobile;
     
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
-    private List<CommentVO> comments;
+    /*@OneToMany(mappedBy = "post", fetch = FetchType.EAGER) 
+    private List<CommentResponseVO> comments;*/
 
     public PostVO() {}
     
@@ -149,11 +138,11 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 		this.status = status;
 	}
 
-	public UserVO getUser() {
+	public UserResponseVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserVO user) {
+	public void setUser(UserResponseVO user) {
 		this.user = user;
 	}
 
@@ -181,19 +170,19 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 		this.imageMobile = imageMobile;
 	}
 
-	public List<CommentVO> getComments() {
+	/*public List<CommentResponseVO> getComments() {
 		return comments;
 	}
 
-	public void setComments(List<CommentVO> comments) {
+	public void setComments(List<CommentResponseVO> comments) {
 		this.comments = comments;
-	}
+	}*/
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(category, comments, content, createdAt, imageDesktop, imageMobile, key,
+		result = prime * result + Objects.hash(category, content, createdAt, imageDesktop, imageMobile, key,
 				publishedAt, slug, status, title, updatedAt, user);
 		return result;
 	}
@@ -207,7 +196,7 @@ public class PostVO extends RepresentationModel<PostVO> implements Serializable 
 		if (getClass() != obj.getClass())
 			return false;
 		PostVO other = (PostVO) obj;
-		return Objects.equals(category, other.category) && Objects.equals(comments, other.comments)
+		return Objects.equals(category, other.category)
 				&& Objects.equals(content, other.content) && Objects.equals(createdAt, other.createdAt)
 				&& Objects.equals(imageDesktop, other.imageDesktop) && Objects.equals(imageMobile, other.imageMobile)
 				&& Objects.equals(key, other.key) && Objects.equals(publishedAt, other.publishedAt)

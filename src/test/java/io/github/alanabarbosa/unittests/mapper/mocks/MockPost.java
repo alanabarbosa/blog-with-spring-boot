@@ -6,7 +6,7 @@ import java.util.List;
 
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
-import io.github.alanabarbosa.data.vo.v1.UserVO;
+import io.github.alanabarbosa.data.vo.v1.UserResponseVO;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Post;
@@ -52,9 +52,13 @@ public class MockPost {
         post.setCategory(new Category());
         post.setImageDesktop(new File()); 
         post.setImageMobile(new File());
+        
         User user = new User();
         user.setId(Long.valueOf(number + 1)); 
         user.setEnabled((((number % 2)==0) ? true : false));
+        user.setAccountNonExpired((((number % 2)==0) ? true : false));
+        user.setAccountNonLocked((((number % 2)==0) ? true : false));
+        user.setCredentialsNonExpired((((number % 2)==0) ? true : false));        
         post.setUser(user);;
         return post;
     }
@@ -72,9 +76,13 @@ public class MockPost {
         post.setCategory(new CategoryVO());
         post.setImageDesktop(new File());
         post.setImageMobile(new File());
-        UserVO user = new UserVO();
-        user.setId(Long.valueOf(number + 1));
+        
+        UserResponseVO user = new UserResponseVO();
+        user.setKey(Long.valueOf(number + 1));
         user.setEnabled((((number % 2)==0) ? true : false));
+       // user.setAccountNonExpired((((number % 2)==0) ? true : false));
+      //  user.setAccountNonLocked((((number % 2)==0) ? true : false));
+      //  user.setCredentialsNonExpired((((number % 2)==0) ? true : false));        
         post.setUser(user);
         return post;
     }

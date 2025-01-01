@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +22,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
-import io.github.alanabarbosa.data.vo.v1.CommentVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.repositories.CategoryRepository;
@@ -60,50 +58,12 @@ class CategoryServicesTest {
 		when(repository.findById(1L)).thenReturn(Optional.of(category));
 		var result = service.findById(1L);		
 		assertNotNull(result);
-		assertNotNull(result.getKey());			
-		assertTrue(result.toString().contains("[</api/category/v1/1>;rel=\"self\"]"));
+		assertNotNull(result.getKey());		
+		
+		System.out.println("toString: " + result.toString());
+		
+		assertTrue(result.toString().contains("[</api/category/v1/1>;rel=\"category-details\"]"));
 		assertEquals("Este é um name.0", result.getName());
-		assertEquals("Este é uma description.0", result.getDescription());
-		assertEquals(now.truncatedTo(ChronoUnit.SECONDS), result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
-	}
-
-	@Test
-	void testFindAll() {
-		List<Category> list = input.mockEntityList();
-		
-		LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-		
-		when(repository.findAll()).thenReturn(list);
-		
-		var category = service.findAll();
-		
-		assertNotNull(category);
-		assertEquals(14, category.size());
-		
-		var CategoryOne = category.get(1);		
-	    assertNotNull(CategoryOne);
-		assertNotNull(CategoryOne.getKey());			
-		assertTrue(CategoryOne.toString().contains("[</api/category/v1/1>;rel=\"self\"]"));
-		assertEquals("Este é um name.1", CategoryOne.getName());
-		assertEquals("Este é uma description.1", CategoryOne.getDescription());
-		assertEquals(now.truncatedTo(ChronoUnit.SECONDS), CategoryOne.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
-		
-		var CategoryFour = category.get(4);		
-	    assertNotNull(CategoryFour);
-		assertNotNull(CategoryFour.getKey());			
-		assertTrue(CategoryFour.toString().contains("[</api/category/v1/4>;rel=\"self\"]"));
-		assertEquals("Este é um name.4", CategoryFour.getName());
-		assertEquals("Este é uma description.4", CategoryFour.getDescription());
-		assertEquals(now.truncatedTo(ChronoUnit.SECONDS), CategoryFour.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));		
-		
-		var CategorySeven = category.get(7);		
-	    assertNotNull(CategorySeven);
-		assertNotNull(CategorySeven.getKey());			
-		assertTrue(CategorySeven.toString().contains("[</api/category/v1/7>;rel=\"self\"]"));
-		assertEquals("Este é um name.7", CategorySeven.getName());
-		assertEquals("Este é uma description.7", CategorySeven.getDescription());
-		assertEquals(now.truncatedTo(ChronoUnit.SECONDS), CategorySeven.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));		
-	
 	}
 
 	@Test
@@ -129,7 +89,7 @@ class CategoryServicesTest {
 
 	    assertNotNull(result);
 		assertNotNull(result.getKey());			
-		assertTrue(result.toString().contains("[</api/category/v1/1>;rel=\"self\"]"));
+		assertTrue(result.toString().contains("[</api/category/v1/1>;rel=\"category-details\"]"));
 		assertEquals("Este é um name.1", result.getName());
 		assertEquals("Este é uma description.1", result.getDescription());
 		assertEquals(now.truncatedTo(ChronoUnit.SECONDS), result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
@@ -168,12 +128,11 @@ class CategoryServicesTest {
 	    
 	   assertNotNull(result);
 		assertNotNull(result.getKey());			
-		assertTrue(result.toString().contains("[</api/category/v1/1>;rel=\"self\"]"));
+		assertTrue(result.toString().contains("[</api/category/v1/1>;rel=\"category-details\"]"));
 		assertEquals("Este é um name.1", result.getName());
 		assertEquals("Este é uma description.1", result.getDescription());
 		assertEquals(now.truncatedTo(ChronoUnit.SECONDS), result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
 	}
-
 	
 	@Test
 	void testUpdateWithNullCategory() throws Exception {

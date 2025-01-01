@@ -7,19 +7,24 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.Comment;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({"id", "title", "content","created_at", "updated_at", "published_at", "slug", "status", "category_id", "image_desktop_id", "image_mobile_id", "comments"})
 public class PostVO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -37,9 +42,12 @@ public class PostVO implements Serializable {
     @JsonProperty("published_at")
     @Column(name = "published_at", nullable = true)
     private LocalDateTime publishedAt;
+    
     private String slug;
+    
     @JsonProperty("status")
     private Boolean status;
+    
     @ManyToOne(fetch = FetchType.EAGER) 
     @JoinColumn(name = "user_id")
     private User user;
@@ -48,12 +56,12 @@ public class PostVO implements Serializable {
     @JoinColumn(name = "category_id")
     private Category category;
     
-    @ManyToOne(fetch = FetchType.EAGER) 
-    @JoinColumn(name = "image_desktop_id")
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = true) 
+    @JoinColumn(name = "image_desktop_id", nullable = true)
     private File imageDesktop;
 
-    @ManyToOne(fetch = FetchType.EAGER) 
-    @JoinColumn(name = "image_mobile_id")
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = true) 
+    @JoinColumn(name = "image_mobile_id", nullable = true)
     private File imageMobile;
     
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY) 
@@ -61,11 +69,11 @@ public class PostVO implements Serializable {
 
     public PostVO() {}
     
-    @PrePersist
+  /*  @PrePersist
     public void prePresist() {
     	if (createdAt == null) createdAt = LocalDateTime.now();
     	updatedAt = createdAt;
-    }
+    }*/
     
     @PreUpdate
     public void preUpdate() {

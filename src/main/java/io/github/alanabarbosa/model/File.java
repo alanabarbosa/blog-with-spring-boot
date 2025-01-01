@@ -10,7 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-
+import jakarta.xml.bind.annotation.XmlRootElement;
+@XmlRootElement
 @Entity
 @Table(name = "files")
 public class File implements Serializable {

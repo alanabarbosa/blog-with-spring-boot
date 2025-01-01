@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder.Secret
 public class PasswordUtil {
 
     public static String encodePassword(String rawPassword) {
-        // Define os encoders
         Map<String, PasswordEncoder> encoders = new HashMap<>();
 
         Pbkdf2PasswordEncoder pbkdf2Encoder =
@@ -27,4 +26,5 @@ public class PasswordUtil {
 
         return encodedPassword.replace("{pbkdf2}", "");
     }
+    
 }
