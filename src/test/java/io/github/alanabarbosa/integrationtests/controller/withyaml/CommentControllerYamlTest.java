@@ -366,7 +366,73 @@ public class CommentControllerYamlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(9)
+	@Order(7)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/comment/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.config(
+				RestAssuredConfig
+					.config()
+					.encoderConfig(EncoderConfig.encoderConfig()
+						.encodeContentTypeAs(
+							TestConfigs.CONTENT_TYPE_YML,
+							ContentType.TEXT)))
+			.contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+				.when()
+				.post()
+			.then()
+				.statusCode(403);
+	}
+	
+
+	@Test
+	@Order(8)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+		
+		var unthreatedContent = given().spec(specification)
+				.config(
+						RestAssuredConfig
+							.config()
+							.encoderConfig(EncoderConfig.encoderConfig()
+								.encodeContentTypeAs(
+									TestConfigs.CONTENT_TYPE_YML,
+									ContentType.TEXT)))
+				.contentType(TestConfigs.CONTENT_TYPE_YML)
+				.accept(TestConfigs.CONTENT_TYPE_YML)
+				.queryParams("page", 3, "size", 12, "direction", "asc")
+				.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		var content = unthreatedContent.replace("\n", "").replace("\r", "");
+		
+		assertTrue(content.contains("rel: \"comment-details\"    href: \"http://localhost:8888/api/comment/v1/530\""));
+		assertTrue(content.contains("rel: \"comment-details\"    href: \"http://localhost:8888/api/comment/v1/458\""));
+		assertTrue(content.contains("rel: \"comment-details\"    href: \"http://localhost:8888/api/comment/v1/490\""));
+		
+		assertTrue(content.contains("rel: \"first\"  href: \"http://localhost:8888/api/comment/v1?direction=asc&page=0&size=12&sort=content,asc\""));
+		assertTrue(content.contains("rel: \"prev\"  href: \"http://localhost:8888/api/comment/v1?direction=asc&page=2&size=12&sort=content,asc\""));
+		assertTrue(content.contains("rel: \"self\"  href: \"http://localhost:8888/api/comment/v1?page=3&size=12&direction=asc\""));
+		assertTrue(content.contains("rel: \"next\"  href: \"http://localhost:8888/api/comment/v1?direction=asc&page=4&size=12&sort=content,asc\""));
+		assertTrue(content.contains("rel: \"last\"  href: \"http://localhost:8888/api/comment/v1?direction=asc&page=83&size=12&sort=content,asc\""));
+		
+		assertTrue(content.contains("page:  size: 12  totalElements: 1004  totalPages: 84  number: 3"));
+	}
+	
+	@Test
+	@Order(11)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		 given().spec(specification)

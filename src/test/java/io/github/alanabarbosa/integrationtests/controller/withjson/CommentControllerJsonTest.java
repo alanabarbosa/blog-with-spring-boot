@@ -331,7 +331,55 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	}	
 	
 	@Test
+	@Order(7)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/comment/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.when()
+				.post()
+			.then()
+				.statusCode(403);
+	}
+	
+	@Test
 	@Order(8)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
+				.queryParams("page", 3, "size", 12, "direction", "asc")
+					.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		assertTrue(content.contains("\"_links\":{\"comment-details\":{\"href\":\"http://localhost:8888/api/comment/v1/530\"}}}"));
+		assertTrue(content.contains("\"_links\":{\"comment-details\":{\"href\":\"http://localhost:8888/api/comment/v1/458\"}}}"));
+		assertTrue(content.contains("\"_links\":{\"comment-details\":{\"href\":\"http://localhost:8888/api/comment/v1/490\"}}}"));		
+		
+		assertTrue(content.contains("{\"first\":{\"href\":\"http://localhost:8888/api/comment/v1?direction=asc&page=0&size=12&sort=content,asc\"}"));
+		assertTrue(content.contains("\"prev\":{\"href\":\"http://localhost:8888/api/comment/v1?direction=asc&page=2&size=12&sort=content,asc\"}"));
+		assertTrue(content.contains("\"self\":{\"href\":\"http://localhost:8888/api/comment/v1?page=3&size=12&direction=asc\"}"));
+		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/comment/v1?direction=asc&page=4&size=12&sort=content,asc\"}"));
+		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/comment/v1?direction=asc&page=83&size=12&sort=content,asc\"}}"));
+		
+		assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":1004,\"totalPages\":84,\"number\":3}}"));
+	}
+	
+	@Test
+	@Order(9)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -370,7 +418,7 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(7)
+	@Order(10)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)

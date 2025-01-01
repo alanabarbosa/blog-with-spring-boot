@@ -322,6 +322,54 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(7)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+				.setBasePath("/api/user/v1")
+				.setPort(TestConfigs.SERVER_PORT)
+					.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+					.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+				.build();
+			
+			given().spec(specificationWithoutToken)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.when()
+					.put()
+				.then()
+					.statusCode(403);
+	}
+	
+	@Test
+	@Order(8)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
+				.queryParams("page", 2, "size", 12, "direction", "asc")
+					.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		assertTrue(content.contains("\"_links\":{\"user-details\":{\"href\":\"http://localhost:8888/api/user/v1/111\"}}}"));
+		assertTrue(content.contains("\"_links\":{\"user-details\":{\"href\":\"http://localhost:8888/api/user/v1/113\"}}}"));
+		assertTrue(content.contains("\"_links\":{\"user-details\":{\"href\":\"http://localhost:8888/api/user/v1/101\"}}}"));		
+		
+		assertTrue(content.contains("{\"first\":{\"href\":\"http://localhost:8888/api/user/v1?direction=asc&page=0&size=12&sort=firstName,asc\"}"));
+		assertTrue(content.contains("\"prev\":{\"href\":\"http://localhost:8888/api/user/v1?direction=asc&page=1&size=12&sort=firstName,asc\"}"));
+		assertTrue(content.contains("\"self\":{\"href\":\"http://localhost:8888/api/user/v1?page=2&size=12&direction=asc\"}"));
+		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/user/v1?direction=asc&page=3&size=12&sort=firstName,asc\"}"));
+		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/user/v1?direction=asc&page=25&size=12&sort=firstName,asc\"}}"));
+		
+		assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":304,\"totalPages\":26,\"number\":2}}"));
+	}
+	
+	@Test
+	@Order(9)
 	public void testFindByName() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -351,7 +399,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(8)
+	@Order(10)
 	public void testDisableUserById() throws JsonMappingException, JsonProcessingException {
 			
 		var content = given().spec(specification)
@@ -397,7 +445,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	}	
 	
 	@Test
-	@Order(9)
+	@Order(11)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)

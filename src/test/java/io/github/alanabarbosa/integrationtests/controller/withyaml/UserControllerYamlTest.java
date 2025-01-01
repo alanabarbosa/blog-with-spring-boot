@@ -288,6 +288,72 @@ public class UserControllerYamlTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(8)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/user/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.config(
+				RestAssuredConfig
+					.config()
+					.encoderConfig(EncoderConfig.encoderConfig()
+						.encodeContentTypeAs(
+							TestConfigs.CONTENT_TYPE_YML,
+							ContentType.TEXT)))
+			.contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+				.when()
+				.put()
+			.then()
+				.statusCode(403);
+	}
+	
+
+	@Test
+	@Order(9)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+		
+		var unthreatedContent = given().spec(specification)
+				.config(
+						RestAssuredConfig
+							.config()
+							.encoderConfig(EncoderConfig.encoderConfig()
+								.encodeContentTypeAs(
+									TestConfigs.CONTENT_TYPE_YML,
+									ContentType.TEXT)))
+				.contentType(TestConfigs.CONTENT_TYPE_YML)
+				.accept(TestConfigs.CONTENT_TYPE_YML)
+				.queryParams("page", 2, "size", 12, "direction", "asc")
+				.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		var content = unthreatedContent.replace("\n", "").replace("\r", "");
+		
+		assertTrue(content.contains("rel: \"user-details\"    href: \"http://localhost:8888/api/user/v1/111\""));
+		assertTrue(content.contains("rel: \"user-details\"    href: \"http://localhost:8888/api/user/v1/113\""));
+		assertTrue(content.contains("rel: \"user-details\"    href: \"http://localhost:8888/api/user/v1/101\""));
+		
+		assertTrue(content.contains("rel: \"first\"  href: \"http://localhost:8888/api/user/v1?direction=asc&page=0&size=12&sort=firstName,asc\""));
+		assertTrue(content.contains("rel: \"prev\"  href: \"http://localhost:8888/api/user/v1?direction=asc&page=1&size=12&sort=firstName,asc\""));
+		assertTrue(content.contains("rel: \"self\"  href: \"http://localhost:8888/api/user/v1?page=2&size=12&direction=asc\""));
+		assertTrue(content.contains("rel: \"next\"  href: \"http://localhost:8888/api/user/v1?direction=asc&page=3&size=12&sort=firstName,asc\""));
+		assertTrue(content.contains("rel: \"last\"  href: \"http://localhost:8888/api/user/v1?direction=asc&page=25&size=12&sort=firstName,asc\""));
+		
+		assertTrue(content.contains("page:  size: 12  totalElements: 304  totalPages: 26  number: 2"));
+	}
+	
+	@Test
+	@Order(10)
 	public void testDisableUserById() throws JsonMappingException, JsonProcessingException {
 			
 		var persistedUser = given().spec(specification)
@@ -339,7 +405,7 @@ public class UserControllerYamlTest extends AbstractIntegrationTest{
 	}		
 	
 	@Test
-	@Order(9)
+	@Order(11)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)

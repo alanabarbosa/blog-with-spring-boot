@@ -324,6 +324,53 @@ public class CommentControllerXmlTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(8)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/comment/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.contentType(TestConfigs.CONTENT_TYPE_XML)
+			.accept(TestConfigs.CONTENT_TYPE_XML)
+				.when()
+				.post()
+			.then()
+				.statusCode(403);
+	}
+	
+	@Test
+	@Order(9)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+				.queryParams("page", 3, "size", 12, "direction", "asc")
+					.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		assertTrue(content.contains("<links><rel>comment-details</rel><href>http://localhost:8888/api/comment/v1/530</href></links>"));
+		assertTrue(content.contains("<links><rel>comment-details</rel><href>http://localhost:8888/api/comment/v1/458</href></links>"));
+		assertTrue(content.contains("<links><rel>comment-details</rel><href>http://localhost:8888/api/comment/v1/490</href></links>"));
+		
+		assertTrue(content.contains("<links><rel>first</rel><href>http://localhost:8888/api/comment/v1?direction=asc&amp;page=0&amp;size=12&amp;sort=content,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>prev</rel><href>http://localhost:8888/api/comment/v1?direction=asc&amp;page=2&amp;size=12&amp;sort=content,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>self</rel><href>http://localhost:8888/api/comment/v1?page=3&amp;size=12&amp;direction=asc</href></links>"));
+		assertTrue(content.contains("<links><rel>next</rel><href>http://localhost:8888/api/comment/v1?direction=asc&amp;page=4&amp;size=12&amp;sort=content,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>last</rel><href>http://localhost:8888/api/comment/v1?direction=asc&amp;page=83&amp;size=12&amp;sort=content,asc</href></links>"));
+		assertTrue(content.contains("<page><size>12</size><totalElements>1005</totalElements><totalPages>84</totalPages><number>3</number></page>"));
+	}
+	@Test
+	@Order(10)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)

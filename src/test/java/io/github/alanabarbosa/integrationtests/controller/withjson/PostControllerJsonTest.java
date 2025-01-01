@@ -401,6 +401,54 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(9)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/post/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.when()
+				.post()
+			.then()
+				.statusCode(403);
+	}
+	
+	@Test
+	@Order(10)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
+				.queryParams("page", 2, "size", 12, "direction", "asc")
+					.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		assertTrue(content.contains("\"_links\":{\"post-details\":{\"href\":\"http://localhost:8888/api/post/v1/464\"}}}"));
+		assertTrue(content.contains("\"_links\":{\"post-details\":{\"href\":\"http://localhost:8888/api/post/v1/29\"}}}"));
+		assertTrue(content.contains("\"_links\":{\"post-details\":{\"href\":\"http://localhost:8888/api/post/v1/745\"}}}"));		
+		
+		assertTrue(content.contains("{\"first\":{\"href\":\"http://localhost:8888/api/post/v1?direction=asc&page=0&size=12&sort=title,asc\"}"));
+		assertTrue(content.contains("\"prev\":{\"href\":\"http://localhost:8888/api/post/v1?direction=asc&page=1&size=12&sort=title,asc\"}"));
+		assertTrue(content.contains("\"self\":{\"href\":\"http://localhost:8888/api/post/v1?page=2&size=12&direction=asc\"}"));
+		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/post/v1?direction=asc&page=3&size=12&sort=title,asc\"}"));
+		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/post/v1?direction=asc&page=83&size=12&sort=title,asc\"}}"));
+		
+		assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":1000,\"totalPages\":84,\"number\":2}}"));
+	}
+	
+	@Test
+	@Order(11)
 	public void testDisablePostById() throws JsonMappingException, JsonProcessingException {
 			
 		var content = given().spec(specification)

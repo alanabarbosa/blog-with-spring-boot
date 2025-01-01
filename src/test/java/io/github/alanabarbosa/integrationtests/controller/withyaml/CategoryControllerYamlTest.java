@@ -116,7 +116,6 @@ public class CategoryControllerYamlTest extends AbstractIntegrationTest {
         assertEquals("Technology", category.getName());
         assertEquals("Posts related to technology trends and news", category.getDescription());
     }
-    
 	
 	@Test
 	@Order(2)
@@ -278,7 +277,73 @@ public class CategoryControllerYamlTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
+	@Order(7)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/category/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.config(
+				RestAssuredConfig
+					.config()
+					.encoderConfig(EncoderConfig.encoderConfig()
+						.encodeContentTypeAs(
+							TestConfigs.CONTENT_TYPE_YML,
+							ContentType.TEXT)))
+			.contentType(TestConfigs.CONTENT_TYPE_YML)
+			.accept(TestConfigs.CONTENT_TYPE_YML)
+				.when()
+				.post()
+			.then()
+				.statusCode(403);
+	}
+	
+
+	@Test
 	@Order(8)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+		
+		var unthreatedContent = given().spec(specification)
+				.config(
+						RestAssuredConfig
+							.config()
+							.encoderConfig(EncoderConfig.encoderConfig()
+								.encodeContentTypeAs(
+									TestConfigs.CONTENT_TYPE_YML,
+									ContentType.TEXT)))
+				.contentType(TestConfigs.CONTENT_TYPE_YML)
+				.accept(TestConfigs.CONTENT_TYPE_YML)
+				.queryParams("page", 1, "size", 3, "direction", "asc")
+				.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		var content = unthreatedContent.replace("\n", "").replace("\r", "");
+		
+		assertTrue(content.contains("rel: \"category-details\"    href: \"http://localhost:8888/api/category/v1/7\""));
+		assertTrue(content.contains("rel: \"category-details\"    href: \"http://localhost:8888/api/category/v1/6\""));
+		assertTrue(content.contains("rel: \"category-details\"    href: \"http://localhost:8888/api/category/v1/3\""));
+		
+		assertTrue(content.contains("rel: \"first\"  href: \"http://localhost:8888/api/category/v1?direction=asc&page=0&size=3&sort=name,asc\""));
+		assertTrue(content.contains("rel: \"prev\"  href: \"http://localhost:8888/api/category/v1?direction=asc&page=0&size=3&sort=name,asc\""));
+		assertTrue(content.contains("rel: \"self\"  href: \"http://localhost:8888/api/category/v1?page=1&size=3&direction=asc\""));
+		assertTrue(content.contains("rel: \"next\"  href: \"http://localhost:8888/api/category/v1?direction=asc&page=2&size=3&sort=name,asc\""));
+		assertTrue(content.contains("rel: \"last\"  href: \"http://localhost:8888/api/category/v1?direction=asc&page=3&size=3&sort=name,asc\""));
+		
+		assertTrue(content.contains("page:  size: 3  totalElements: 11  totalPages: 4  number: 1"));
+	}
+	
+	@Test
+	@Order(9)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
         given().spec(specification)

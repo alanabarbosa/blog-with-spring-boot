@@ -344,6 +344,54 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(8)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/post/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.contentType(TestConfigs.CONTENT_TYPE_XML)
+			.accept(TestConfigs.CONTENT_TYPE_XML)
+				.when()
+				.post()
+			.then()
+				.statusCode(403);
+	}
+	
+	@Test
+	@Order(9)
+	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+				.queryParams("page", 2, "size", 12, "direction", "asc")
+					.when()
+					.get()
+				.then()
+					.statusCode(200)
+						.extract()
+						.body()
+							.asString();
+		
+		assertTrue(content.contains("<links><rel>post-details</rel><href>http://localhost:8888/api/post/v1/464</href></links>"));
+		assertTrue(content.contains("<links><rel>post-details</rel><href>http://localhost:8888/api/post/v1/29</href></links>"));
+		assertTrue(content.contains("<links><rel>post-details</rel><href>http://localhost:8888/api/post/v1/745</href></links>"));
+		
+		assertTrue(content.contains("<links><rel>first</rel><href>http://localhost:8888/api/post/v1?direction=asc&amp;page=0&amp;size=12&amp;sort=title,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>prev</rel><href>http://localhost:8888/api/post/v1?direction=asc&amp;page=1&amp;size=12&amp;sort=title,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>self</rel><href>http://localhost:8888/api/post/v1?page=2&amp;size=12&amp;direction=asc</href></links>"));
+		assertTrue(content.contains("<links><rel>next</rel><href>http://localhost:8888/api/post/v1?direction=asc&amp;page=3&amp;size=12&amp;sort=title,asc</href></links>"));
+		assertTrue(content.contains("<links><rel>last</rel><href>http://localhost:8888/api/post/v1?direction=asc&amp;page=83&amp;size=12&amp;sort=title,asc</href></links>"));
+		assertTrue(content.contains("<page><size>12</size><totalElements>1001</totalElements><totalPages>84</totalPages><number>2</number></page>"));
+	}
+	
+	@Test
+	@Order(10)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -381,7 +429,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(9)
+	@Order(11)
 	public void testDisablePostById() throws JsonMappingException, JsonProcessingException {
 			
 		var content = given().spec(specification)
@@ -417,7 +465,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	}	
 	
 	@Test
-	@Order(10)
+	@Order(12)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)
