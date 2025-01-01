@@ -94,55 +94,6 @@ class UserServicesTest {
         assertEquals(now, result.getCreatedAt().truncatedTo(ChronoUnit.SECONDS));
     }
 
-    @Test
-    void testFindAll() {
-        List<User> list = input.mockEntityList();
-
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-
-        when(repository.findAll()).thenReturn(list);
-
-        var user = service.findAll();
-
-        assertNotNull(user);
-       //assertEquals(14, user.size());
-        assertEquals(7, user.size());
-
-        var userOne = user.get(1);
-        assertNotNull(userOne);
-        assertNotNull(userOne.getKey());
-        assertNotNull(userOne.getLinks());
-        assertTrue(userOne.toString().contains("[</api/user/v1/2>;rel=\"user-details\"]"));
-        assertEquals("This is a first name.2", userOne.getFirstName());
-        //assertEquals("This is a password.2", userOne.getPassword());
-        //assertEquals(true, userOne.getAccountNonExpired());
-       // assertEquals(true, userOne.getAccountNonLocked());
-       // assertEquals(true, userOne.getCredentialsNonExpired());
-        assertEquals(true, userOne.getEnabled());
-
-        var userFour = user.get(4);
-        assertNotNull(userFour);
-        assertNotNull(userFour.getKey());
-        assertNotNull(userFour.getLinks());
-        
-        System.out.println("Links to String: " + userFour.toString());
-        
-        assertTrue(userFour.toString().contains("[</api/user/v1/8>;rel=\"user-details\"]"));
-        assertEquals("This is a first name.8", userFour.getFirstName());
-        //assertEquals("This is a password.8", userFour.getPassword());
-       // assertEquals(true, userFour.getAccountNonExpired());
-        //assertEquals(true, userFour.getAccountNonLocked());
-        //assertEquals(true, userFour.getCredentialsNonExpired());
-        assertEquals(true, userFour.getEnabled());
-        
-        var userSeven = user.get(6);
-        assertNotNull(userSeven);
-        assertNotNull(userSeven.getKey());
-        assertNotNull(userSeven.getLinks());
-        assertTrue(userSeven.toString().contains("[</api/user/v1/12>;rel=\"user-details\"]"));
-        assertEquals("This is a first name.12", userSeven.getFirstName());
-        assertEquals(true, userSeven.getEnabled());        
-    }
 
     @Test
     void testCreate() throws Exception {

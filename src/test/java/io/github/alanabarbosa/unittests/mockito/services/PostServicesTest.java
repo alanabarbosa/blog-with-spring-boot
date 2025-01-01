@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -91,46 +90,6 @@ class PostServicesTest {
 		//assertEquals(true, result.getUser().getCredentialsNonExpired());
 	}
 
-	/*@Test
-	void testFindAll() {
-		List<Post> list = input.mockEntityList();
-		
-		LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-		
-		when(repository.findAll()).thenReturn(list);
-		var post = service.findAll();
-		
-		assertNotNull(post);
-		assertEquals(14, post.size());
-		
-		var postOne = post.get(1);		
-		assertNotNull(postOne);
-		assertNotNull(postOne.getKey());
-		
-		assertNotNull(postOne.getLinks());	
-		assertTrue(postOne.toString().contains("[</api/post/v1/1>;rel=\"post-details\"]"));
-		
-		assertEquals("Meu Título1", postOne.getTitle());
-		assertEquals(2L, postOne.getUser().getKey());
-		
-		var postFour = post.get(4);		
-		assertNotNull(postFour);
-		assertNotNull(postFour.getKey());
-		assertNotNull(postFour.getLinks());		
-		assertTrue(postFour.toString().contains("[</api/post/v1/4>;rel=\"post-details\"]"));
-		assertEquals("Meu Título4", postFour.getTitle());
-		assertEquals(5L, postFour.getUser().getKey());
-		
-		var postSeven = post.get(7);		
-		assertNotNull(postSeven);
-		assertNotNull(postSeven.getKey());
-		assertNotNull(postSeven.getLinks());		
-		assertTrue(postSeven.toString().contains("[</api/post/v1/7>;rel=\"post-details\"]"));
-		assertEquals("Meu Título7", postSeven.getTitle());
-		assertEquals(new CategoryBasicVO(), postSeven.getCategory());
-		assertEquals(8L, postSeven.getUser().getKey());		
-	}
-*/
 	@Test
 	void testCreate() throws Exception {
 	    Post entity = input.mockEntity(1); 

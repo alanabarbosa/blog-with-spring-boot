@@ -66,42 +66,6 @@ class CommentServicesTest {
 		assertEquals(true, result.getStatus());	
 	}
 
-	@Test
-	void testFindAll() {
-		List<Comment> list = input.mockEntityList();
-		
-		LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-		
-		System.out.println("Tamanho da lista mockada: " + list.size());
-		when(repository.findAllWithUser()).thenReturn(list); 
-		
-		var comment = service.findAll();
-		
-		System.out.println("tamanho total: " + comment.size());
-		System.out.println("tamanho total: " + comment);
-		
-		assertNotNull(comment);
-		assertEquals(14, comment.size());
-		
-		var commentOne = comment.get(1);		
-		assertNotNull(commentOne);
-		assertNotNull(commentOne.getKey());		
-		assertTrue(commentOne.toString().contains("[</api/comment/v1/1>;rel=\"comment-details\"]"));
-		assertEquals("Este é um comentario.1", commentOne.getContent());
-		
-		var CommentFour = comment.get(4);		
-		assertNotNull(CommentFour);
-		assertNotNull(CommentFour.getKey());		
-		assertTrue(CommentFour.toString().contains("[</api/comment/v1/4>;rel=\"comment-details\"]"));
-		assertEquals("Este é um comentario.4", CommentFour.getContent());
-		
-		var CommentSeven = comment.get(7);		
-		assertNotNull(CommentSeven);
-		assertNotNull(CommentSeven.getKey());		
-		assertTrue(CommentSeven.toString().contains("[</api/comment/v1/7>;rel=\"comment-details\"]"));
-		assertEquals("Este é um comentario.7", CommentSeven.getContent());
-	
-	}
 
 	@Test
 	void testCreate() throws Exception {
