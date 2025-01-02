@@ -45,21 +45,15 @@ public class FileStorageService {
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
 
         try {
-            // Valida se o nome do arquivo contém uma sequência de caminho inválida
             if (filename.contains("..")) {
                 throw new FileStorageException("Sorry! Filename contains invalid path sequence " + filename);
             }
-
-            // Verifica o tamanho do arquivo antes de salvar
-            long originalFileSize = file.getSize();
-            System.out.println("Tamanho original do arquivo: " + originalFileSize + " bytes");
 
             File fileEntity = new File();
             fileEntity.setFilename(filename);
             fileEntity.setContentType(file.getContentType());
             fileEntity.setData(file.getBytes());
 
-            // Salva no repositório
             repository.save(fileEntity);
 
             return filename;
@@ -73,9 +67,6 @@ public class FileStorageService {
             File fileEntity = repository.findByFilename(filename)
                     .orElseThrow(() -> new MyFileNotFoundException("File not found " + filename));
 
-            // Verifica o tamanho do arquivo recuperado
-            long retrievedFileSize = fileEntity.getData().length;
-            System.out.println("Tamanho do arquivo recuperado: " + retrievedFileSize + " bytes");
 
             return new InputStreamResource(new ByteArrayInputStream(fileEntity.getData()));
         } catch (Exception e) {

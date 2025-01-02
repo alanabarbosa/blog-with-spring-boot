@@ -14,7 +14,7 @@ public class OpenApiConfig {
     OpenAPI customOpenApi() {
     	return new OpenAPI()
     		    .info(new Info()
-    		        .title("RESTful API with Java 19 and Spring Boot 3")
+    		        .title("Blog RESTful API with Java 19 and Spring Boot 3")
     		        .version("v1")
     		        .description("This API provides RESTful web services for managing resources with Java 19 and Spring Boot 3. It includes features like JWT authentication, CRUD operations, and integration with MySQL.")
     		        .termsOfService("https://www.apache.org/licenses/LICENSE-2.0.html")
