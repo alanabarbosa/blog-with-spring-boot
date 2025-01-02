@@ -1,49 +1,43 @@
-package io.github.alanabarbosa.model;
+package io.github.alanabarbosa.data.vo.v1;
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.hateoas.RepresentationModel;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import jakarta.xml.bind.annotation.XmlRootElement;
-@XmlRootElement
+
 @Entity
 @Table(name = "files")
-public class File implements Serializable {
+public class FileVO extends RepresentationModel<FileVO> implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;	
 	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String filename;
-    
-    @JsonProperty("content_type")
-    private String contentType;
 
     @Lob
     private byte[] data;   
     
 
-	public File() {
+	public FileVO() {
 		super();
 	}
 
-	public File(Long id, String filename, byte[] data, String contentType) {
+	public FileVO(Long id, String filename, byte[] data) {
 		super();
 		this.id = id;
 		this.filename = filename;
 		this.data = data;
-		this.contentType = contentType;
 	}
 
 	public Long getId() {
@@ -56,14 +50,6 @@ public class File implements Serializable {
 
 	public String getFilename() {
 		return filename;
-	}
-
-	public String getContentType() {
-		return contentType;
-	}
-
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
 	}
 
 	public void setFilename(String filename) {
@@ -83,7 +69,7 @@ public class File implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.hashCode(data);
-		result = prime * result + Objects.hash(contentType, filename, id);
+		result = prime * result + Objects.hash(filename, id);
 		return result;
 	}
 
@@ -95,9 +81,9 @@ public class File implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		File other = (File) obj;
-		return Objects.equals(contentType, other.contentType) && Arrays.equals(data, other.data)
-				&& Objects.equals(filename, other.filename) && Objects.equals(id, other.id);
+		FileVO other = (FileVO) obj;
+		return Arrays.equals(data, other.data) && Objects.equals(filename, other.filename)
+				&& Objects.equals(id, other.id);
 	}
 
     

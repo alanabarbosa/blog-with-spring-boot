@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "name": "file",
+      "type": "io.github.alanabarbosa.config.FileStorageConfig",
+      "sourceType": "io.github.alanabarbosa.config.FileStorageConfig"
+    }
+  ],
+  "properties": [
+    {
+      "name": "file.upload-dir",
+      "type": "java.lang.String",
+      "sourceType": "io.github.alanabarbosa.config.FileStorageConfig"
+    }
+  ],
+  "hints": []
+}
