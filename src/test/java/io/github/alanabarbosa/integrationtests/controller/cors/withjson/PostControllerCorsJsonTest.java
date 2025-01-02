@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.integrationtests.controller.withjson;
+package io.github.alanabarbosa.integrationtests.controller.cors.withjson;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
@@ -29,7 +29,6 @@ import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegratio
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
-import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperPostVO;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Role;
@@ -42,7 +41,7 @@ import io.restassured.specification.RequestSpecification;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
-public class PostControllerJsonTest extends AbstractIntegrationTest{
+public class PostControllerCorsJsonTest extends AbstractIntegrationTest{
 	
 	private static RequestSpecification specification ;
 	private static ObjectMapper objectMapper;
@@ -141,89 +140,30 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 		//assertEquals(1L, persistedPost.getCategory().getId());
 		assertEquals(1L, persistedPost.getUser().getId());		
 	}
-
+	
 	@Test
 	@Order(2)
-	public void testCreateAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
+		mockPost();
 		
-		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
-			.setBasePath("/api/post/v1")
-			.setPort(TestConfigs.SERVER_PORT)
-				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-			.build();
-		
-		given().spec(specificationWithoutToken)
-			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
+					.body(post)
 				.when()
-				.post()
-			.then()
-				.statusCode(403);
+					.post()
+				.then()
+					.statusCode(403)
+						.extract()
+							.body()
+								.asString();
+		
+		assertNotNull(content);
+		assertEquals("Invalid CORS request", content);		
 	}
 	
 	@Test
 	@Order(3)
-	public void testUpdate() throws JsonMappingException, JsonProcessingException {
-		post.setTitle("Content Negotiation using Spring MVC");
-		
-	    objectMapper.registerModule(new JavaTimeModule());
-	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);		
-		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-					.body(post)
-					.when()
-					.post()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		PostVO persistedPost = objectMapper.readValue(content, PostVO.class);
-		post = persistedPost;
-		
-		assertNotNull(persistedPost);
-		
-		assertNotNull(persistedPost.getId());
-		assertNotNull(persistedPost.getTitle());
-		assertNotNull(persistedPost.getContent());
-		assertNotNull(persistedPost.getUpdatedAt());
-		assertNotNull(persistedPost.getCategory());
-		assertNotNull(persistedPost.getUser());
-		assertNull(persistedPost.getImageDesktop());
-	    assertNull(persistedPost.getImageMobile());
-		
-	    assertEquals(post.getId(), persistedPost.getId());
-		
-		assertEquals("Content Negotiation using Spring MVC", persistedPost.getTitle());
-		assertEquals("In this post I want to discuss how to configure and use content "
-		        + "negotiation with Spring, mostly in terms of RESTful Controllers using HTTP "
-		        + "message converters. In a later post I will show how to setup content negotiation "
-		        + "specifically for use with views using Spring's ContentNegotiatingViewResolver.", 
-		        persistedPost.getContent());
-		
-		assertEquals("content-negotiation-using-spring-mvc", persistedPost.getSlug());
-		assertEquals(true, persistedPost.getStatus());
-		
-		//assertTrue(persistedPost.getCreatedAt()
-		//		.truncatedTo(ChronoUnit.SECONDS)
-		//		.isEqual(now
-		//				.truncatedTo(ChronoUnit.SECONDS)));
-		
-		//assertTrue(persistedPost.getUpdatedAt()
-		//		.truncatedTo(ChronoUnit.SECONDS)
-		//		.isEqual(now
-		//				.truncatedTo(ChronoUnit.SECONDS)));
-	
-		assertEquals(null, persistedPost.getImageDesktop()); 
-		assertEquals(null, persistedPost.getImageMobile());
-		assertEquals(1L, persistedPost.getCategory().getId());
-		assertEquals(1L, persistedPost.getUser().getId());		
-	}
-	
-	@Test
-	@Order(4)
 	public void testFindById() throws JsonMappingException, JsonProcessingException {
 		System.out.println("Inicio do testFindById");
 		mockPost();
@@ -275,181 +215,25 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 	} 
 	
 	@Test
-	@Order(5)
-	public void findPostsByUserId() throws JsonMappingException, JsonProcessingException {
-		mockPost();
+	@Order(4)
+	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
+		mockPost();	
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-				.accept(TestConfigs.CONTENT_TYPE_JSON)
-				.pathParam("id", 1)
-				.queryParams("page", 0, "size", 10, "direction", "asc")
-					.when()
-					.get("user/{id}")
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		WrapperPostVO wrapper = objectMapper
-				.readValue(content, WrapperPostVO.class);
-		
-		var p = wrapper.getEmbedded().getPosts();
-		
-		
-		PostVO founPostOne = p.get(0);
-		
-		assertNotNull(founPostOne.getId());
-		assertEquals(91, founPostOne.getId());		
-		assertEquals("Jane Austen Book Club, The", founPostOne.getTitle());
-	}
-	
-	@Test
-	@Order(6)
-	public void findPostsByCategoryId() throws JsonMappingException, JsonProcessingException {
-		mockPost();
-		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-				.accept(TestConfigs.CONTENT_TYPE_JSON)
-				.pathParam("id", 1)
-				.queryParams("page", 0, "size", 10, "direction", "asc")
-					.when()
-					.get("category/{id}")
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		WrapperPostVO wrapper = objectMapper
-				.readValue(content, WrapperPostVO.class);
-		
-		var p = wrapper.getEmbedded().getPosts();
-		
-		
-		PostVO founPostOne = p.get(0);
-		
-		assertNotNull(founPostOne.getId());
-		assertEquals(3, founPostOne.getId());		
-		assertEquals("Sebastian", founPostOne.getTitle());
-	}	
-	
-	@Test
-	@Order(7)
-	public void testFindAll() throws JsonMappingException, JsonProcessingException {
-		
-		var content = given().spec(specification)
-				.queryParams("page", 0, "size", 10, "direction", "asc")
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-					.when()
-					.get()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		WrapperPostVO wrapper = objectMapper
-				.readValue(content, WrapperPostVO.class);
-		
-		var post = wrapper.getEmbedded().getPosts();
-		
-		PostVO foundPostOne = post.get(0);
-		
-		assertNotNull(foundPostOne.getId());
-		assertNotNull(foundPostOne.getTitle());
-		
-		assertEquals(793, foundPostOne.getId());
-		assertEquals("(Absolutions) Pipilotti's Mistakes ((Entlastungen) Pipilottis Fehler)", foundPostOne.getTitle());
-		
-		PostVO foundPostSix = post.get(3);
-		
-		assertNotNull(foundPostSix.getId());
-		assertNotNull(foundPostSix.getTitle());
-		
-		assertEquals(447, foundPostSix.getId());		
-		assertEquals("11 Flowers (Wo 11)", foundPostSix.getTitle());
-	}
-	
-	@Test
-	@Order(8)
-	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
-		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-				.accept(TestConfigs.CONTENT_TYPE_JSON)
-				.queryParams("page", 2, "size", 12, "direction", "asc")
-					.when()
-					.get()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		assertTrue(content.contains("\"_links\":{\"post-details\":{\"href\":\"http://localhost:8888/api/post/v1/464\"}}}"));
-		assertTrue(content.contains("\"_links\":{\"post-details\":{\"href\":\"http://localhost:8888/api/post/v1/29\"}}}"));
-		assertTrue(content.contains("\"_links\":{\"post-details\":{\"href\":\"http://localhost:8888/api/post/v1/745\"}}}"));		
-		
-		assertTrue(content.contains("{\"first\":{\"href\":\"http://localhost:8888/api/post/v1?direction=asc&page=0&size=12&sort=title,asc\"}"));
-		assertTrue(content.contains("\"prev\":{\"href\":\"http://localhost:8888/api/post/v1?direction=asc&page=1&size=12&sort=title,asc\"}"));
-		assertTrue(content.contains("\"self\":{\"href\":\"http://localhost:8888/api/post/v1?page=2&size=12&direction=asc\"}"));
-		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/post/v1?direction=asc&page=3&size=12&sort=title,asc\"}"));
-		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/post/v1?direction=asc&page=83&size=12&sort=title,asc\"}}"));
-		
-		assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":1000,\"totalPages\":84,\"number\":2}}"));
-	}
-	
-	@Test
-	@Order(9)
-	public void testDisablePostById() throws JsonMappingException, JsonProcessingException {
-			
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.pathParam("id", post.getId())
 					.when()
-					.patch("{id}")
+					.get("{id}")
 				.then()
-					.statusCode(200)
+					.statusCode(403)
 						.extract()
 						.body()
 							.asString();
 		
-		PostVO persistedPost = objectMapper.readValue(content, PostVO.class);
-		
-		assertNotNull(persistedPost);
-		
-		assertNotNull(persistedPost.getId());
-		assertNotNull(persistedPost.getTitle());
-		assertNotNull(persistedPost.getContent());
-		assertNotNull(persistedPost.getSlug());
-		assertNotNull(persistedPost.getCreatedAt());
-		assertNotNull(persistedPost.getUpdatedAt());
-		assertNotNull(persistedPost.getCategory());
-		assertNotNull(persistedPost.getUser());
-		
-		assertEquals(post.getId(), persistedPost.getId());
-		
-		assertEquals("Content Negotiation using Spring MVC", persistedPost.getTitle());
-		assertEquals("In this post I want to discuss how to configure and use content "
-				+ "negotiation with Spring, mostly in terms of RESTful Controllers using HTTP "
-				+ "message converters. In a later post I will show how to setup content negotiation "
-				+ "specifically for use with views using Spring's ContentNegotiatingViewResolver.", persistedPost.getContent());
-	}	
 	
-	@Test
-	@Order(10)
-	public void testDelete() throws JsonMappingException, JsonProcessingException {
-
-		given().spec(specification)
-			.contentType(TestConfigs.CONTENT_TYPE_JSON)
-				.pathParam("id", post.getId())
-				.when()
-				.delete("{id}")
-			.then()
-				.statusCode(204);
+		assertNotNull(content);
+		assertEquals("Invalid CORS request", content);
 	}
 
 	private void mockPost() {

@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.integrationtests.controller.withxml;
+package io.github.alanabarbosa.integrationtests.controller.withjson;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
@@ -113,25 +113,27 @@ public class CategoryControllerXmlTest extends AbstractIntegrationTest {
         assertEquals("Technology", persistedCategory.getName());
         assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());
     }
-
+	
 	@Test
 	@Order(2)
-	public void testCreateWithoutToken() throws JsonMappingException, JsonProcessingException {
+	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
+		mockCategory();
 		
-		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
-			.setBasePath("/api/category/v1")
-			.setPort(TestConfigs.SERVER_PORT)
-				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-			.build();
-		
-		given().spec(specificationWithoutToken)
-			.contentType(TestConfigs.CONTENT_TYPE_XML)
-			.accept(TestConfigs.CONTENT_TYPE_XML)
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
+					.body(category)
 				.when()
-				.post()
-			.then()
-				.statusCode(403);
+					.post()
+				.then()
+					.statusCode(403)
+						.extract()
+							.body()
+								.asString();
+		
+		assertNotNull(content);
+		assertEquals("Invalid CORS request", content);		
 	}
 	
 	@Test
@@ -198,6 +200,28 @@ public class CategoryControllerXmlTest extends AbstractIntegrationTest {
 	
 	@Test
 	@Order(5)
+	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
+		mockCategory();
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
+					.pathParam("id", category.getKey())
+					.when()
+					.get("{id}")
+				.then()
+					.statusCode(403)
+						.extract()
+						.body()
+							.asString();
+		
+	
+		assertNotNull(content);
+		assertEquals("Invalid CORS request", content);
+	}
+	
+	@Test
+	@Order(6)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -237,7 +261,27 @@ public class CategoryControllerXmlTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Order(6)
+	@Order(7)
+	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
+		
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/category/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.contentType(TestConfigs.CONTENT_TYPE_XML)
+			.accept(TestConfigs.CONTENT_TYPE_XML)
+				.when()
+				.post()
+			.then()
+				.statusCode(403);
+	}
+	
+	@Test
+	@Order(8)
 	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -265,7 +309,7 @@ public class CategoryControllerXmlTest extends AbstractIntegrationTest {
 	}
 	
 	@Test
-	@Order(7)
+	@Order(9)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)

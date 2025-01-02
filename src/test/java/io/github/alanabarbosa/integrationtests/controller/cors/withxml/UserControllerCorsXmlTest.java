@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.integrationtests.controller.withxml;
+package io.github.alanabarbosa.integrationtests.controller.cors.withxml;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
@@ -40,7 +40,7 @@ import io.restassured.specification.RequestSpecification;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
-public class UserControllerXmlTest extends AbstractIntegrationTest{
+public class UserControllerCorsXmlTest extends AbstractIntegrationTest{
 	
 	private static RequestSpecification specification;
 	private static XmlMapper objectMapper;
@@ -143,8 +143,28 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 		assertEquals(true, persistedUser.getEnabled());
 	}
 	
-	/*
-	 * 	
+	@Test
+	@Order(2)
+	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
+		mockUser();		
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
+					.body(user)
+				.when()
+					.post()
+				.then()
+					.statusCode(403)
+						.extract()
+							.body()
+								.asString();
+		
+		assertNotNull(content);
+		assertEquals("Invalid CORS request", content);		
+	}
+	
 	@Test
 	@Order(3)
 	public void testFindById() throws JsonMappingException, JsonProcessingException {
@@ -188,111 +208,36 @@ public class UserControllerXmlTest extends AbstractIntegrationTest{
 		
 		assertEquals(true, persistedUser.getEnabled());
 		//assertEquals(1L, persistedUser.getRoles().getKey());
-	} 	
-	*/
-	@Test
-	@Order(7)
-	public void testFindAll() throws JsonMappingException, JsonProcessingException {
-		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_XML)
-				.queryParams("page", 0, "size", 10, "direction", "asc")
-				.accept(TestConfigs.CONTENT_TYPE_XML)
-					.when()
-					.get()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		PagedModelUser wrapper = objectMapper
-				.readValue(content, PagedModelUser.class);
-		var user = wrapper.getContent();
-		
-		UserVO founUserOne = user.get(0);
-		assertNotNull(founUserOne.getKey());
-		assertNotNull(founUserOne.getFirstName());
-		assertTrue(founUserOne.getEnabled());
-		assertEquals(238, founUserOne.getKey());
-		assertEquals("Addia", founUserOne.getFirstName());
-		assertEquals(true, founUserOne.getEnabled());
-		
-		UserVO foundUserTwo = user.get(2);
-		assertNotNull(foundUserTwo.getKey());
-		assertNotNull(foundUserTwo.getFirstName());
-		assertTrue(foundUserTwo.getEnabled());
-		assertEquals(224, foundUserTwo.getKey());
-		assertEquals("Adelle", foundUserTwo.getFirstName());
-		assertEquals(true, foundUserTwo.getEnabled());
-	}
-	/*
-	@Test
-	@Order(8)
-	public void testDisableUserById() throws JsonMappingException, JsonProcessingException {
-			
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_XML)
-				.accept(TestConfigs.CONTENT_TYPE_XML)
-					.pathParam("id", user.getKey())
-					.when()
-					.patch("{id}")
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		UserVO persistedUser = objectMapper.readValue(content, UserVO.class);
-		
-		System.out.println(user);
-		
-		assertNotNull(persistedUser);
-		
-		assertNotNull(persistedUser.getKey());
-		assertNotNull(persistedUser.getFirstName());
-		assertNotNull(persistedUser.getLastName());
-		assertNotNull(persistedUser.getUserName());
-		assertNotNull(persistedUser.getBio());		
-		//assertNotNull(persistedUser.getPassword());
-		//assertNotNull(persistedUser.getAccountNonExpired());
-		//assertNotNull(persistedUser.getAccountNonLocked());
-		//assertNotNull(persistedUser.getCredentialsNonExpired());
-		assertNotNull(persistedUser.getEnabled());
-		assertNotNull(persistedUser.getCreatedAt());
-		
-		assertTrue(persistedUser.getKey() > 0);
-		
-		assertEquals("Son", persistedUser.getFirstName());
-		assertEquals("Goku", persistedUser.getLastName());
-		assertEquals("songoku", persistedUser.getUserName());
-		assertEquals("This is a biograph", persistedUser.getBio());
-		
-		//assertEquals(true, persistedUser.getAccountNonExpired());
-		//assertEquals(true, persistedUser.getAccountNonLocked());
-		//assertEquals(true, persistedUser.getCredentialsNonExpired());
-		assertEquals(true, persistedUser.getEnabled());
-	}		
+	} 
 	
 	@Test
-	@Order(9)
-	public void testDelete() throws JsonMappingException, JsonProcessingException {
-
-		given().spec(specification)
-		.contentType(TestConfigs.CONTENT_TYPE_XML)
-		.accept(TestConfigs.CONTENT_TYPE_XML)
-				.pathParam("id", user.getKey())
-				.when()
-				.delete("{id}")
-			.then()
-				.statusCode(204);
+	@Order(4)
+	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
+		mockUser();
+		
+		var content = given().spec(specification)
+				.contentType(TestConfigs.CONTENT_TYPE_XML)
+				.accept(TestConfigs.CONTENT_TYPE_XML)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
+					.pathParam("id", user.getKey())
+					.when()
+					.get("{id}")
+				.then()
+					.statusCode(403)
+						.extract()
+						.body()
+							.asString();
+		
+	
+		assertNotNull(content);
+		assertEquals("Invalid CORS request", content);
 	}
-*/
+	
 	private void mockUser() {
 	    user.setFirstName("Son");
 	    user.setLastName("Goku");
 	    user.setUserName("songoku");
-	    user.setPassword("admin123");
+	    user.setPassword("admin123"); 
 	    user.setBio("This is a biograph");
 	    
 	    user.setAccountNonExpired(true);

@@ -14,8 +14,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 @Entity
 @Table(name = "role")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -25,15 +30,19 @@ public class Role implements GrantedAuthority, Serializable {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@XmlElement(name = "id")
     private Long id;
 	
 	@Column(nullable = false, length = 255)
+	@XmlElement(name = "name")
     private String name;
 	
 	@Column(length = 255)
+	@XmlElement(name = "description")
     private String description;
     
     @Column(name = "created_at", nullable = false)
+    @XmlElement(name = "createdAt")
     private LocalDateTime createdAt;
 
     public Role() {}

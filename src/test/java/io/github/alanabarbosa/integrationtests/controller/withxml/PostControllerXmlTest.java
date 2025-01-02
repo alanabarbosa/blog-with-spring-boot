@@ -31,7 +31,6 @@ import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.PostVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
 import io.github.alanabarbosa.integrationtests.vo.pagedmodels.PagedModelPost;
-import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperPostVO;
 import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Role;
@@ -151,26 +150,25 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 		assertEquals(1L, persistedPost.getCategory().getId());
 		assertEquals(1L, persistedPost.getUser().getId());		
 	}
-	
+
 	@Test
 	@Order(2)
-	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
-		mockPost();
+	public void testCreateWithoutToken() throws JsonMappingException, JsonProcessingException {
 		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_XML)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
-					.body(post)
+		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
+			.setBasePath("/api/post/v1")
+			.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
+			.build();
+		
+		given().spec(specificationWithoutToken)
+			.contentType(TestConfigs.CONTENT_TYPE_XML)
+			.accept(TestConfigs.CONTENT_TYPE_XML)
 				.when()
-					.post()
-				.then()
-					.statusCode(403)
-						.extract()
-							.body()
-								.asString();
-		
-		assertNotNull(content);
-		assertEquals("Invalid CORS request", content);		
+				.post()
+			.then()
+				.statusCode(403);
 	}
 	
 	@Test
@@ -262,28 +260,6 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(5)
-	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
-		mockPost();	
-		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_XML)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
-					.pathParam("id", post.getId())
-					.when()
-					.get("{id}")
-				.then()
-					.statusCode(403)
-						.extract()
-						.body()
-							.asString();
-		
-	
-		assertNotNull(content);
-		assertEquals("Invalid CORS request", content);
-	}	
-	
-	@Test
-	@Order(6)
 	public void findPostsByUserId() throws JsonMappingException, JsonProcessingException {
 		mockPost();
 		
@@ -313,7 +289,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(7)
+	@Order(6)
 	public void findPostsByCategoryId() throws JsonMappingException, JsonProcessingException {
 		mockPost();
 		
@@ -343,27 +319,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(8)
-	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
-		
-		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
-			.setBasePath("/api/post/v1")
-			.setPort(TestConfigs.SERVER_PORT)
-				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-			.build();
-		
-		given().spec(specificationWithoutToken)
-			.contentType(TestConfigs.CONTENT_TYPE_XML)
-			.accept(TestConfigs.CONTENT_TYPE_XML)
-				.when()
-				.post()
-			.then()
-				.statusCode(403);
-	}
-	
-	@Test
-	@Order(9)
+	@Order(7)
 	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -391,7 +347,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(10)
+	@Order(8)
 	public void testFindAll() throws JsonMappingException, JsonProcessingException {
 		
 		var content = given().spec(specification)
@@ -429,7 +385,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	}
 	
 	@Test
-	@Order(11)
+	@Order(9)
 	public void testDisablePostById() throws JsonMappingException, JsonProcessingException {
 			
 		var content = given().spec(specification)
@@ -465,7 +421,7 @@ public class PostControllerXmlTest extends AbstractIntegrationTest{
 	}	
 	
 	@Test
-	@Order(12)
+	@Order(10)
 	public void testDelete() throws JsonMappingException, JsonProcessingException {
 
 		given().spec(specification)

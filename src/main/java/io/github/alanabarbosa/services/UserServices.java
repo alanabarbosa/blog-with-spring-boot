@@ -202,6 +202,7 @@ public class UserServices implements UserDetailsService {
 	    vo.add(linkTo(methodOn(UserController.class).findById(vo.getKey())).withSelfRel());
 	    return vo;
 	}
+	
 	public UserVO update(UserVO user) throws Exception {
 	    if (user == null) throw new RequiredObjectIsNullException();
 	    logger.info("Updating one user!");		

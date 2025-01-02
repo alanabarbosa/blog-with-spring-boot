@@ -1,4 +1,4 @@
-package io.github.alanabarbosa.integrationtests.controller.withjson;
+package io.github.alanabarbosa.integrationtests.controller.cors.withjson;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
@@ -28,7 +28,6 @@ import io.github.alanabarbosa.integrationtests.testcontainers.AbstractIntegratio
 import io.github.alanabarbosa.integrationtests.vo.AccountCredentialsVO;
 import io.github.alanabarbosa.integrationtests.vo.CategoryVO;
 import io.github.alanabarbosa.integrationtests.vo.TokenVO;
-import io.github.alanabarbosa.integrationtests.vo.wrappers.WrapperCategoryVO;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -37,7 +36,7 @@ import io.restassured.specification.RequestSpecification;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(OrderAnnotation.class)
-public class CategoryControllerJsonTest extends AbstractIntegrationTest{
+public class CategoryControllerCorsJsonTest extends AbstractIntegrationTest{
 	
 	private static RequestSpecification specification ;
 	private static ObjectMapper objectMapper;
@@ -131,39 +130,27 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 	
 	@Test
 	@Order(2)
-	public void testUpdate() throws JsonMappingException, JsonProcessingException {
-		category.setName("Technology");
+	public void testCreateWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
+		mockCategory();
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
 					.body(category)
-					.when()
+				.when()
 					.post()
 				.then()
-					.statusCode(200)
+					.statusCode(403)
 						.extract()
-						.body()
-							.asString();
+							.body()
+								.asString();
 		
-		CategoryVO persistedCategory = objectMapper.readValue(content, CategoryVO.class);
-		category = persistedCategory;
-		
-		category = persistedCategory;
-		
-		assertNotNull(persistedCategory);
-		
-		assertNotNull(persistedCategory.getKey());
-		assertNotNull(persistedCategory.getName());
-		assertNotNull(persistedCategory.getDescription());
-		
-		assertTrue(persistedCategory.getKey() > 0);
-		
-		assertEquals("Technology", persistedCategory.getName());
-		assertEquals("Posts related to technology trends and news", persistedCategory.getDescription());		
+		assertNotNull(content);
+		assertEquals("Invalid CORS request", content);		
 	}	
 	
 	@Test
-	@Order(3)
+	@Order(4)
 	public void testFindById() throws JsonMappingException, JsonProcessingException {
 		mockCategory();
 		
@@ -197,107 +184,27 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 	} 
 	
 	@Test
-	@Order(4)
-	public void testFindAll() throws JsonMappingException, JsonProcessingException {
-		
-		var content = given().spec(specification)
-				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-				.queryParams("page", 0, "size", 10, "direction", "asc")
-					.when()
-					.get()
-				.then()
-					.statusCode(200)
-						.extract()
-						.body()
-							.asString();
-		
-		WrapperCategoryVO wrapper = objectMapper
-				.readValue(content, WrapperCategoryVO.class);
-		
-		var categorie = wrapper.getEmbedded().getCategories();
-		
-		CategoryVO founCategoryOne = categorie.get(0);
-		
-		assertNotNull(founCategoryOne.getKey());
-		assertNotNull(founCategoryOne.getName());
-		assertNotNull(founCategoryOne.getCreatedAt());
-		
-		assertEquals(10, founCategoryOne.getKey());
-		
-		assertEquals("Business", founCategoryOne.getName());
-		
-		CategoryVO foundCommentThree = categorie.get(3);
-		
-		assertNotNull(foundCommentThree.getKey());
-		assertNotNull(foundCommentThree.getName());
-		assertNotNull(foundCommentThree.getCreatedAt());
-		
-		assertEquals(7, foundCommentThree.getKey());
-		
-		assertEquals("Finance", foundCommentThree.getName());
-	}
-	
-	@Test
 	@Order(5)
-	public void testFindAllWithoutToken() throws JsonMappingException, JsonProcessingException {
-		
-		RequestSpecification specificationWithoutToken = new RequestSpecBuilder()
-			.setBasePath("/api/category/v1")
-			.setPort(TestConfigs.SERVER_PORT)
-				.addFilter(new RequestLoggingFilter(LogDetail.ALL))
-				.addFilter(new ResponseLoggingFilter(LogDetail.ALL))
-			.build();
-		
-		given().spec(specificationWithoutToken)
-			.contentType(TestConfigs.CONTENT_TYPE_JSON)
-				.when()
-				.post()
-			.then()
-				.statusCode(403);
-	}
-	
-	@Test
-	@Order(6)
-	public void testHATEOAS() throws JsonMappingException, JsonProcessingException {
+	public void testFindByIdWithWrongOrigin() throws JsonMappingException, JsonProcessingException {
+		mockCategory();
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-				.accept(TestConfigs.CONTENT_TYPE_JSON)
-				.queryParams("page", 1, "size", 3, "direction", "asc")
+					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ICLASS)
+					.pathParam("id", category.getKey())
 					.when()
-					.get()
+					.get("{id}")
 				.then()
-					.statusCode(200)
+					.statusCode(403)
 						.extract()
 						.body()
 							.asString();
 		
-		assertTrue(content.contains("\"_links\":{\"category-details\":{\"href\":\"http://localhost:8888/api/category/v1/7\"}}}"));
-		assertTrue(content.contains("\"_links\":{\"category-details\":{\"href\":\"http://localhost:8888/api/category/v1/6\"}}}"));
-		assertTrue(content.contains("\"_links\":{\"category-details\":{\"href\":\"http://localhost:8888/api/category/v1/3\"}}}"));		
-		
-		assertTrue(content.contains("{\"first\":{\"href\":\"http://localhost:8888/api/category/v1?direction=asc&page=0&size=3&sort=name,asc\"}"));
-		assertTrue(content.contains("\"prev\":{\"href\":\"http://localhost:8888/api/category/v1?direction=asc&page=0&size=3&sort=name,asc\"}"));
-		assertTrue(content.contains("\"self\":{\"href\":\"http://localhost:8888/api/category/v1?page=1&size=3&direction=asc\"}"));
-		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/category/v1?direction=asc&page=2&size=3&sort=name,asc\"}"));
-		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/category/v1?direction=asc&page=3&size=3&sort=name,asc\"}}"));
-		
-		assertTrue(content.contains("\"page\":{\"size\":3,\"totalElements\":11,\"totalPages\":4,\"number\":1}}"));
-	}
 	
-	@Test
-	@Order(7)
-	public void testDelete() throws JsonMappingException, JsonProcessingException {
-
-		given().spec(specification)
-			.contentType(TestConfigs.CONTENT_TYPE_JSON)
-				.pathParam("id", category.getKey())
-				.when()
-				.delete("{id}")
-			.then()
-				.statusCode(204);
-	}
-
+		assertNotNull(content);
+		assertEquals("Invalid CORS request", content);
+	}	
+	
 	private void mockCategory() {
 	    category.setName("Technology");
 	    category.setDescription("Posts related to technology trends and news");
