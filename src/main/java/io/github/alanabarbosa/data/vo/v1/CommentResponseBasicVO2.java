@@ -20,20 +20,10 @@ public class CommentResponseBasicVO2 extends RepresentationModel<CommentResponse
 	@Mapping("id")
 	@JsonProperty("id")
     private Long key;
-    private String content;
-    
-    /*  @JsonProperty("created_at")
-    private LocalDateTime createdAt;
-    private Boolean status;   
-    
-   @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    @Mapping("post")
-    private PostBasicVO post;*/    
+    private String content;  
 
     /*@Mapping("user")
-    //@JsonIgnore
-    private UserResponseBasicVO user;*/
+    private UserResponseVO user;*/
 
     public CommentResponseBasicVO2() {}
 
@@ -59,35 +49,11 @@ public class CommentResponseBasicVO2 extends RepresentationModel<CommentResponse
 		this.content = content;
 	}
 
-	/*public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public Boolean getStatus() {
-		return status;
-	}
-
-	public void setStatus(Boolean status) {
-		this.status = status;
-	}
-
-	public PostBasicVO getPost() {
-		return post;
-	}
-
-	public void setPost(PostBasicVO post) {
-		this.post = post;
-	}*/
-
-	/*public UserResponseBasicVO getUser() {
+	/*public UserResponseVO getUser() {
 		return user;
 	}
 
-	public void setUser(UserResponseBasicVO user) {
+	public void setUser(UserResponseVO user) {
 		this.user = user;
 	}*/
 

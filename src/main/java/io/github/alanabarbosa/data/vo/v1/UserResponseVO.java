@@ -44,7 +44,7 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
 
     private File file;
     
-    private List<CommentResponseBasicVO> comments;
+    private List<CommentResponseBasicVO2> comments;
     
     private List<PostResponseBasicVO> posts;
 
@@ -114,11 +114,11 @@ public class UserResponseVO extends RepresentationModel<UserResponseVO> implemen
 		this.file = file;
 	}
 
-	public List<CommentResponseBasicVO> getComments() {
+	public List<CommentResponseBasicVO2> getComments() {
 		return comments;
 	}
 
-	public void setComments(List<CommentResponseBasicVO> comments) {
+	public void setComments(List<CommentResponseBasicVO2> comments) {
 		this.comments = comments;
 	}
 	public List<PostResponseBasicVO> getPosts() {

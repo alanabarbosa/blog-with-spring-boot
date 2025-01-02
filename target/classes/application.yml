@@ -16,6 +16,9 @@ spring:
       ddl-auto: none
     show-sql: false
     open-in-view: false
+  devtools:
+    restart:
+      exclude: io/github/alanabarbosa/data/vo/**"
 springdoc:
   pathsToMatch:
     - /auth/**

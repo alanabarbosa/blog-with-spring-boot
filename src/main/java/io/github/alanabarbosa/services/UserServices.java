@@ -21,7 +21,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import io.github.alanabarbosa.controllers.CommentController;
 import io.github.alanabarbosa.controllers.UserController;
 import io.github.alanabarbosa.data.vo.v1.PostResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.UserResponseBasicVO;
@@ -138,11 +137,11 @@ public class UserServices implements UserDetailsService {
 	    List<PostResponseBasicVO> postVOs = ConvertToVO
 	    		.processEntities(id, posts, PostResponseBasicVO.class, "Error while processing posts for user");
 	    System.out.println("retorno de postVOs" + postVOs);
-	    vo.setPosts(postVOs);        
+	    vo.setPosts(postVOs);     
 	    
 	    HateoasUtils.addPostLinks(vo.getPosts());
 	    
-	    //HateoasUtils.addCommentLinksResponse(vo.getComments());
+	    //HateoasUtils.addCommentLinksResponse2(vo.getComments());
 	    vo.add(linkTo(methodOn(UserController.class)
 	    		.findById(vo.getKey())).withRel("user-details"));
 	    
