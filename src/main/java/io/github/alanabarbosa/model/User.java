@@ -29,7 +29,6 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
 @Entity
 @Table(name = "users")
 @JsonIgnoreProperties(ignoreUnknown = true)

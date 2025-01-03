@@ -19,14 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import io.github.alanabarbosa.data.vo.v1.CategoryResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.UploadFileResponseVO;
 import io.github.alanabarbosa.exceptions.MyFileNotFoundException;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.repositories.FileRepository;
 import io.github.alanabarbosa.services.FileStorageService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -57,10 +55,13 @@ public class FileController {
 			@ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
 		}
 	)
-	public UploadFileResponseVO uploadFile(@RequestParam("file") MultipartFile file) {
+	public UploadFileResponseVO uploadFile(
+		    @RequestParam("file") MultipartFile file,
+		    @RequestParam("userId") Long userId
+		) {
 		logger.info("Storing file to disk");
 		
-		var filename = service.storeFile(file);
+		var filename = service.storeFile(file, userId);
 		String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
 				.path("/api/file/v1/downloadFile/")
 				.path(filename)
@@ -80,11 +81,14 @@ public class FileController {
 			@ApiResponse(description = "Internal Server Error", responseCode = "500", content = @Content)
 		}
 	)	
-	public List<UploadFileResponseVO> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
+	public List<UploadFileResponseVO> uploadMultipleFiles(
+		    @RequestParam("files") MultipartFile[] files,
+		    @RequestParam("userId") Long userId
+		) {
 		logger.info("Storing files to disk");
 		
 		return Arrays.asList(files).stream()
-				.map(file -> uploadFile(file))
+				.map(file -> uploadFile(file, userId))
 				.collect(Collectors.toList());
 	}
 	

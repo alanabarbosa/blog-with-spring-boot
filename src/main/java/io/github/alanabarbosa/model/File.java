@@ -1,6 +1,7 @@
 package io.github.alanabarbosa.model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -11,7 +12,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
@@ -33,6 +36,13 @@ public class File implements Serializable {
     @Lob
     private byte[] data;   
     
+    @Column(name = "created_at")
+    @JsonProperty("created_at")
+    private LocalDateTime createdAt;
+    
+    @OneToOne(optional = false) 
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
 	public File() {
 		super();
@@ -78,12 +88,28 @@ public class File implements Serializable {
 		this.data = data;
 	}
 
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.hashCode(data);
-		result = prime * result + Objects.hash(contentType, filename, id);
+		result = prime * result + Objects.hash(contentType, createdAt, filename, id, user);
 		return result;
 	}
 
@@ -96,8 +122,9 @@ public class File implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		File other = (File) obj;
-		return Objects.equals(contentType, other.contentType) && Arrays.equals(data, other.data)
-				&& Objects.equals(filename, other.filename) && Objects.equals(id, other.id);
+		return Objects.equals(contentType, other.contentType) && Objects.equals(createdAt, other.createdAt)
+				&& Arrays.equals(data, other.data) && Objects.equals(filename, other.filename)
+				&& Objects.equals(id, other.id) && Objects.equals(user, other.user);
 	}
 
     
