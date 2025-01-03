@@ -38,9 +38,7 @@ public class CategoryController {
 	@Autowired
 	private CategoryServices service;
 	
-	@GetMapping(produces = { MediaType.APPLICATION_JSON, 
-			MediaType.APPLICATION_XML, 
-			MediaType.APPLICATION_YML })
+	@GetMapping(produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = " Finds all Category", description = "Finds all Category",
 		tags = {"Category"},
 		responses = {
@@ -70,9 +68,7 @@ public class CategoryController {
     }
 	
 	@GetMapping(value="/{id}",
-			produces = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  })
+			produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = " Finds Category By ID", description = "Finds Category By ID",
 		tags = {"Category"},
 		responses = {
@@ -94,12 +90,8 @@ public class CategoryController {
 	}
 	
 	@PostMapping(			
-			consumes = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  },
-			produces = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  })
+			consumes = { MediaType.APPLICATION_JSON },
+			produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = "Adds a new Category", description = "Adds a new  Category",
 		tags = {"Category"},
 		responses = {
@@ -121,12 +113,8 @@ public class CategoryController {
 	}
 	
 	@PutMapping(			
-			consumes = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  },
-			produces = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  })
+			consumes = { MediaType.APPLICATION_JSON },
+			produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = "Updates a Category", description = "Updates a Category",
 		tags = {"Category"},
 			responses = {

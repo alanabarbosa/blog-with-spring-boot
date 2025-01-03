@@ -153,7 +153,6 @@ public class UserControllerCorsJsonTest extends AbstractIntegrationTest{
 		assertEquals("Invalid CORS request", content);		
 	}
 	
-	
 	@Test
 	@Order(3)
 	public void testFindById() throws JsonMappingException, JsonProcessingException {

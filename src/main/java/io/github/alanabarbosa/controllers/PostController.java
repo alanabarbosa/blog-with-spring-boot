@@ -40,9 +40,7 @@ public class PostController {
     @Autowired
     private PostServices service;
     
-    @GetMapping(produces = { MediaType.APPLICATION_JSON, 
-            MediaType.APPLICATION_XML, 
-            MediaType.APPLICATION_YML })
+    @GetMapping(produces = { MediaType.APPLICATION_JSON })
     @Operation(summary = "Finds all Post", description = "Finds all Post",
         tags = {"Post"},
         responses = {
@@ -72,9 +70,7 @@ public class PostController {
     
     @CrossOrigin(origins = "http://localhost:8080")
     @GetMapping(value="/{id}",
-            produces = { MediaType.APPLICATION_JSON,
-                    MediaType.APPLICATION_XML,
-                    MediaType.APPLICATION_YML  })
+            produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = " Finds Post By ID", description = "Finds Post By ID",
 		tags = {"Post"},
 		responses = {
@@ -96,9 +92,7 @@ public class PostController {
     }
     
    @GetMapping(value = "/user/{userId}",
-            produces = { MediaType.APPLICATION_JSON, 
-                         MediaType.APPLICATION_XML, 
-                         MediaType.APPLICATION_YML })
+            produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = "Finds Posts By User ID", description = "Finds Posts By User ID",
 	            tags = {"Post"},
 	            responses = {
@@ -167,12 +161,8 @@ public class PostController {
     
     @CrossOrigin(origins = { "http://localhost:8080", "https://alanabarbosa.com.br"})
     @PostMapping(
-            consumes = { MediaType.APPLICATION_JSON, 
-                    MediaType.APPLICATION_XML, 
-                    MediaType.APPLICATION_YML  },
-            produces = { MediaType.APPLICATION_JSON, 
-                    MediaType.APPLICATION_XML, 
-                    MediaType.APPLICATION_YML  })
+            consumes = { MediaType.APPLICATION_JSON },
+            produces = { MediaType.APPLICATION_JSON  })
 	@Operation(summary = "Adds a new Post", description = "Adds a new  Post",
 		tags = {"Post"},
 		responses = {
@@ -194,12 +184,8 @@ public class PostController {
     }
     
     @PutMapping(
-            consumes = { MediaType.APPLICATION_JSON, 
-                    MediaType.APPLICATION_XML, 
-                    MediaType.APPLICATION_YML  },
-            produces = { MediaType.APPLICATION_JSON, 
-                    MediaType.APPLICATION_XML, 
-                    MediaType.APPLICATION_YML  })
+            consumes = { MediaType.APPLICATION_JSON },
+            produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = "Updates a Post", description = "Updates a Post",
 		tags = {"Post"},
 			responses = {
@@ -217,9 +203,7 @@ public class PostController {
     
     //@CrossOrigin(origins = "http://localhost:8080")
     @PatchMapping(value="/{id}",
-            produces = { MediaType.APPLICATION_JSON, 
-                    MediaType.APPLICATION_XML, 
-                    MediaType.APPLICATION_YML  })
+            produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = " Disable a specific Post By ID", description = "Disable a specific Post By ID",
 		tags = {"Post"},
 		responses = {

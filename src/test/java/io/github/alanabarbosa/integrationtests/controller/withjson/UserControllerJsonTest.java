@@ -63,18 +63,18 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		AccountCredentialsVO user = new AccountCredentialsVO("alana", "admin123");
 		
 		var accessToken = given()
-				.basePath("/auth/signin")
+					.basePath("/auth/signin")
 					.port(TestConfigs.SERVER_PORT)
 					.contentType(TestConfigs.CONTENT_TYPE_JSON)
 				.body(user)
-					.when()
-				.post()
-					.then()
-						.statusCode(200)
-							.extract()
-							.body()
-								.as(TokenVO.class)
-							.getAccessToken();
+				.when()
+					.post()
+				.then()
+					.statusCode(200)
+				.extract()
+				.body()
+					.as(TokenVO.class)
+				.getAccessToken();
 		
 		specification = new RequestSpecBuilder()
 				.addHeader(TestConfigs.HEADER_PARAM_AUTHORIZATION, "Bearer " + accessToken)
@@ -92,7 +92,6 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
 					.body(user)
 					.when()
 					.post()
@@ -121,7 +120,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		
 		assertEquals("Son", user.getFirstName());
 		assertEquals("Goku", user.getLastName());
-		assertEquals("songoku", user.getUserName());
+		assertEquals("songokuuu", user.getUserName());
 		assertEquals("This is a biograph", user.getBio());
 		
 		assertEquals(true, user.getAccountNonExpired());
@@ -156,7 +155,6 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	@Order(3)
 	public void testUpdate() throws JsonMappingException, JsonProcessingException {
 		user.setFirstName("Son");
-		mockUser();
 		
 	    ObjectMapper objectMapper = new ObjectMapper();
 	    objectMapper.registerModule(new JavaTimeModule());
@@ -198,7 +196,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		
 		assertEquals("Son", persistedUser.getFirstName());
 		assertEquals("Goku", persistedUser.getLastName());
-		assertEquals("songoku", persistedUser.getUserName());
+		assertEquals("songokuuu", persistedUser.getUserName());
 		assertEquals("This is a biograph", persistedUser.getBio());
 		
 		assertEquals(true, persistedUser.getAccountNonExpired());
@@ -217,7 +215,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 			
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
-					.header(TestConfigs.HEADER_PARAM_ORIGIN, TestConfigs.ORIGIN_ALANA)
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
 						.pathParam("id", user.getKey())
 						.when()
 						.get("{id}")
@@ -250,7 +248,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		
 		assertEquals("Son", persistedUser.getFirstName());
 		assertEquals("Goku", persistedUser.getLastName());
-		assertEquals("songoku", persistedUser.getUserName());
+		assertEquals("songokuuu", persistedUser.getUserName());
 		assertEquals("This is a biograph", persistedUser.getBio());
 		
 		//assertEquals(true, persistedUser.getAccountNonExpired());
@@ -266,6 +264,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		var content = given().spec(specification)
 				.contentType(TestConfigs.CONTENT_TYPE_JSON)
 				.queryParams("page", 0, "size", 10, "direction", "asc")
+				.accept(TestConfigs.CONTENT_TYPE_JSON)
 					.when()
 					.get()
 				.then()
@@ -320,7 +319,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/user/v1?direction=asc&page=3&size=12&sort=firstName,asc\"}"));
 		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/user/v1?direction=asc&page=25&size=12&sort=firstName,asc\"}}"));
 		
-		assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":304,\"totalPages\":26,\"number\":2}}"));
+		assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":305,\"totalPages\":26,\"number\":2}}"));
 	}
 	
 	@Test
@@ -390,7 +389,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 		
 		assertEquals("Son", persistedUser.getFirstName());
 		assertEquals("Goku", persistedUser.getLastName());
-		assertEquals("songoku", persistedUser.getUserName());
+		assertEquals("songokuuu", persistedUser.getUserName());
 		assertEquals("This is a biograph", persistedUser.getBio());
 		
 		//assertEquals(true, persistedUser.getAccountNonExpired());
@@ -415,7 +414,7 @@ public class UserControllerJsonTest extends AbstractIntegrationTest{
 	private void mockUser() {
 	    user.setFirstName("Son");
 	    user.setLastName("Goku");
-	    user.setUserName("songoku");
+	    user.setUserName("songokuuu");
 	    user.setPassword("admin123"); 
 	    user.setBio("This is a biograph");
 	    

@@ -29,9 +29,6 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "UserVO")
-@JacksonXmlRootElement(localName = "UserVO")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "first_name", "last_name", "user_name", "password", "bio", "created_at", "account_non_expired", "account_non_locked", "credentials_non_expired", "enabled", "roles"})
 public class UserVO extends RepresentationModel<UserVO> implements Serializable {
@@ -40,63 +37,47 @@ public class UserVO extends RepresentationModel<UserVO> implements Serializable 
 
     @Mapping("id")
     @JsonProperty("id")
-    @XmlElement(name = "id")
     private Long key;
 
     @JsonProperty("first_name")
-    @XmlElement(name = "first_name")
     private String firstName;
 
     @JsonProperty("last_name")
-    @XmlElement(name = "last_name")
     private String lastName;
     
     @JsonProperty("user_name")
-    @XmlElement(name = "user_name")
     private String userName;
     
     @JsonProperty("password")
-    @XmlElement(name = "password")
     private String password;
     
     @JsonProperty("account_non_expired")
-    @XmlElement(name = "account_non_expired")
     private Boolean accountNonExpired;
 
     @JsonProperty("account_non_locked")
-    @XmlElement(name = "account_non_locked")
     private Boolean accountNonLocked;
     
     @JsonProperty("credentials_non_expired")
-    @XmlElement(name = "credentials_non_expired")
     private Boolean credentialsNonExpired;
 
     @JsonProperty("bio")
-    @XmlElement(name = "bio")
     private String bio;
 
     @JsonProperty("created_at")
-    @XmlElement(name = "created_at")
     private LocalDateTime createdAt;
     
     @JsonProperty("enabled")
-    @XmlElement(name = "enabled")
     private Boolean enabled;
     
     @JsonProperty("comments")
-    @XmlElement(name = "comments")
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Comment> comments;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @XmlElement(name = "created_at")
     @JoinColumn(name = "created_at")
     private File file;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JacksonXmlElementWrapper(localName = "roles")
-    @JacksonXmlProperty(localName = "role")
-    @XmlElement(name = "roles")
     @JoinTable(
         name = "user_role",
         joinColumns = @JoinColumn(name = "user_id"),

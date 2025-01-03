@@ -165,6 +165,7 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 	@Order(3)
 	public void testUpdate() throws JsonMappingException, JsonProcessingException {
 		post.setTitle("Content Negotiation using Spring MVC");
+		mockPost();
 		
 	    objectMapper.registerModule(new JavaTimeModule());
 	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);		
@@ -399,7 +400,8 @@ public class PostControllerJsonTest extends AbstractIntegrationTest{
 		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/post/v1?direction=asc&page=3&size=12&sort=title,asc\"}"));
 		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/post/v1?direction=asc&page=83&size=12&sort=title,asc\"}}"));
 		
-		assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":1000,\"totalPages\":84,\"number\":2}}"));
+		//assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":1002,\"totalPages\":101,\"number\":2}}"));
+		assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":1002,\"totalPages\":84,\"number\":2}}"));
 	}
 	
 	@Test

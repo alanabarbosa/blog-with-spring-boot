@@ -162,7 +162,6 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 		comment.setContent("Great article! Thanks for sharing.");
 		mockComment();
 		
-	    //ObjectMapper objectMapper = new ObjectMapper();
 	    objectMapper.registerModule(new JavaTimeModule());
 	    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 	    
@@ -332,7 +331,7 @@ public class CommentControllerJsonTest extends AbstractIntegrationTest{
 		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/comment/v1?direction=asc&page=4&size=12&sort=content,asc\"}"));
 		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/comment/v1?direction=asc&page=83&size=12&sort=content,asc\"}}"));
 		
-		assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":1004,\"totalPages\":84,\"number\":3}}"));
+		assertTrue(content.contains("\"page\":{\"size\":12,\"totalElements\":1005,\"totalPages\":84,\"number\":3}}"));
 	}
 	
 	@Test

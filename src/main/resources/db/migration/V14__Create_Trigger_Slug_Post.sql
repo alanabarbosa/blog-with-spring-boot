@@ -1,6 +1,4 @@
-/*DELIMITER //
-
-CREATE TRIGGER generate_slug_before_insert
+/*CREATE TRIGGER generate_slug_before_insert 
 BEFORE INSERT ON post
 FOR EACH ROW
 BEGIN
@@ -12,6 +10,6 @@ BEGIN
         SET NEW.slug = NULL;
     END IF;
 END;
+*/
 
-//
-DELIMITER ;
+/*CREATE TRIGGER validachavepessoacontapagarpessoa_forn_id BEFORE UPDATE ON conta_pagar FOR EACH ROW EXECUTE PROCEDURE validachavepessoa2();*/

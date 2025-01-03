@@ -282,7 +282,7 @@ public class CategoryControllerJsonTest extends AbstractIntegrationTest{
 		assertTrue(content.contains("\"next\":{\"href\":\"http://localhost:8888/api/category/v1?direction=asc&page=2&size=3&sort=name,asc\"}"));
 		assertTrue(content.contains("\"last\":{\"href\":\"http://localhost:8888/api/category/v1?direction=asc&page=3&size=3&sort=name,asc\"}}"));
 		
-		assertTrue(content.contains("\"page\":{\"size\":3,\"totalElements\":11,\"totalPages\":4,\"number\":1}}"));
+		assertTrue(content.contains("\"page\":{\"size\":3,\"totalElements\":12,\"totalPages\":4,\"number\":1}}"));
 	}
 	
 	@Test

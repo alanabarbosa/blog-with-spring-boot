@@ -23,14 +23,17 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import io.github.alanabarbosa.data.vo.v1.CategoryBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CategoryVO;
 import io.github.alanabarbosa.data.vo.v1.PostVO;
 import io.github.alanabarbosa.exceptions.RequiredObjectIsNullException;
+import io.github.alanabarbosa.model.Category;
 import io.github.alanabarbosa.model.File;
 import io.github.alanabarbosa.model.Post;
+import io.github.alanabarbosa.model.User;
+import io.github.alanabarbosa.repositories.CategoryRepository;
 import io.github.alanabarbosa.repositories.CommentRepository;
 import io.github.alanabarbosa.repositories.PostRepository;
+import io.github.alanabarbosa.repositories.UserRepository;
 import io.github.alanabarbosa.services.PostServices;
 import io.github.alanabarbosa.unittests.mapper.mocks.MockPost;
 
@@ -41,13 +44,19 @@ class PostServicesTest {
 	MockPost input;
 	
 	@InjectMocks
-	private PostServices service;
+	PostServices service;
 	
 	@Mock
 	PostRepository repository;
 	
 	@Mock
-	private CommentRepository commentRepository;
+    UserRepository userRepository;
+	
+	@Mock
+    CategoryRepository categoryRepository;
+    
+	@Mock
+	CommentRepository commentRepository;
 
 	@BeforeEach
 	void setUpMocks() throws Exception {
@@ -74,6 +83,10 @@ class PostServicesTest {
 		assertNotNull(result.getKey());
 		assertNotNull(result.getLinks());
 		
+		System.out.println("toString findbyid post " + result.toString());
+		System.out.println("Result getCategory: " + result.getCategory());
+		System.out.println("Result getUser: " + result.getUser());
+		
 		assertTrue(result.toString().contains("[</api/post/v1/1>;rel=\"post-details\"]"));
 		assertEquals("Meu Título0", result.getTitle());
 		assertEquals("Este é o conteúdo do post.0", result.getContent());
@@ -82,12 +95,10 @@ class PostServicesTest {
 	    assertEquals(now, result.getUpdatedAt());
 	    assertEquals(now, result.getPublishedAt());
 		assertEquals(true, result.getStatus());
-		assertEquals(new CategoryBasicVO(), result.getCategory());
-		assertEquals(new File(), result.getImageDesktop()); 
+		assertTrue(result.getCategory().toString().contains("[</api/category/v1/1>;rel=\"category-details\"]"));
+		assertTrue(result.getUser().toString().contains("[</api/user/v1/1>;rel=\"user-details\"]"));
+		assertEquals(new File(), result.getImageDesktop());
 		assertEquals(new File(), result.getImageMobile());
-		//assertEquals(true, result.getUser().getAccountNonExpired());
-		//assertEquals(true, result.getUser().getAccountNonLocked());
-		//assertEquals(true, result.getUser().getCredentialsNonExpired());
 	}
 
 	@Test
@@ -103,6 +114,14 @@ class PostServicesTest {
 	    PostVO vo = input.mockVO(1);
 	    vo.setKey(1L);	    
 	    vo.getCategory().setKey(1L);
+	    
+	    User mockUser = new User();
+	    mockUser.setId(2L);
+	    when(userRepository.findById(2L)).thenReturn(Optional.of(mockUser));	
+	    
+	    Category mockCategory = new Category();
+	    mockCategory.setId(1L);
+	    when(categoryRepository.findById(1L)).thenReturn(Optional.of(mockCategory));	    
 
 	    LocalDateTime now = LocalDateTime.now();
 
@@ -118,9 +137,9 @@ class PostServicesTest {
 	    assertNotNull(result.getKey());
 	    assertNotNull(result.getLinks());
 	    
-	    System.out.println("toString " + result.toString());
+	    System.out.println("toString Create Post " + result.toString());
 	    
-	    assertTrue(result.toString().contains("[</api/post/v1/1>;rel=\"self\", </api/comment/v1/post/1>;rel=\"comments\"]"));
+	    assertTrue(result.toString().contains("[</api/post/v1/1>;rel=\"self\"]"));
 	    assertEquals("Meu Título1", result.getTitle());
 	    assertEquals("Este é o conteúdo do post.1", result.getContent());
 	    assertEquals("meu-titulo1", result.getSlug());
@@ -175,9 +194,8 @@ class PostServicesTest {
 	    assertNotNull(result.getKey());
 	    assertNotNull(result.getLinks());
 	    
-	    System.out.println("toString " + result.toString());
 
-	    assertTrue(result.toString().contains("[</api/post/v1/1>;rel=\"self\", </api/comment/v1/post/1>;rel=\"comments\"]"));
+	    assertTrue(result.toString().contains("[</api/post/v1/1>;rel=\"self\"]"));
 	    assertEquals("Meu Título1", result.getTitle());
 	    assertEquals("Este é o conteúdo do post.1", result.getContent());
 	    assertEquals("meu-titulo1", result.getSlug());

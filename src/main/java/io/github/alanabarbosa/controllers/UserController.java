@@ -39,9 +39,7 @@ public class UserController {
 	@Autowired
 	private UserServices service;
 	
-	@GetMapping(produces = { MediaType.APPLICATION_JSON,
-			MediaType.APPLICATION_XML,
-			MediaType.APPLICATION_YML })
+	@GetMapping(produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = " Finds all User", description = "Finds all User",
 		tags = {"User"},
 		responses = {
@@ -71,9 +69,7 @@ public class UserController {
     }
 	
 	@GetMapping(value = "/findUserByName/{firstName}",
-			produces = { MediaType.APPLICATION_JSON, 
-			MediaType.APPLICATION_XML,
-			MediaType.APPLICATION_YML })
+			produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = "Finds users by name", description = "Finds users by name",
 			tags = {"User"},
 			responses = {
@@ -128,12 +124,8 @@ public class UserController {
 	}
 	
 	@PostMapping(			
-			consumes = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  },
-			produces = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  })
+			consumes = { MediaType.APPLICATION_JSON },
+			produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = "Adds a new User", description = "Adds a new  User",
 		tags = {"User"},
 		responses = {
@@ -155,12 +147,8 @@ public class UserController {
 	}
 	
 	@PutMapping(			
-			consumes = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  },
-			produces = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  })
+			consumes = { MediaType.APPLICATION_JSON },
+			produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = "Updates a User", description = "Updates a User",
 		tags = {"User"},
 			responses = {
@@ -177,9 +165,7 @@ public class UserController {
 	}
 	
 	@PatchMapping(value="/{id}",
-            produces = { MediaType.APPLICATION_JSON, 
-                    MediaType.APPLICATION_XML, 
-                    MediaType.APPLICATION_YML  })
+            produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = " Disable a specific User By ID", description = "Disable a specific User By ID",
 		tags = {"User"},
 		responses = {

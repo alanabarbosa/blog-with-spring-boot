@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.github.alanabarbosa.data.vo.v1.CommentBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseBasicVO;
 import io.github.alanabarbosa.data.vo.v1.CommentResponseVO;
 import io.github.alanabarbosa.data.vo.v1.CommentVO;
@@ -39,9 +38,7 @@ public class CommentController {
 	@Autowired
 	private CommentServices service;
 	
-	@GetMapping(produces = { MediaType.APPLICATION_JSON, 
-			MediaType.APPLICATION_XML, 
-			MediaType.APPLICATION_YML })
+	@GetMapping(produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = " Finds all Comment", description = "Finds all Comment",
 		tags = {"Comment"},
 		responses = {
@@ -71,9 +68,7 @@ public class CommentController {
     }
 	
 	@GetMapping(value="/{id}",
-			produces = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  })
+			produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = " Finds Comment By ID", description = "Finds Comment By ID",
 		tags = {"Comment"},
 		responses = {
@@ -95,9 +90,7 @@ public class CommentController {
 	}
 	
 	@GetMapping(value="/user/{userId}",
-	    produces = { MediaType.APPLICATION_JSON, 
-	                 MediaType.APPLICATION_XML, 
-	                 MediaType.APPLICATION_YML })
+	    produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = "Finds Comments By User ID", description = "Finds Comments By User ID",
 	    tags = {"Comment"},
 	    responses = {
@@ -130,9 +123,7 @@ public class CommentController {
 	}
 	
 	@GetMapping(value="/post/{postId}",
-		    produces = { MediaType.APPLICATION_JSON, 
-		                 MediaType.APPLICATION_XML, 
-		                 MediaType.APPLICATION_YML })
+		    produces = { MediaType.APPLICATION_JSON })
 		@Operation(summary = "Finds Comments By Post ID", description = "Finds Comments By Post ID",
 		    tags = {"Comment"},
 		    responses = {
@@ -165,12 +156,8 @@ public class CommentController {
 	}	
 	
 	@PostMapping(			
-			consumes = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  },
-			produces = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  })
+			consumes = { MediaType.APPLICATION_JSON },
+			produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = "Adds a new Comment", description = "Adds a new  Comment",
 		tags = {"Comment"},
 		responses = {
@@ -192,12 +179,8 @@ public class CommentController {
 	}
 	
 	@PutMapping(			
-			consumes = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  },
-			produces = { MediaType.APPLICATION_JSON, 
-					MediaType.APPLICATION_XML, 
-					MediaType.APPLICATION_YML  })
+			consumes = { MediaType.APPLICATION_JSON },
+			produces = { MediaType.APPLICATION_JSON })
 	@Operation(summary = "Updates a Comment", description = "Updates a Comment",
 		tags = {"Comment"},
 			responses = {
